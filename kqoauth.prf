@@ -1,0 +1,43 @@
+KQOAUTH_INCDIR = $$[QT_INSTALL_HEADERS]
+KQOAUTH_LIBDIR = $$[QT_INSTALL_LIBS]
+
+KQOAUTH_INCDIR ~= s!/qt4*!!
+KQOAUTH_LIBDIR ~= s!/qt4*!!
+
+CONFIG *= qt
+CONFIG += crypto
+
+# if we are including koauth.prf from the kqoauth tree (and not utilizing it as
+# an installed qmake CONFIG feature), then point to the tree.  this allows our
+# kqoauth tree apps to build before kqoauth itself is installed.
+exists($$PWD/kqoauth.pro) {
+    KQOAUTH_INCDIR = $$PWD/include
+    KQOAUTH_LIBDIR = $$PWD/lib
+}
+
+LINKAGE =
+
+# on mac, if kqoauth was built as a framework, link against it
+mac: {
+    framework_dir = $${KQOAUTH_LIBDIR}
+    exists($$framework_dir/kqoauth.framework) {
+        LIBS += -F$$framework_dir
+        exists($$PWD/kqoauth.pro): INCLUDEPATH += $$KQOAUTH_INCDIR
+        else: INCLUDEPATH += $$framework_dir/kqoauth.framework/Headers
+        LINKAGE = -framework kqoauth
+    }
+}
+
+# else, link normally
+isEmpty(LINKAGE) {
+    exists($$PWD/kqoauth.pro): INCLUDEPATH += $$KQOAUTH_INCDIR
+    else: INCLUDEPATH += $$KQOAUTH_INCDIR/QtKOAuth
+    LIBS += -L$$KQOAUTH_LIBDIR
+    LINKAGE = -lkqoauth
+    CONFIG(debug, debug|release) {
+        windows:LINKAGE = -lkqoauth
+        mac:LINKAGE = -lkqoauth_debug
+    }
+}
+
+LIBS += $$LINKAGE
