@@ -32,15 +32,21 @@ public:
     ~KQOAuthRequest();
 
     enum RequestType {
-        TemporaryCredentials,
+        TemporaryCredentials = 0,
         ResourceOwnerAuth,
-        AccessToken
+        AccessToken,
+        REQUESTTYPEINVALID
     };
 
     enum RequestSignatureMethod {
-        PLAINTEXT,
+        PLAINTEXT = 0,
         HMAC_SHA1,
         RSA_SHA1
+    };
+
+    enum RequestHttpMethod {
+        GET = 0,
+        POST
     };
 
     // Mandatory methods to setup a request
@@ -53,12 +59,14 @@ public:
 
     // Optional methods when setting up the request
     void setSignatureMethod(KQOAuthRequest::RequestSignatureMethod = KQOAuthRequest::HMAC_SHA1);
+    void setHttpMethod(KQOAuthRequest::RequestHttpMethod = KQOAuthRequest::POST);
 
 signals:
 
 public slots:
 
 private:
+    KQOAuthRequest::RequestType requestType;
     KQOAuthRequestPrivate * const d_ptr;
     Q_DECLARE_PRIVATE(KQOAuthRequest);
 
