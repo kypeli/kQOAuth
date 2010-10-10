@@ -34,8 +34,7 @@ public:
     enum RequestType {
         TemporaryCredentials = 0,
         ResourceOwnerAuth,
-        AccessToken,
-        REQUESTTYPEINVALID
+        AccessToken
     };
 
     enum RequestSignatureMethod {

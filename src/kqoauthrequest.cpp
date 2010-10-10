@@ -45,8 +45,13 @@ QByteArray KQOAuthRequestPrivate::oauthSignature()  {
     return QByteArray();
 }
 
-
+// TODO: Implement sort
+// TODO: Remember that the parameters are still in just a QStringList.
+//       content manipulation needed for them..
 bool normalizedParameterSort(const QPair<QString, QString> &left, const QPair<QString, QString> &right) {
+    Q_UNUSED(left);
+    Q_UNUSED(right);
+
     return false;
 }
 QByteArray KQOAuthRequestPrivate::requestBaseString() {
@@ -169,7 +174,7 @@ void KQOAuthRequest::initRequest(KQOAuthRequest::RequestType rtype, const QUrl &
         return;
     }
 
-    if(rtype < 0 || rtype >= KQOAuthRequest::REQUESTTYPEINVALID) {
+    if(rtype < 0 || rtype >= KQOAuthRequest::AccessToken) {
         qWarning() << "Invalid request type. Ignoring. This request might not work.";
     }
 
