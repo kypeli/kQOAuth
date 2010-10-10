@@ -50,18 +50,29 @@ bool normalizedParameterSort(const QPair<QString, QString> &left, const QPair<QS
     return false;
 }
 QByteArray KQOAuthRequestPrivate::requestBaseString() {
+
+    if( !this->validateRequest() ) {
+        // Let's not do anything if this request is not valid.
+        return QByteArray();
+    }
+
     prepareRequest();
 
     QStringList baseString;
+    // Every request has these as the commont parameters.
+    baseString << oauthHttpMethod;                                              // HTTP method
+    baseString << oauthRequestEndpoint.host() + oauthRequestEndpoint.path();    // Base string URI
 
+    // Include request specific parameters then. These parameters have been
+    // initialized earlier.
     switch ( q_ptr->requestType ) {
     case KQOAuthRequest::TemporaryCredentials:
-        baseString << oauthHttpMethod;       // HTTP method
-        baseString << oauthRequestEndpoint.host() + oauthRequestEndpoint.path();  // Base string URI
         qSort(temporaryCredentialsParameters.begin(),
                 temporaryCredentialsParameters.end(),
                 normalizedParameterSort
               );
+        break;
+    default:
         break;
     }
 
@@ -79,9 +90,9 @@ bool KQOAuthRequestPrivate::prepareRequest() {
         temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_VERSION, oauthVersion ));
         break;
 
-     case KQOAuthRequest::ResourceOwnerAuth:
+    case KQOAuthRequest::ResourceOwnerAuth:
         break;
-     case KQOAuthRequest::AccessToken:
+    case KQOAuthRequest::AccessToken:
         break;
     default:
         break;
