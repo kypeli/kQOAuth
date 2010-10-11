@@ -45,30 +45,34 @@ QByteArray KQOAuthRequestPrivate::oauthSignature()  {
     return QByteArray();
 }
 
-// TODO: Implement sort
-// TODO: Remember that the parameters are still in just a QStringList.
-//       content manipulation needed for them..
 bool normalizedParameterSort(const QPair<QString, QString> &left, const QPair<QString, QString> &right) {
-    Q_UNUSED(left);
-    Q_UNUSED(right);
+    QString keyLeft = left.first;
+    QString valueLeft = left.second;
+    QString keyRight = right.first;
+    QString valueRight = right.second;
 
-    return false;
+    if(keyLeft == keyRight) {
+        return (valueLeft < valueRight);
+    } else {
+        return (keyLeft < keyRight);
+    }
 }
 QByteArray KQOAuthRequestPrivate::requestBaseString() {
 
     if( !this->validateRequest() ) {
         // Let's not do anything if this request is not valid.
+        qWarning() << "Request is invalid.";
         return QByteArray();
     }
 
     prepareRequest();
 
-    QStringList baseString;
+    QByteArray baseString;
     // Every request has these as the commont parameters.
-    baseString << oauthHttpMethod;                                              // HTTP method
-    baseString << oauthRequestEndpoint.host() + oauthRequestEndpoint.path();    // Base string URI
+    baseString.append( oauthHttpMethod.toUtf8() + "&");                                                     // HTTP method
+    baseString.append( QUrl::toPercentEncoding( oauthRequestEndpoint.toString(QUrl::RemoveQuery) ) + "&" ); // The path and query components
 
-    // Include request specific parameters then. These parameters have been
+    // Sort the request parameters. These parameters have been
     // initialized earlier.
     switch ( q_ptr->requestType ) {
     case KQOAuthRequest::TemporaryCredentials:
@@ -81,18 +85,21 @@ QByteArray KQOAuthRequestPrivate::requestBaseString() {
         break;
     }
 
-    return QByteArray();   // TODO
+    // Last append the request parameters correctly encoded.
+    baseString.append( encodedParamaterList(temporaryCredentialsParameters) );
+
+    return baseString;
 }
 
 bool KQOAuthRequestPrivate::prepareRequest() {
     switch ( q_ptr->requestType ) {
     case KQOAuthRequest::TemporaryCredentials:
-        temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_CALLBACK, oauthCallbackUrl.toString() ));
-        temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_CONSUMER_KEY, oauthConsumerKey ));
-        temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_NONCE, this->oauthNonce() ));
+        temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_CALLBACK, QString(QUrl::toPercentEncoding( oauthCallbackUrl.toString()) )));  // This is so ugly that it is almost beautiful.
         temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_SIGNATURE_METHOD, oauthSignatureMethod ));
-        temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_TIMESTAMP, this->oauthTimestamp() ));
+        temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_CONSUMER_KEY, oauthConsumerKey ));
         temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_VERSION, oauthVersion ));
+        temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_TIMESTAMP, this->oauthTimestamp() ));
+        temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_NONCE, this->oauthNonce() ));
         break;
 
     case KQOAuthRequest::ResourceOwnerAuth:
@@ -106,11 +113,43 @@ bool KQOAuthRequestPrivate::prepareRequest() {
     return true;
 }
 
+QByteArray KQOAuthRequestPrivate::encodedParamaterList(const QList< QPair<QString, QString> > &temporaryCredentialsParameters) {
+    QByteArray resultList;
+
+    bool first = true;
+    QPair<QString, QString> parameter;
+    foreach(parameter, temporaryCredentialsParameters) {
+        if(!first) {
+            resultList.append( "%26" );
+        } else {
+            first = false;
+        }
+
+        // Here we don't need to explicitely encode the strings to UTF-8 since
+        // QUrl::toPercentEncoding() takes care of that for us.
+        resultList.append( QUrl::toPercentEncoding(parameter.first)     // Parameter key
+                           + "%3D"                                      // '=' encoded
+                           + QUrl::toPercentEncoding(parameter.second)  // Parameter value
+                          );
+    }
+
+    return resultList;
+}
+
 QString KQOAuthRequestPrivate::oauthTimestamp() const {
+    // This is basically for unit tests only. In most cases we don't set the nonce beforehand.
+    if( !oauthTimestamp_.isEmpty() ) {
+        return oauthTimestamp_;
+    }
     return QString::number(QDateTime::currentDateTime().toTime_t());
 }
 
 QString KQOAuthRequestPrivate::oauthNonce() const {
+    // This is basically for unit tests only. In most cases we don't set the nonce beforehand.
+    if( !oauthNonce_.isEmpty() ) {
+        return oauthNonce_;
+    }
+
     QString nonceTimestamp = oauthTimestamp_;
 
     if( nonceTimestamp.isEmpty()) {

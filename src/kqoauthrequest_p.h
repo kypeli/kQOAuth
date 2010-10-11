@@ -41,6 +41,8 @@ public:
     bool validateRequest() const;
     bool prepareRequest();
     QByteArray requestBaseString();
+    QByteArray encodedParamaterList(const QList< QPair<QString, QString> > &temporaryCredentialsParameters);
+
 
     // Let's define the OAuth keys for the request
     // parameters here.

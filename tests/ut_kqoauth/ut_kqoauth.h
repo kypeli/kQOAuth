@@ -23,6 +23,7 @@
 #include <QObject>
 
 class KQOAuthRequest;
+class KQOAuthRequestPrivate;
 class Ut_KQOAuth : public QObject
 {
     Q_OBJECT
@@ -32,11 +33,14 @@ private Q_SLOTS:
     void cleanup();
     void constructor();
 
-    void ut_requestTemporaryTokenURL_data();
-    void ut_requestTemporaryTokenURL();
+    void ut_requestBaseString_data();
+    void ut_requestBaseString();
 
 private:
     KQOAuthRequest *r;
+    KQOAuthRequestPrivate *d_ptr;
+
+    static const QByteArray baseStringCorrect;
 
 };
 

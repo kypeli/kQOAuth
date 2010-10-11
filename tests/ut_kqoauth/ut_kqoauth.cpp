@@ -29,10 +29,10 @@
 #include <QtKOAuth>
 #include <kqoauthrequest_p.h>
 
-
 void Ut_KQOAuth::init()
 {
     r = new KQOAuthRequest;
+    d_ptr = r->d_ptr;
 }
 
 void Ut_KQOAuth::cleanup()
@@ -46,23 +46,47 @@ void Ut_KQOAuth::constructor()
     QVERIFY( r->d_ptr );
 }
 
-void Ut_KQOAuth::ut_requestTemporaryTokenURL_data() {
+void Ut_KQOAuth::ut_requestBaseString_data() {
+    QTest::addColumn<QUrl>("callback");
     QTest::addColumn<QString>("consumerKey");
-    QTest::addColumn<QString>("consumerSecretKey");
-    QTest::addColumn<QUrl>("callbackUrl");
-    QTest::addColumn<QByteArray>("signature");
+    QTest::addColumn<QString>("nonce");
+    QTest::addColumn<QString>("signatureMethod");
+    QTest::addColumn<QString>("timestamp");
+    QTest::addColumn<QString>("version");
+    QTest::addColumn<QUrl>("endpoint");
 
-    QTest::newRow("empty signature")
-            << QString("key")
-            << QString("secret")
-            << QUrl( "http://something.empty.invalid" )
-            << QByteArray();
+    QTest::newRow("happyTwitterCase")
+            << QUrl("http://localhost:3005/the_dance/process_callback?service_provider_id=11")
+            << QString("GDdmIQH6jhtmLUypg82g")
+            << QString("QP70eNmVz8jvdPevU3oJD2AfF7R7odC2XJcn4XlZJqk")
+            << QString("HMAC-SHA1")
+            << QString("1272323042")
+            << QString("1.0")
+            << QUrl("https://api.twitter.com/oauth/request_token");
 }
 
-void Ut_KQOAuth::ut_requestTemporaryTokenURL() {
-    r->initRequest(KQOAuthRequest::TemporaryCredentials, QUrl("http://someendpoint.invalid/temporary"));
+void Ut_KQOAuth::ut_requestBaseString() {
+    QFETCH(QUrl, callback);
+    QFETCH(QString, consumerKey);
+    QFETCH(QString, nonce);
+    QFETCH(QString, signatureMethod);
+    QFETCH(QString, timestamp);
+    QFETCH(QString, version);
+    QFETCH(QUrl, endpoint);
 
-    qDebug() << r->d_ptr->oauthNonce();
+    r->requestType = KQOAuthRequest::TemporaryCredentials;
+    d_ptr->oauthRequestEndpoint = endpoint;
+    d_ptr->oauthCallbackUrl = callback;
+    d_ptr->oauthConsumerKey = consumerKey;
+    d_ptr->oauthNonce_ = nonce;
+    d_ptr->oauthSignatureMethod = signatureMethod;
+    d_ptr->oauthTimestamp_ = timestamp;
+    d_ptr->oauthVersion = version;
+
+    QByteArray baseString = d_ptr->requestBaseString();
+
+    QCOMPARE(baseString, QByteArray("POST&https%3A%2F%2Fapi.twitter.com%2Foauth%2Frequest_token&oauth_callback%3Dhttp%253A%252F%252Flocalhost%253A3005%252Fthe_dance%252Fprocess_callback%253Fservice_provider_id%253D11%26oauth_consumer_key%3DGDdmIQH6jhtmLUypg82g%26oauth_nonce%3DQP70eNmVz8jvdPevU3oJD2AfF7R7odC2XJcn4XlZJqk%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D1272323042%26oauth_version%3D1.0"));
+
 }
 
 QTEST_MAIN(Ut_KQOAuth)
