@@ -39,9 +39,48 @@ KQOAuthRequestPrivate::KQOAuthRequestPrivate()
 
 }
 
-QByteArray KQOAuthRequestPrivate::oauthSignature()  {
-    QByteArray baseString = requestBaseString();
-    return KQOAuthUtils::hmac_sta1(baseString, oauthConsumerSecretKey + "&" + oauthTokenSecret).toUtf8();
+// This method will not include the "oauth_signature" paramater, since it is calculated from these parameters.
+bool KQOAuthRequestPrivate::prepareRequest() {
+    switch ( q_ptr->requestType ) {
+    case KQOAuthRequest::TemporaryCredentials:
+        requestParameters.append( qMakePair( OAUTH_KEY_CALLBACK, QString(QUrl::toPercentEncoding( oauthCallbackUrl.toString()) )));  // This is so ugly that it is almost beautiful.
+        requestParameters.append( qMakePair( OAUTH_KEY_SIGNATURE_METHOD, oauthSignatureMethod ));
+        requestParameters.append( qMakePair( OAUTH_KEY_CONSUMER_KEY, oauthConsumerKey ));
+        requestParameters.append( qMakePair( OAUTH_KEY_VERSION, oauthVersion ));
+        requestParameters.append( qMakePair( OAUTH_KEY_TIMESTAMP, this->oauthTimestamp() ));
+        requestParameters.append( qMakePair( OAUTH_KEY_NONCE, this->oauthNonce() ));
+        insertAdditionalParams(requestParameters);
+        break;
+
+    case KQOAuthRequest::ResourceOwnerAuth:
+        break;
+    case KQOAuthRequest::AccessToken:
+        break;
+    default:
+        break;
+    }
+
+    return true;
+}
+
+void KQOAuthRequestPrivate::insertAdditionalParams(QList< QPair<QString, QString> > &requestParams) {
+    QList<QString> additionalKeys = this->additionalParams.keys();
+    QList<QString> additionalValues = this->additionalParams.values();
+
+    for(int i=0; i<additionalKeys.size(); i++) {
+        requestParams.append( qMakePair(additionalKeys.at(i),
+                                        additionalValues.at(i))
+                             );
+    }
+}
+
+void KQOAuthRequestPrivate::signRequest() {
+    requestParameters.append( qMakePair( OAUTH_KEY_SIGNATURE, this->oauthSignature()) );
+}
+
+QString KQOAuthRequestPrivate::oauthSignature()  {
+    QByteArray baseString = this->requestBaseString();
+    return KQOAuthUtils::hmac_sta1(baseString, oauthConsumerSecretKey + "&" + oauthTokenSecret);
 }
 
 bool normalizedParameterSort(const QPair<QString, QString> &left, const QPair<QString, QString> &right) {
@@ -58,12 +97,6 @@ bool normalizedParameterSort(const QPair<QString, QString> &left, const QPair<QS
 }
 QByteArray KQOAuthRequestPrivate::requestBaseString() {
 
-    if( !this->validateRequest() ) {
-        // Let's not do anything if this request is not valid.
-        qWarning() << "Request is invalid.";
-        return QByteArray();
-    }
-
     prepareRequest();
 
     QByteArray baseString;
@@ -75,8 +108,8 @@ QByteArray KQOAuthRequestPrivate::requestBaseString() {
     // initialized earlier.
     switch ( q_ptr->requestType ) {
     case KQOAuthRequest::TemporaryCredentials:
-        qSort(temporaryCredentialsParameters.begin(),
-                temporaryCredentialsParameters.end(),
+        qSort(requestParameters.begin(),
+                requestParameters.end(),
                 normalizedParameterSort
               );
         break;
@@ -85,41 +118,17 @@ QByteArray KQOAuthRequestPrivate::requestBaseString() {
     }
 
     // Last append the request parameters correctly encoded.
-    baseString.append( encodedParamaterList(temporaryCredentialsParameters) );
+    baseString.append( encodedParamaterList(requestParameters) );
 
     return baseString;
 }
 
-// This method will not include the "oauth_signature" paramater, since it is calculated from these parameters.
-bool KQOAuthRequestPrivate::prepareRequest() {
-    switch ( q_ptr->requestType ) {
-    case KQOAuthRequest::TemporaryCredentials:
-        temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_CALLBACK, QString(QUrl::toPercentEncoding( oauthCallbackUrl.toString()) )));  // This is so ugly that it is almost beautiful.
-        temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_SIGNATURE_METHOD, oauthSignatureMethod ));
-        temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_CONSUMER_KEY, oauthConsumerKey ));
-        temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_VERSION, oauthVersion ));
-        temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_TIMESTAMP, this->oauthTimestamp() ));
-        temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_NONCE, this->oauthNonce() ));
-        insertAdditionalParams(temporaryCredentialsParameters);
-        break;
-
-    case KQOAuthRequest::ResourceOwnerAuth:
-        break;
-    case KQOAuthRequest::AccessToken:
-        break;
-    default:
-        break;
-    }
-
-    return true;
-}
-
-QByteArray KQOAuthRequestPrivate::encodedParamaterList(const QList< QPair<QString, QString> > &temporaryCredentialsParameters) {
+QByteArray KQOAuthRequestPrivate::encodedParamaterList(const QList< QPair<QString, QString> > &parameters) {
     QByteArray resultList;
 
     bool first = true;
     QPair<QString, QString> parameter;
-    foreach(parameter, temporaryCredentialsParameters) {
+    foreach(parameter, parameters) {
         if(!first) {
             resultList.append( "%26" );
         } else {
@@ -135,17 +144,6 @@ QByteArray KQOAuthRequestPrivate::encodedParamaterList(const QList< QPair<QStrin
     }
 
     return resultList;
-}
-
-void KQOAuthRequestPrivate::insertAdditionalParams(QList< QPair<QString, QString> > &requestParams) {
-    QList<QString> additionalKeys = this->additionalParams.keys();
-    QList<QString> additionalValues = this->additionalParams.values();
-
-    for(int i=0; i<additionalKeys.size(); i++) {
-        requestParams.append( qMakePair(additionalKeys.at(i),
-                                        additionalValues.at(i))
-                             );
-    }
 }
 
 QString KQOAuthRequestPrivate::oauthTimestamp() const {
@@ -262,7 +260,7 @@ void KQOAuthRequest::setSignatureMethod(KQOAuthRequest::RequestSignatureMethod r
         break;
     default:
         // We should not come here
-        requestMethodString = "___INVALID___";
+        qWarning() << "Invalid signature method set.";
     }
 
     d_ptr->oauthSignatureMethod = requestMethodString;
@@ -277,11 +275,33 @@ void KQOAuthRequest::setHttpMethod(KQOAuthRequest::RequestHttpMethod httpMethod)
         break;
     case KQOAuthRequest::POST:
         requestHttpMethodString = "POST";
+    default:
+        qWarning() << "Invalid HTTP method set.";
     }
 
     d_ptr->oauthHttpMethod = requestHttpMethodString;
 }
 
-void KQOAuthRequest::additionalParameters(const KQOAuthAdditionalParameter &additionalParams) {
+void KQOAuthRequest::setAdditionalParameters(const KQOAuthAdditionalParameters &additionalParams) {
     d_ptr->additionalParams = additionalParams;
+}
+
+QList<QByteArray> KQOAuthRequest::requestParameters() {
+    QList<QByteArray> requestParamList;
+
+    if( d_ptr->validateRequest() ) {
+        qWarning() << "Request is not valid! I will still sign it, but it will probably not work.";
+    }
+    d_ptr->signRequest();
+
+    QPair<QString, QString> requestParam;
+    QString param;
+    QString value;
+    foreach(requestParam, d_ptr->requestParameters) {
+        param = requestParam.first;
+        value = requestParam.second;
+        requestParamList.append(QString(param + "=" + value).toUtf8());
+    }
+
+    return requestParamList;
 }

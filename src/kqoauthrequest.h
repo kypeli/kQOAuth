@@ -49,7 +49,7 @@ public:
         POST
     };
 
-    typedef  QMultiMap<QString, QString> KQOAuthAdditionalParameter;
+    typedef  QMultiMap<QString, QString> KQOAuthAdditionalParameters;
 
     // Mandatory methods to setup a request
     void initRequest(KQOAuthRequest::RequestType, const QUrl &requestEndpoint);
@@ -64,7 +64,9 @@ public:
     void setHttpMethod(KQOAuthRequest::RequestHttpMethod = KQOAuthRequest::POST);
 
     // Additional optional parameters to the request.
-    void additionalParameters(const KQOAuthAdditionalParameter &additionalParams);
+    void setAdditionalParameters(const KQOAuthAdditionalParameters &additionalParams);
+
+    QList<QByteArray> requestParameters();
 
 signals:
 

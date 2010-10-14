@@ -36,13 +36,14 @@ public:
     // Helper methods to get the values for the OAuth request parameters.
     QString oauthTimestamp() const;
     QString oauthNonce() const;
-    QByteArray oauthSignature();
+    QString oauthSignature();
 
     // Utility methods for making the request happen.
+    void signRequest();
     bool validateRequest() const;
     bool prepareRequest();
     QByteArray requestBaseString();
-    QByteArray encodedParamaterList(const QList< QPair<QString, QString> > &temporaryCredentialsParameters);
+    QByteArray encodedParamaterList(const QList< QPair<QString, QString> > &requestParameters);
     void insertAdditionalParams(QList< QPair<QString, QString> > &requestParams);
 
     // Let's define the OAuth keys for the request
@@ -71,7 +72,7 @@ public:
     QString oauthTimestamp_;
     QString oauthNonce_;
 
-    QList< QPair<QString, QString> > temporaryCredentialsParameters;
+    QList< QPair<QString, QString> > requestParameters;
 
     QMultiMap<QString, QString> additionalParams;
 
