@@ -22,12 +22,14 @@
 // Qt includes
 #include <QtDebug>
 #include <QTest>
-#include <QtDebug>
 #include <QUrl>
 
 // Project includes
 #include <QtKOAuth>
 #include <kqoauthrequest_p.h>
+#include <kqoauthutils.h>
+
+const QString Ut_KQOAuth::twitterExampleBaseString = QString("POST&https%3A%2F%2Fapi.twitter.com%2Foauth%2Frequest_token&oauth_callback%3Dhttp%253A%252F%252Flocalhost%253A3005%252Fthe_dance%252Fprocess_callback%253Fservice_provider_id%253D11%26oauth_consumer_key%3DGDdmIQH6jhtmLUypg82g%26oauth_nonce%3DQP70eNmVz8jvdPevU3oJD2AfF7R7odC2XJcn4XlZJqk%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D1272323042%26oauth_version%3D1.0");
 
 void Ut_KQOAuth::init()
 {
@@ -87,6 +89,27 @@ void Ut_KQOAuth::ut_requestBaseString() {
 
     QCOMPARE(baseString, QByteArray("POST&https%3A%2F%2Fapi.twitter.com%2Foauth%2Frequest_token&oauth_callback%3Dhttp%253A%252F%252Flocalhost%253A3005%252Fthe_dance%252Fprocess_callback%253Fservice_provider_id%253D11%26oauth_consumer_key%3DGDdmIQH6jhtmLUypg82g%26oauth_nonce%3DQP70eNmVz8jvdPevU3oJD2AfF7R7odC2XJcn4XlZJqk%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D1272323042%26oauth_version%3D1.0"));
 
+}
+
+void Ut_KQOAuth::ut_hmac_sha1_data() {
+    QTest::addColumn<QString>("message");
+    QTest::addColumn<QString>("key");
+    QTest::addColumn<QString>("result");
+
+    QTest::newRow("twitterExample")
+            << QString(twitterExampleBaseString)
+            << QString("MCD8BKwGdgPHvAuvgvz4EQpqDAtx89grbuNMRd7Eh98&")
+            << QString("8wUi7m5HFQy76nowoCThusfgB+Q=");
+}
+
+void Ut_KQOAuth::ut_hmac_sha1() {
+    QFETCH(QString, message);
+    QFETCH(QString, key);
+    QFETCH(QString, result);
+
+    QString hmac_sha1 = KQOAuthUtils::hmac_sta1(message, key);
+
+    QCOMPARE(hmac_sha1, result);
 }
 
 QTEST_MAIN(Ut_KQOAuth)

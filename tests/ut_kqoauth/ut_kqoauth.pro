@@ -20,5 +20,5 @@ else:unix {
 }
 
 INCLUDEPATH += . ../../src
-HEADERS += ut_kqoauth.h 
+HEADERS += ut_kqoauth.h
 SOURCES += ut_kqoauth.cpp

@@ -17,33 +17,15 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with KQOAuth.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef UT_KQOAUTH_H
-#define UT_KQOAUTH_H
+#ifndef KQOAUTHUTILS_H
+#define KQOAUTHUTILS_H
 
-#include <QObject>
-
-class KQOAuthRequest;
-class KQOAuthRequestPrivate;
-class Ut_KQOAuth : public QObject
+class QString;
+class KQOAuthUtils
 {
-    Q_OBJECT
+public:
 
-private Q_SLOTS:
-    void init();
-    void cleanup();
-    void constructor();
-
-    void ut_requestBaseString_data();
-    void ut_requestBaseString();
-    void ut_hmac_sha1_data();
-    void ut_hmac_sha1();
-
-private:
-    KQOAuthRequest *r;
-    KQOAuthRequestPrivate *d_ptr;
-
-    static const QString twitterExampleBaseString;
-
+    static QString hmac_sta1(const QString &message, const QString &key);
 };
 
-#endif // UT_KQOAUTH_H
+#endif // KQOAUTHUTILS_H

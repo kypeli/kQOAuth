@@ -20,7 +20,8 @@ INCLUDEPATH += .
 
 PUBLIC_HEADERS += kqoauthmanager.h \
                   kqoauthrequest.h \
-                  kqoauthglobals.h
+                  kqoauthglobals.h \
+                  kqoauthutils.h
 
 PRIVATE_HEADERS +=  kqoauthrequest_p.h
 
@@ -30,7 +31,8 @@ HEADERS = \
 
 SOURCES += \ 
     kqoauthmanager.cpp \
-    kqoauthrequest.cpp
+    kqoauthrequest.cpp \
+    kqoauthutils.cpp
 
 DEFINES += KQOAUTH
 
