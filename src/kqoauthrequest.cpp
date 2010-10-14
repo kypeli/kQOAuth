@@ -90,7 +90,7 @@ QByteArray KQOAuthRequestPrivate::requestBaseString() {
     return baseString;
 }
 
-// This method will not include the "oauth_signaure" paramater, since it is calculated from these parameters.
+// This method will not include the "oauth_signature" paramater, since it is calculated from these parameters.
 bool KQOAuthRequestPrivate::prepareRequest() {
     switch ( q_ptr->requestType ) {
     case KQOAuthRequest::TemporaryCredentials:
@@ -100,6 +100,7 @@ bool KQOAuthRequestPrivate::prepareRequest() {
         temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_VERSION, oauthVersion ));
         temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_TIMESTAMP, this->oauthTimestamp() ));
         temporaryCredentialsParameters.append( qMakePair( OAUTH_KEY_NONCE, this->oauthNonce() ));
+        insertAdditionalParams(temporaryCredentialsParameters);
         break;
 
     case KQOAuthRequest::ResourceOwnerAuth:
@@ -134,6 +135,17 @@ QByteArray KQOAuthRequestPrivate::encodedParamaterList(const QList< QPair<QStrin
     }
 
     return resultList;
+}
+
+void KQOAuthRequestPrivate::insertAdditionalParams(QList< QPair<QString, QString> > &requestParams) {
+    QList<QString> additionalKeys = this->additionalParams.keys();
+    QList<QString> additionalValues = this->additionalParams.values();
+
+    for(int i=0; i<additionalKeys.size(); i++) {
+        requestParams.append( qMakePair(additionalKeys.at(i),
+                                        additionalValues.at(i))
+                             );
+    }
 }
 
 QString KQOAuthRequestPrivate::oauthTimestamp() const {
@@ -268,4 +280,8 @@ void KQOAuthRequest::setHttpMethod(KQOAuthRequest::RequestHttpMethod httpMethod)
     }
 
     d_ptr->oauthHttpMethod = requestHttpMethodString;
+}
+
+void KQOAuthRequest::additionalParameters(const KQOAuthAdditionalParameter &additionalParams) {
+    d_ptr->additionalParams = additionalParams;
 }

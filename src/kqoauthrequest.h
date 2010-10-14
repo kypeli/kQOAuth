@@ -22,6 +22,7 @@
 
 #include <QObject>
 #include <QUrl>
+#include <QMultiMap>
 
 class KQOAuthRequestPrivate;
 class KQOAuthRequest : public QObject
@@ -48,6 +49,8 @@ public:
         POST
     };
 
+    typedef  QMultiMap<QString, QString> KQOAuthAdditionalParameter;
+
     // Mandatory methods to setup a request
     void initRequest(KQOAuthRequest::RequestType, const QUrl &requestEndpoint);
     void setConsumerKey(const QString &consumerKey);
@@ -59,6 +62,9 @@ public:
     // Optional methods when setting up the request
     void setSignatureMethod(KQOAuthRequest::RequestSignatureMethod = KQOAuthRequest::HMAC_SHA1);
     void setHttpMethod(KQOAuthRequest::RequestHttpMethod = KQOAuthRequest::POST);
+
+    // Additional optional parameters to the request.
+    void additionalParameters(const KQOAuthAdditionalParameter &additionalParams);
 
 signals:
 

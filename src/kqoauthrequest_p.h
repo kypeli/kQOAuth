@@ -24,6 +24,7 @@
 #include <QUrl>
 #include <QMap>
 #include <QPair>
+#include <QMultiMap>
 
 class KQOAuthRequestPrivate {
 
@@ -42,7 +43,7 @@ public:
     bool prepareRequest();
     QByteArray requestBaseString();
     QByteArray encodedParamaterList(const QList< QPair<QString, QString> > &temporaryCredentialsParameters);
-
+    void insertAdditionalParams(QList< QPair<QString, QString> > &requestParams);
 
     // Let's define the OAuth keys for the request
     // parameters here.
@@ -71,6 +72,8 @@ public:
     QString oauthNonce_;
 
     QList< QPair<QString, QString> > temporaryCredentialsParameters;
+
+    QMultiMap<QString, QString> additionalParams;
 
     // Q-pointer
     KQOAuthRequest *q_ptr;
