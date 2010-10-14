@@ -34,7 +34,8 @@
 
 //////////// Private d_ptr implementation /////////
 
-KQOAuthRequestPrivate::KQOAuthRequestPrivate()
+KQOAuthRequestPrivate::KQOAuthRequestPrivate( KQOAuthRequest *parent ) :
+    q_ptr(parent)
 {
 
 }
@@ -198,15 +199,14 @@ bool KQOAuthRequestPrivate::validateRequest() const {
 
 KQOAuthRequest::KQOAuthRequest(QObject *parent) :
     QObject(parent),
-    d_ptr(new KQOAuthRequestPrivate())
+    d_ptr(new KQOAuthRequestPrivate(this))
 {
     Q_D(KQOAuthRequest);
-    d->q_ptr = this;
 
     // Set smart defaults.
     this->setSignatureMethod(KQOAuthRequest::HMAC_SHA1);
     this->setHttpMethod(KQOAuthRequest::POST);
-    d_ptr->oauthVersion = "1.0"; // Currently supports only version 1.0
+    d->oauthVersion = "1.0"; // Currently supports only version 1.0
 }
 
 KQOAuthRequest::~KQOAuthRequest() {
@@ -214,6 +214,8 @@ KQOAuthRequest::~KQOAuthRequest() {
 }
 
 void KQOAuthRequest::initRequest(KQOAuthRequest::RequestType rtype, const QUrl &requestEndpoint) {
+    Q_D(KQOAuthRequest);
+
     if( !requestEndpoint.isValid() ) {
         qWarning() << "Endpoint URL is not valid. Ignoring. This request might not work.";
         return;
@@ -224,24 +226,28 @@ void KQOAuthRequest::initRequest(KQOAuthRequest::RequestType rtype, const QUrl &
     }
 
     requestType = rtype;
-    d_ptr->oauthRequestEndpoint = requestEndpoint;
-    d_ptr->oauthTimestamp_ = d_ptr->oauthTimestamp();
-    d_ptr->oauthNonce_ = d_ptr->oauthNonce();
+    d->oauthRequestEndpoint = requestEndpoint;
+    d->oauthTimestamp_ = d->oauthTimestamp();
+    d->oauthNonce_ = d->oauthNonce();
 }
 
 void KQOAuthRequest::setConsumerKey(const QString &consumerKey) {
-    d_ptr->oauthConsumerKey = consumerKey;
+    Q_D(KQOAuthRequest);
+    d->oauthConsumerKey = consumerKey;
 }
 
 void KQOAuthRequest::setConsumerSecretKey(const QString &consumerSecretKey) {
-    d_ptr->oauthConsumerSecretKey = consumerSecretKey;
+    Q_D(KQOAuthRequest);
+    d->oauthConsumerSecretKey = consumerSecretKey;
 }
 
 void KQOAuthRequest::setCallbackUrl(const QUrl &callbackUrl) {
-    d_ptr->oauthCallbackUrl = callbackUrl;
+    Q_D(KQOAuthRequest);
+    d->oauthCallbackUrl = callbackUrl;
 }
 
 void KQOAuthRequest::setSignatureMethod(KQOAuthRequest::RequestSignatureMethod requestMethod) {
+    Q_D(KQOAuthRequest);
     QString requestMethodString;
 
     switch( requestMethod ) {
@@ -259,10 +265,12 @@ void KQOAuthRequest::setSignatureMethod(KQOAuthRequest::RequestSignatureMethod r
         qWarning() << "Invalid signature method set.";
     }
 
-    d_ptr->oauthSignatureMethod = requestMethodString;
+    d->oauthSignatureMethod = requestMethodString;
 }
 
 void KQOAuthRequest::setHttpMethod(KQOAuthRequest::RequestHttpMethod httpMethod) {
+    Q_D(KQOAuthRequest);
+
     QString requestHttpMethodString;
 
     switch( httpMethod ) {
@@ -276,26 +284,29 @@ void KQOAuthRequest::setHttpMethod(KQOAuthRequest::RequestHttpMethod httpMethod)
         qWarning() << "Invalid HTTP method set.";
     }
 
-    d_ptr->oauthHttpMethod = requestHttpMethodString;
+    d->oauthHttpMethod = requestHttpMethodString;
 }
 
 void KQOAuthRequest::setAdditionalParameters(const KQOAuthAdditionalParameters &additionalParams) {
-    d_ptr->additionalParams = additionalParams;
+    Q_D(KQOAuthRequest);
+    d->additionalParams = additionalParams;
 }
 
 QList<QByteArray> KQOAuthRequest::requestParameters() {
+    Q_D(KQOAuthRequest);
+
     QList<QByteArray> requestParamList;
 
-    d_ptr->prepareRequest();
-    if( d_ptr->validateRequest() ) {
+    d->prepareRequest();
+    if( d->validateRequest() ) {
         qWarning() << "Request is not valid! I will still sign it, but it will probably not work.";
     }
-    d_ptr->signRequest();
+    d->signRequest();
 
     QPair<QString, QString> requestParam;
     QString param;
     QString value;
-    foreach(requestParam, d_ptr->requestParameters) {
+    foreach(requestParam, d->requestParameters) {
         param = requestParam.first;
         value = requestParam.second;
         requestParamList.append(QString(param + "=" + value).toUtf8());
