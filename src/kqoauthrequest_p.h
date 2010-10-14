@@ -39,9 +39,9 @@ public:
     QString oauthSignature();
 
     // Utility methods for making the request happen.
+    void prepareRequest();
     void signRequest();
     bool validateRequest() const;
-    bool prepareRequest();
     QByteArray requestBaseString();
     QByteArray encodedParamaterList(const QList< QPair<QString, QString> > &requestParameters);
     void insertAdditionalParams(QList< QPair<QString, QString> > &requestParams);

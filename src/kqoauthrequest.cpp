@@ -40,7 +40,13 @@ KQOAuthRequestPrivate::KQOAuthRequestPrivate()
 }
 
 // This method will not include the "oauth_signature" paramater, since it is calculated from these parameters.
-bool KQOAuthRequestPrivate::prepareRequest() {
+void KQOAuthRequestPrivate::prepareRequest() {
+    // If parameter list is not empty, we don't want to insert these values by
+    // accident a second time. So giving up.
+    if( !requestParameters.isEmpty() ) {
+        return;
+    }
+
     switch ( q_ptr->requestType ) {
     case KQOAuthRequest::TemporaryCredentials:
         requestParameters.append( qMakePair( OAUTH_KEY_CALLBACK, QString(QUrl::toPercentEncoding( oauthCallbackUrl.toString()) )));  // This is so ugly that it is almost beautiful.
@@ -59,8 +65,6 @@ bool KQOAuthRequestPrivate::prepareRequest() {
     default:
         break;
     }
-
-    return true;
 }
 
 void KQOAuthRequestPrivate::insertAdditionalParams(QList< QPair<QString, QString> > &requestParams) {
@@ -96,26 +100,18 @@ bool normalizedParameterSort(const QPair<QString, QString> &left, const QPair<QS
     }
 }
 QByteArray KQOAuthRequestPrivate::requestBaseString() {
-
-    prepareRequest();
-
     QByteArray baseString;
+
     // Every request has these as the commont parameters.
     baseString.append( oauthHttpMethod.toUtf8() + "&");                                                     // HTTP method
     baseString.append( QUrl::toPercentEncoding( oauthRequestEndpoint.toString(QUrl::RemoveQuery) ) + "&" ); // The path and query components
 
     // Sort the request parameters. These parameters have been
     // initialized earlier.
-    switch ( q_ptr->requestType ) {
-    case KQOAuthRequest::TemporaryCredentials:
-        qSort(requestParameters.begin(),
-                requestParameters.end(),
-                normalizedParameterSort
-              );
-        break;
-    default:
-        break;
-    }
+    qSort(requestParameters.begin(),
+          requestParameters.end(),
+          normalizedParameterSort
+          );
 
     // Last append the request parameters correctly encoded.
     baseString.append( encodedParamaterList(requestParameters) );
@@ -275,6 +271,7 @@ void KQOAuthRequest::setHttpMethod(KQOAuthRequest::RequestHttpMethod httpMethod)
         break;
     case KQOAuthRequest::POST:
         requestHttpMethodString = "POST";
+        break;
     default:
         qWarning() << "Invalid HTTP method set.";
     }
@@ -289,6 +286,7 @@ void KQOAuthRequest::setAdditionalParameters(const KQOAuthAdditionalParameters &
 QList<QByteArray> KQOAuthRequest::requestParameters() {
     QList<QByteArray> requestParamList;
 
+    d_ptr->prepareRequest();
     if( d_ptr->validateRequest() ) {
         qWarning() << "Request is not valid! I will still sign it, but it will probably not work.";
     }

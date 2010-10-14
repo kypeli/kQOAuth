@@ -85,6 +85,9 @@ void Ut_KQOAuth::ut_requestBaseString() {
     d_ptr->oauthTimestamp_ = timestamp;
     d_ptr->oauthVersion = version;
 
+    QCOMPARE(d_ptr->validateRequest(), true);
+    d_ptr->prepareRequest();
+
     QByteArray baseString = d_ptr->requestBaseString();
 
     QCOMPARE(baseString, QByteArray("POST&https%3A%2F%2Fapi.twitter.com%2Foauth%2Frequest_token&oauth_callback%3Dhttp%253A%252F%252Flocalhost%253A3005%252Fthe_dance%252Fprocess_callback%253Fservice_provider_id%253D11%26oauth_consumer_key%3DGDdmIQH6jhtmLUypg82g%26oauth_nonce%3DQP70eNmVz8jvdPevU3oJD2AfF7R7odC2XJcn4XlZJqk%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D1272323042%26oauth_version%3D1.0"));
