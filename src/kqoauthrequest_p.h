@@ -50,6 +50,7 @@ public:
     static const QString OAUTH_KEY_CONSUMER_KEY;
     static const QString OAUTH_KEY_TOKEN;
     static const QString OAUTH_KEY_SIGNATURE_METHOD;
+    static const QString OAUTH_KEY_TOKEN_SECRET;
     static const QString OAUTH_KEY_TIMESTAMP;
     static const QString OAUTH_KEY_NONCE;
     static const QString OAUTH_KEY_SIGNATURE;
@@ -60,6 +61,7 @@ public:
     QString oauthHttpMethod;
     QString oauthConsumerKey;
     QString oauthConsumerSecretKey;
+    QString oauthTokenSecret;
     QString oauthSignatureMethod;
     QUrl oauthCallbackUrl;
     QString oauthVersion;

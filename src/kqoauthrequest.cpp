@@ -28,6 +28,7 @@
 
 #include "kqoauthrequest.h"
 #include "kqoauthrequest_p.h"
+#include "kqoauthutils.h"
 #include "kqoauthglobals.h"
 
 
@@ -40,9 +41,7 @@ KQOAuthRequestPrivate::KQOAuthRequestPrivate()
 
 QByteArray KQOAuthRequestPrivate::oauthSignature()  {
     QByteArray baseString = requestBaseString();
-    Q_UNUSED(baseString);
-
-    return QByteArray();
+    return KQOAuthUtils::hmac_sta1(baseString, oauthConsumerSecretKey + "&" + oauthTokenSecret).toUtf8();
 }
 
 bool normalizedParameterSort(const QPair<QString, QString> &left, const QPair<QString, QString> &right) {
@@ -91,6 +90,7 @@ QByteArray KQOAuthRequestPrivate::requestBaseString() {
     return baseString;
 }
 
+// This method will not include the "oauth_signaure" paramater, since it is calculated from these parameters.
 bool KQOAuthRequestPrivate::prepareRequest() {
     switch ( q_ptr->requestType ) {
     case KQOAuthRequest::TemporaryCredentials:
