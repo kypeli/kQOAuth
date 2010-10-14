@@ -17,9 +17,39 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with KQOAuth.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <QtCore>
+#include <kqoauthrequest.h>
+#include <kqoauthmanagerthread.h>
+
 #include "kqoauthmanager.h"
+
+////////////// Private implementation ////////////////
+
+class KQOAuthManagerPrivate {
+public:
+    KQOAuthManagerPrivate() {
+
+    }
+
+    ~KQOAuthManagerPrivate() {}
+
+    KQOAuthRequest *r;
+};
+
+
+/////////////// Public implementation ////////////////
 
 KQOAuthManager::KQOAuthManager(QObject *parent) :
     QObject(parent)
 {
+}
+
+KQOAuthManager::~KQOAuthManager() {
+    delete r;
+}
+
+void KQOAuthManager::setRequest(KQOAuthRequest *request) {
+    Q_D(KQOAuthManager);
+
+    d->r = request;
 }

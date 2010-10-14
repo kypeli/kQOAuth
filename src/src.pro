@@ -23,7 +23,8 @@ PUBLIC_HEADERS += kqoauthmanager.h \
                   kqoauthglobals.h \
                   kqoauthutils.h
 
-PRIVATE_HEADERS +=  kqoauthrequest_p.h
+PRIVATE_HEADERS +=  kqoauthrequest_p.h \
+                    kqoauthmanagerthread.h
 
 HEADERS = \
     $$PUBLIC_HEADERS \
@@ -32,7 +33,8 @@ HEADERS = \
 SOURCES += \ 
     kqoauthmanager.cpp \
     kqoauthrequest.cpp \
-    kqoauthutils.cpp
+    kqoauthutils.cpp \
+    kqoauthmanagerthread.cpp
 
 DEFINES += KQOAUTH
 

@@ -22,16 +22,28 @@
 
 #include <QObject>
 
+class KQOAuthRequest;
+class KQOAuthManagerThread;
+class KQOAuthManagerPrivate;
 class KQOAuthManager : public QObject
 {
     Q_OBJECT
 public:
     explicit KQOAuthManager(QObject *parent = 0);
+    ~KQOAuthManager();
+
+    void setRequest(KQOAuthRequest *request);
 
 signals:
 
 public slots:
 
+private:
+    KQOAuthManagerPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(KQOAuthManager);
+
+    KQOAuthRequest *r;
+    KQOAuthManagerThread *t;
 };
 
 #endif // KQOAUTHMANAGER_H
