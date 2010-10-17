@@ -80,7 +80,8 @@ void KQOAuthRequestPrivate::insertAdditionalParams(QList< QPair<QString, QString
 }
 
 void KQOAuthRequestPrivate::signRequest() {
-    requestParameters.append( qMakePair( OAUTH_KEY_SIGNATURE, this->oauthSignature()) );
+    QString signature = this->oauthSignature();
+    requestParameters.append( qMakePair( OAUTH_KEY_SIGNATURE, signature) );
 }
 
 QString KQOAuthRequestPrivate::oauthSignature()  {
@@ -255,10 +256,10 @@ void KQOAuthRequest::setSignatureMethod(KQOAuthRequest::RequestSignatureMethod r
         requestMethodString = "PLAINTEXT";
         break;
     case KQOAuthRequest::HMAC_SHA1:
-        requestMethodString = "HMAC_SHA1";
+        requestMethodString = "HMAC-SHA1";
         break;
     case KQOAuthRequest::RSA_SHA1:
-        requestMethodString = "RSA_SHA1";
+        requestMethodString = "RSA-SHA1";
         break;
     default:
         // We should not come here
@@ -292,6 +293,11 @@ void KQOAuthRequest::setAdditionalParameters(const KQOAuthAdditionalParameters &
     d->additionalParams = additionalParams;
 }
 
+QUrl KQOAuthRequest::requestEndpoint() const {
+    Q_D(const KQOAuthRequest);
+    return d->oauthRequestEndpoint;
+}
+
 QList<QByteArray> KQOAuthRequest::requestParameters() {
     Q_D(KQOAuthRequest);
 
@@ -309,7 +315,7 @@ QList<QByteArray> KQOAuthRequest::requestParameters() {
     foreach(requestParam, d->requestParameters) {
         param = requestParam.first;
         value = requestParam.second;
-        requestParamList.append(QString(param + "=" + value).toUtf8());
+        requestParamList.append(QString(param + "=\"" + value +"\"").toUtf8());
     }
 
     return requestParamList;

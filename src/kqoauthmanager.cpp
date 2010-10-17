@@ -18,8 +18,10 @@
  *  along with KQOAuth.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <QtCore>
-#include <kqoauthrequest.h>
-#include <kqoauthmanagerthread.h>
+#include <QNetworkReply>
+
+#include "kqoauthrequest.h"
+#include "kqoauthrequestworker.h"
 
 #include "kqoauthmanager.h"
 
@@ -34,22 +36,42 @@ public:
     ~KQOAuthManagerPrivate() {}
 
     KQOAuthRequest *r;
+    KQOAuthManagerThread *thread;
 };
 
 
 /////////////// Public implementation ////////////////
 
 KQOAuthManager::KQOAuthManager(QObject *parent) :
-    QObject(parent)
+    QObject(parent) ,
+    d_ptr(new KQOAuthManagerPrivate)
 {
 }
 
 KQOAuthManager::~KQOAuthManager() {
-    delete r;
+    Q_D(KQOAuthManager);
+
+    delete d->r;
+    delete d->thread;
 }
 
-void KQOAuthManager::setRequest(KQOAuthRequest *request) {
+void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
     Q_D(KQOAuthManager);
 
     d->r = request;
+
+    KQOAuthRequestWorker *reqWorker = new KQOAuthRequestWorker(request);
+    connect(reqWorker, SIGNAL(requestDone(QNetworkReply*)),
+            this, SLOT(onRequestDone(QNetworkReply *)));
+
+    d->thread = new KQOAuthManagerThread;
+    reqWorker->moveToThread(d->thread);
+    reqWorker->connect( d->thread, SIGNAL(started()), SLOT(createAndSendRequest()) );
+
+    // Start the thread!
+    d->thread->start();
+}
+
+void KQOAuthManager::onRequestDone(QNetworkReply *reply) {
+    qDebug() << "Got reply!" << reply;
 }

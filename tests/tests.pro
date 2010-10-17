@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS += ut_kqoauth
+SUBDIRS += ut_kqoauth ft_kqoauth

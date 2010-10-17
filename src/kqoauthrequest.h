@@ -66,6 +66,7 @@ public:
     // Additional optional parameters to the request.
     void setAdditionalParameters(const KQOAuthAdditionalParameters &additionalParams);
 
+    QUrl requestEndpoint() const;
     QList<QByteArray> requestParameters();
 
 signals:

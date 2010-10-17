@@ -17,38 +17,42 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with KQOAuth.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef KQOAUTHMANAGER_H
-#define KQOAUTHMANAGER_H
+#ifndef FT_KQOAUTH_H
+#define FT_KQOAUTH_H
 
 #include <QObject>
+#include <QEventLoop>
 
-class KQOAuthRequest;
-class KQOAuthManagerThread;
-class KQOAuthManagerPrivate;
-class QNetworkReply;
-class KQOAuthManager : public QObject
+class MyEventLoop : public QEventLoop
 {
     Q_OBJECT
 public:
-    explicit KQOAuthManager(QObject *parent = 0);
-    ~KQOAuthManager();
-
-    void executeRequest(KQOAuthRequest *request);
-
-signals:
-    void requestReady();
-
+    bool timeout() const;
+    int exec( ProcessEventsFlags flags = AllEvents );
 public slots:
-
-private slots:
-    void onRequestDone(QNetworkReply *);
-
+    void quitWithTimeout();
 private:
-    KQOAuthManagerPrivate *d_ptr;
-    Q_DECLARE_PRIVATE(KQOAuthManager);
-
-    KQOAuthRequest *r;
-    KQOAuthManagerThread *t;
+    bool m_timeout;
 };
 
-#endif // KQOAUTHMANAGER_H
+class KQOAuthRequest;
+class KQOAuthManager;
+class Ft_KQOAuth : public QObject
+{
+    Q_OBJECT
+
+private Q_SLOTS:
+    void init();
+    void cleanup();
+    void constructor();
+
+    void ft_getRequestToken_data();
+    void ft_getRequestToken();
+
+private:
+    KQOAuthRequest *request;
+    KQOAuthManager *manager;
+
+};
+
+#endif // FT_KQOAUTH_H
