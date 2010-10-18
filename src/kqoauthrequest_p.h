@@ -32,6 +32,7 @@ class KQOAuthRequestPrivate {
 
 public:
     explicit KQOAuthRequestPrivate(KQOAuthRequest *parent);
+    ~KQOAuthRequestPrivate();
 
     // Helper methods to get the values for the OAuth request parameters.
     QString oauthTimestamp() const;

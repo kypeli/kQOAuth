@@ -24,6 +24,7 @@
 #include <QTest>
 #include <QUrl>
 #include <QTimer>
+#include <QNetworkReply>
 
 // Project includes
 #include <QtKOAuth>
@@ -48,11 +49,14 @@ void MyEventLoop::quitWithTimeout()
 void Ft_KQOAuth::init()
 {
     manager = new KQOAuthManager(this);
+    req = new KQOAuthRequest(this);
+
 }
 
 void Ft_KQOAuth::cleanup()
 {
     delete manager;
+    delete req;
 }
 
 void Ft_KQOAuth::constructor()
@@ -80,7 +84,6 @@ void Ft_KQOAuth::ft_getRequestToken() {
     QFETCH(QString, consumerSecret);
     QFETCH(QUrl, callback);
 
-    KQOAuthRequest *req = new KQOAuthRequest;
     req->initRequest(KQOAuthRequest::TemporaryCredentials, endpoint);
     req->setConsumerKey(consumerKey);
     req->setConsumerSecretKey(consumerSecret);
@@ -89,6 +92,7 @@ void Ft_KQOAuth::ft_getRequestToken() {
     MyEventLoop loop;
 
     connect(manager, SIGNAL(requestReady()), &loop, SLOT(quit()));
+    connect(manager, SIGNAL(requestReady()), this, SLOT(onRequestReady()));
     QTimer::singleShot( 10000, &loop, SLOT(quitWithTimeout()) );
 
     manager->executeRequest(req);
@@ -99,7 +103,10 @@ void Ft_KQOAuth::ft_getRequestToken() {
     } else {
         qDebug() << "Done!";
     }
+
 }
 
+void Ft_KQOAuth::onRequestReady() {
+}
 
 QTEST_MAIN(Ft_KQOAuth)

@@ -26,6 +26,7 @@ class KQOAuthRequest;
 class KQOAuthManagerThread;
 class KQOAuthManagerPrivate;
 class QNetworkReply;
+class QNetworkAccessManager;
 class KQOAuthManager : public QObject
 {
     Q_OBJECT
@@ -41,14 +42,14 @@ signals:
 public slots:
 
 private slots:
-    void onRequestDone(QNetworkReply *);
+    void requestReplyReceived( QNetworkReply *reply );
+
 
 private:
     KQOAuthManagerPrivate *d_ptr;
     Q_DECLARE_PRIVATE(KQOAuthManager);
 
-    KQOAuthRequest *r;
-    KQOAuthManagerThread *t;
+    QNetworkAccessManager *m_networkManager;
 };
 
 #endif // KQOAUTHMANAGER_H

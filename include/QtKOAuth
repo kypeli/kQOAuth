@@ -1,3 +1,2 @@
 #include "../src/kqoauthrequest.h"
 #include "../src/kqoauthmanager.h"
-#include "../src/kqoauthrequestworker.h"

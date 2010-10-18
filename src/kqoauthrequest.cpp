@@ -40,6 +40,10 @@ KQOAuthRequestPrivate::KQOAuthRequestPrivate( KQOAuthRequest *parent ) :
 
 }
 
+KQOAuthRequestPrivate::~KQOAuthRequestPrivate() {
+
+}
+
 // This method will not include the "oauth_signature" paramater, since it is calculated from these parameters.
 void KQOAuthRequestPrivate::prepareRequest() {
     // If parameter list is not empty, we don't want to insert these values by
@@ -86,7 +90,8 @@ void KQOAuthRequestPrivate::signRequest() {
 
 QString KQOAuthRequestPrivate::oauthSignature()  {
     QByteArray baseString = this->requestBaseString();
-    return KQOAuthUtils::hmac_sta1(baseString, oauthConsumerSecretKey + "&" + oauthTokenSecret);
+    QString signature = KQOAuthUtils::hmac_sta1(baseString, oauthConsumerSecretKey + "&" + oauthTokenSecret);
+    return QString( QUrl::toPercentEncoding( signature ) );
 }
 
 bool normalizedParameterSort(const QPair<QString, QString> &left, const QPair<QString, QString> &right) {
@@ -304,7 +309,7 @@ QList<QByteArray> KQOAuthRequest::requestParameters() {
     QList<QByteArray> requestParamList;
 
     d->prepareRequest();
-    if( d->validateRequest() ) {
+    if( !d->validateRequest() ) {
         qWarning() << "Request is not valid! I will still sign it, but it will probably not work.";
     }
     d->signRequest();

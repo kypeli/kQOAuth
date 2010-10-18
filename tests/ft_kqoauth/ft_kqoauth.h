@@ -37,6 +37,7 @@ private:
 
 class KQOAuthRequest;
 class KQOAuthManager;
+class QNetworkReply;
 class Ft_KQOAuth : public QObject
 {
     Q_OBJECT
@@ -49,9 +50,11 @@ private Q_SLOTS:
     void ft_getRequestToken_data();
     void ft_getRequestToken();
 
+    void onRequestReady();
+
 private:
-    KQOAuthRequest *request;
     KQOAuthManager *manager;
+    KQOAuthRequest *req;
 
 };
 

@@ -21,8 +21,6 @@
 #include <QNetworkReply>
 
 #include "kqoauthrequest.h"
-#include "kqoauthrequestworker.h"
-
 #include "kqoauthmanager.h"
 
 ////////////// Private implementation ////////////////
@@ -33,10 +31,10 @@ public:
 
     }
 
-    ~KQOAuthManagerPrivate() {}
+    ~KQOAuthManagerPrivate() {
+    }
 
     KQOAuthRequest *r;
-    KQOAuthManagerThread *thread;
 };
 
 
@@ -46,13 +44,12 @@ KQOAuthManager::KQOAuthManager(QObject *parent) :
     QObject(parent) ,
     d_ptr(new KQOAuthManagerPrivate)
 {
+    m_networkManager = new QNetworkAccessManager;
+
 }
 
 KQOAuthManager::~KQOAuthManager() {
-    Q_D(KQOAuthManager);
-
-    delete d->r;
-    delete d->thread;
+    delete d_ptr;
 }
 
 void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
@@ -60,18 +57,52 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
 
     d->r = request;
 
-    KQOAuthRequestWorker *reqWorker = new KQOAuthRequestWorker(request);
-    connect(reqWorker, SIGNAL(requestDone(QNetworkReply*)),
-            this, SLOT(onRequestDone(QNetworkReply *)));
+    if( request == 0) {
+        qWarning() << "Request is NULL. Cannot proceed.";
+        return;
+    }
 
-    d->thread = new KQOAuthManagerThread;
-    reqWorker->moveToThread(d->thread);
-    reqWorker->connect( d->thread, SIGNAL(started()), SLOT(createAndSendRequest()) );
+    if( !request->requestEndpoint().isValid() ) {
+        qWarning() << "Request endpoint URL is not valid. Cannot proceed.";
+        return;
+    }
 
-    // Start the thread!
-    d->thread->start();
+    QNetworkRequest m_networkRequest;
+    // Set the request's URL to the OAuth request's endpoint.
+    m_networkRequest.setUrl( request->requestEndpoint() );
+
+    // And now fill the request with "Authorization" header data.
+    QList<QByteArray> requestHeaders = request->requestParameters();
+    QByteArray authHeader;
+    bool first = true;
+    foreach(const QByteArray header, requestHeaders) {
+        qDebug() << "Header: " << header;
+        if(!first) {
+            authHeader.append(", ");
+        } else {
+            authHeader.append("OAuth ");
+            first = false;
+        }
+
+        authHeader.append(header);
+    }
+    m_networkRequest.setRawHeader("Authorization", authHeader);
+    m_networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+
+    qDebug() << "Auth request URL and headers: " << m_networkRequest.url() << m_networkRequest.rawHeader("Authorization");
+
+    connect(m_networkManager, SIGNAL( finished(QNetworkReply *)),
+            this, SLOT( requestReplyReceived(QNetworkReply*) ));
+    m_networkManager->post(m_networkRequest, "");
+
 }
 
-void KQOAuthManager::onRequestDone(QNetworkReply *reply) {
-    qDebug() << "Got reply!" << reply;
+
+void KQOAuthManager::requestReplyReceived( QNetworkReply *reply ) {
+    qDebug() << "Reply from endpoint: " << reply->readAll();
+    reply->deleteLater();           // We need to clean this up, after the event processing is done.
+
+    // TODO: Parse the reply.
+    // TODO: Emit some sane return to the customer.
+    emit requestReady();
 }
