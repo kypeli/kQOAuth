@@ -325,3 +325,9 @@ QList<QByteArray> KQOAuthRequest::requestParameters() {
 
     return requestParamList;
 }
+
+bool KQOAuthRequest::isValid() const {
+    Q_D(const KQOAuthRequest);
+
+    return d->validateRequest();
+}

@@ -107,6 +107,7 @@ void Ft_KQOAuth::ft_getRequestToken() {
 }
 
 void Ft_KQOAuth::onRequestReady() {
+    QCOMPARE(manager->lastError(), KQOAuthManager::NoError);
 }
 
 QTEST_MAIN(Ft_KQOAuth)

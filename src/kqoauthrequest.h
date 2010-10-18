@@ -68,6 +68,7 @@ public:
 
     QUrl requestEndpoint() const;
     QList<QByteArray> requestParameters();
+    bool isValid() const;
 
 signals:
 

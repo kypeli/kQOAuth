@@ -27,7 +27,10 @@
 
 class KQOAuthManagerPrivate {
 public:
-    KQOAuthManagerPrivate() {
+    KQOAuthManagerPrivate(KQOAuthManager *parent) :
+        error(KQOAuthManager::NoError) ,
+        q_ptr(parent)
+    {
 
     }
 
@@ -35,6 +38,8 @@ public:
     }
 
     KQOAuthRequest *r;
+    KQOAuthManager::KQOAuthError error;
+    KQOAuthManager *q_ptr;
 };
 
 
@@ -42,7 +47,7 @@ public:
 
 KQOAuthManager::KQOAuthManager(QObject *parent) :
     QObject(parent) ,
-    d_ptr(new KQOAuthManagerPrivate)
+    d_ptr(new KQOAuthManagerPrivate(this))
 {
     m_networkManager = new QNetworkAccessManager;
 
@@ -59,11 +64,19 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
 
     if( request == 0) {
         qWarning() << "Request is NULL. Cannot proceed.";
+        d->error = KQOAuthManager::RequestError;
         return;
     }
 
     if( !request->requestEndpoint().isValid() ) {
         qWarning() << "Request endpoint URL is not valid. Cannot proceed.";
+        d->error = KQOAuthManager::RequestEndpointError;
+        return;
+    }
+
+    if( !request->isValid() ) {
+        qWarning() << "Request is not valid. Cannot proceed.";
+        d->error = KQOAuthManager::RequestValidationError;
         return;
     }
 
@@ -105,4 +118,10 @@ void KQOAuthManager::requestReplyReceived( QNetworkReply *reply ) {
     // TODO: Parse the reply.
     // TODO: Emit some sane return to the customer.
     emit requestReady();
+}
+
+KQOAuthManager::KQOAuthError KQOAuthManager::lastError() {
+    Q_D(KQOAuthManager);
+
+    return d->error;
 }

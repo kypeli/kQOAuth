@@ -31,10 +31,20 @@ class KQOAuthManager : public QObject
 {
     Q_OBJECT
 public:
+
+    enum KQOAuthError {
+        NoError,
+        NetworkError,
+        RequestEndpointError,
+        RequestValidationError,
+        RequestError
+    };
+
     explicit KQOAuthManager(QObject *parent = 0);
     ~KQOAuthManager();
 
     void executeRequest(KQOAuthRequest *request);
+    KQOAuthError lastError();
 
 signals:
     void requestReady();
