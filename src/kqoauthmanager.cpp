@@ -112,12 +112,24 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
 
 
 void KQOAuthManager::requestReplyReceived( QNetworkReply *reply ) {
+    Q_D(KQOAuthManager);
+
     qDebug() << "Reply from endpoint: " << reply->readAll();
-    reply->deleteLater();           // We need to clean this up, after the event processing is done.
+
+    QNetworkReply::NetworkError networkError = reply->error();
+    switch(networkError) {
+    case QNetworkReply::NoError:
+        d->error = KQOAuthManager::NoError;
+        break;
+
+    default:
+        d->error = KQOAuthManager::NetworkError;
+    }
 
     // TODO: Parse the reply.
     // TODO: Emit some sane return to the customer.
     emit requestReady();
+    reply->deleteLater();           // We need to clean this up, after the event processing is done.
 }
 
 KQOAuthManager::KQOAuthError KQOAuthManager::lastError() {
