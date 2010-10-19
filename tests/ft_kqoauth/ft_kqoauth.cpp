@@ -91,8 +91,8 @@ void Ft_KQOAuth::ft_getRequestToken() {
 
     MyEventLoop loop;
 
-    connect(manager, SIGNAL(requestReady()), &loop, SLOT(quit()));
-    connect(manager, SIGNAL(requestReady()), this, SLOT(onRequestReady()));
+    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), &loop, SLOT(quit()));
+    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), this, SLOT(onRequestReady()));
     QTimer::singleShot( 10000, &loop, SLOT(quitWithTimeout()) );
 
     manager->executeRequest(req);
@@ -106,8 +106,10 @@ void Ft_KQOAuth::ft_getRequestToken() {
 
 }
 
-void Ft_KQOAuth::onRequestReady() {
+void Ft_KQOAuth::onRequestReady(QMultiMap<QString, QString> response) {
     QCOMPARE(manager->lastError(), KQOAuthManager::NoError );
+    QVERIFY(QString(response.key("oauth_token")).isEmpty());
+    QVERIFY(QString(response.key("oauth_token_secret")).isEmpty());
 }
 
 QTEST_MAIN(Ft_KQOAuth)

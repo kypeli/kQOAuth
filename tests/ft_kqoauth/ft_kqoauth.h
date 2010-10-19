@@ -22,6 +22,7 @@
 
 #include <QObject>
 #include <QEventLoop>
+#include <QMultiMap>
 
 class MyEventLoop : public QEventLoop
 {
@@ -50,7 +51,7 @@ private Q_SLOTS:
     void ft_getRequestToken_data();
     void ft_getRequestToken();
 
-    void onRequestReady();
+    void onRequestReady(QMultiMap<QString, QString> response);
 
 private:
     KQOAuthManager *manager;

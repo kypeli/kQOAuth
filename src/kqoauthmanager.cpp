@@ -37,6 +37,19 @@ public:
     ~KQOAuthManagerPrivate() {
     }
 
+    QMultiMap<QString, QString> createRequestResponse(QNetworkReply *reply) {
+        QMultiMap<QString, QString> result;
+        QString replyString(reply->readAll());
+
+        QStringList parameterPairs = replyString.split('&', QString::SkipEmptyParts);
+        foreach(const QString &parameterPair, parameterPairs) {
+            QStringList parameter = parameterPair.split('=');
+            result.insert(parameter.value(0), parameter.value(1));
+        }
+
+        return result;
+    }
+
     KQOAuthRequest *r;
     KQOAuthManager::KQOAuthError error;
     KQOAuthManager *q_ptr;
@@ -114,8 +127,6 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
 void KQOAuthManager::requestReplyReceived( QNetworkReply *reply ) {
     Q_D(KQOAuthManager);
 
-    qDebug() << "Reply from endpoint: " << reply->readAll();
-
     QNetworkReply::NetworkError networkError = reply->error();
     switch(networkError) {
     case QNetworkReply::NoError:
@@ -126,9 +137,10 @@ void KQOAuthManager::requestReplyReceived( QNetworkReply *reply ) {
         d->error = KQOAuthManager::NetworkError;
     }
 
-    // TODO: Parse the reply.
-    // TODO: Emit some sane return to the customer.
-    emit requestReady();
+    QMultiMap<QString, QString> requestResponse;
+    requestResponse = d->createRequestResponse(reply);
+
+    emit requestReady(requestResponse);
     reply->deleteLater();           // We need to clean this up, after the event processing is done.
 }
 

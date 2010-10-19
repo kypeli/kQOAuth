@@ -21,6 +21,7 @@
 #define KQOAUTHMANAGER_H
 
 #include <QObject>
+#include <QMultiMap>
 
 class KQOAuthRequest;
 class KQOAuthManagerThread;
@@ -47,7 +48,7 @@ public:
     KQOAuthError lastError();
 
 signals:
-    void requestReady();
+    void requestReady(QMultiMap<QString, QString>);
 
 public slots:
 
