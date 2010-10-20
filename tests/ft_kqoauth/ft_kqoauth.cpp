@@ -92,7 +92,7 @@ void Ft_KQOAuth::ft_getRequestToken() {
     MyEventLoop loop;
 
     connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), &loop, SLOT(quit()));
-    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), this, SLOT(onRequestReady()));
+    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), this, SLOT(onRequestReady(QMultiMap<QString, QString>)));
     QTimer::singleShot( 10000, &loop, SLOT(quitWithTimeout()) );
 
     manager->executeRequest(req);
@@ -107,9 +107,61 @@ void Ft_KQOAuth::ft_getRequestToken() {
 }
 
 void Ft_KQOAuth::onRequestReady(QMultiMap<QString, QString> response) {
+    qDebug() << response;
     QCOMPARE(manager->lastError(), KQOAuthManager::NoError );
     QVERIFY(QString(response.key("oauth_token")).isEmpty());
     QVERIFY(QString(response.key("oauth_token_secret")).isEmpty());
+}
+
+
+void Ft_KQOAuth::ft_getAccessToken_data() {
+    QTest::addColumn<QUrl>("endpoint");
+    QTest::addColumn<QString>("consumerKey");
+    QTest::addColumn<QString>("consumerSecret");
+    QTest::addColumn<QString>("tokenSecret");
+    QTest::addColumn<QString>("token");
+    QTest::addColumn<QString>("verifier");
+
+    QTest::newRow("basicAccessToken")
+            << QUrl("http://term.ie/oauth/example/access_token.php")
+            << QString("key")
+            << QString("secret")
+            << QString("requestsecret")
+            << QString("requestkey")
+            << QString("xx");
+
+}
+
+void Ft_KQOAuth::ft_getAccessToken() {
+    QFETCH(QUrl, endpoint);
+    QFETCH(QString, consumerKey);
+    QFETCH(QString, consumerSecret);
+    QFETCH(QString, tokenSecret);
+    QFETCH(QString, token);
+    QFETCH(QString, verifier);
+
+    req->initRequest(KQOAuthRequest::AccessToken, endpoint);
+    req->setConsumerKey(consumerKey);
+    req->setConsumerSecretKey(consumerSecret);
+    req->setTokenSecret(tokenSecret);
+    req->setToken(token);
+    req->setVerifier(verifier);
+
+    MyEventLoop loop;
+
+    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), &loop, SLOT(quit()));
+    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), this, SLOT(onRequestReady(QMultiMap<QString, QString>)));
+    QTimer::singleShot( 10000, &loop, SLOT(quitWithTimeout()) );
+
+    manager->executeRequest(req);
+    loop.exec();
+
+    if ( loop.timeout() ) {
+        QWARN( "Request timeout" );
+    } else {
+        qDebug() << "Done!";
+    }
+
 }
 
 QTEST_MAIN(Ft_KQOAuth)

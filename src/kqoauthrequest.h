@@ -59,6 +59,11 @@ public:
     // Mandatory methods for acquiring a request token
     void setCallbackUrl(const QUrl &callbackUrl);
 
+    // Mandator methods for acquiring a access token
+    void setTokenSecret(const QString &tokenSecret);
+    void setToken(const QString &token);
+    void setVerifier(const QString &verifier);
+
     // Optional methods when setting up the request
     void setSignatureMethod(KQOAuthRequest::RequestSignatureMethod = KQOAuthRequest::HMAC_SHA1);
     void setHttpMethod(KQOAuthRequest::RequestHttpMethod = KQOAuthRequest::POST);

@@ -64,9 +64,20 @@ void KQOAuthRequestPrivate::prepareRequest() {
         break;
 
     case KQOAuthRequest::ResourceOwnerAuth:
+        requestParameters.append( qMakePair( OAUTH_KEY_TOKEN, oauthToken ));
         break;
+
     case KQOAuthRequest::AccessToken:
+        requestParameters.append( qMakePair( OAUTH_KEY_SIGNATURE_METHOD, oauthSignatureMethod ));
+        requestParameters.append( qMakePair( OAUTH_KEY_CONSUMER_KEY, oauthConsumerKey ));
+        requestParameters.append( qMakePair( OAUTH_KEY_VERSION, oauthVersion ));
+        requestParameters.append( qMakePair( OAUTH_KEY_TIMESTAMP, this->oauthTimestamp() ));
+        requestParameters.append( qMakePair( OAUTH_KEY_NONCE, this->oauthNonce() ));
+        requestParameters.append( qMakePair( OAUTH_KEY_VERIFIER, oauthVerifier ));
+        requestParameters.append( qMakePair( OAUTH_KEY_TOKEN, oauthToken ));
+        insertAdditionalParams(requestParameters);
         break;
+
     default:
         break;
     }
@@ -190,8 +201,23 @@ bool KQOAuthRequestPrivate::validateRequest() const {
 
     case KQOAuthRequest::ResourceOwnerAuth:
         return false;
+
     case KQOAuthRequest::AccessToken:
-        return false;
+        if( oauthRequestEndpoint.isEmpty() ||
+            oauthVerifier.isEmpty() ||
+            oauthConsumerKey.isEmpty() ||
+            oauthNonce_.isEmpty() ||
+            oauthSignatureMethod.isEmpty() ||
+            oauthTimestamp_.isEmpty() ||
+            oauthToken.isEmpty() ||
+            oauthTokenSecret.isEmpty() ||
+            oauthVerifier.isEmpty() ||
+            oauthVersion.isEmpty() )
+        {
+            return false;
+        }
+        return true;
+
     default:
         return false;
     }
@@ -227,8 +253,9 @@ void KQOAuthRequest::initRequest(KQOAuthRequest::RequestType rtype, const QUrl &
         return;
     }
 
-    if(rtype < 0 || rtype >= KQOAuthRequest::AccessToken) {
+    if(rtype < 0 || rtype > KQOAuthRequest::AccessToken) {
         qWarning() << "Invalid request type. Ignoring. This request might not work.";
+        return;
     }
 
     requestType = rtype;
@@ -273,6 +300,25 @@ void KQOAuthRequest::setSignatureMethod(KQOAuthRequest::RequestSignatureMethod r
 
     d->oauthSignatureMethod = requestMethodString;
 }
+
+void KQOAuthRequest::setTokenSecret(const QString &tokenSecret) {
+    Q_D(KQOAuthRequest);
+
+    d->oauthTokenSecret = tokenSecret;
+}
+
+void KQOAuthRequest::setToken(const QString &token) {
+    Q_D(KQOAuthRequest);
+
+    d->oauthToken = token;
+}
+
+void KQOAuthRequest::setVerifier(const QString &verifier) {
+    Q_D(KQOAuthRequest);
+
+    d->oauthVerifier = verifier;
+}
+
 
 void KQOAuthRequest::setHttpMethod(KQOAuthRequest::RequestHttpMethod httpMethod) {
     Q_D(KQOAuthRequest);

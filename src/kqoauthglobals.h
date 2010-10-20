@@ -24,12 +24,13 @@
 const QString KQOAuthRequestPrivate::OAUTH_KEY_CONSUMER("oauth_consumer");
 const QString KQOAuthRequestPrivate::OAUTH_KEY_CONSUMER_KEY("oauth_consumer_key");
 const QString KQOAuthRequestPrivate::OAUTH_KEY_TOKEN("oauth_token");
-const QString KQOAuthRequestPrivate::OAUTH_KEY_SIGNATURE_METHOD("oauth_signature_method");
 const QString KQOAuthRequestPrivate::OAUTH_KEY_TOKEN_SECRET("oauth_token_secret");
+const QString KQOAuthRequestPrivate::OAUTH_KEY_SIGNATURE_METHOD("oauth_signature_method");
 const QString KQOAuthRequestPrivate::OAUTH_KEY_TIMESTAMP("oauth_timestamp");
 const QString KQOAuthRequestPrivate::OAUTH_KEY_NONCE("oauth_nonce");
 const QString KQOAuthRequestPrivate::OAUTH_KEY_SIGNATURE("oauth_signature");
 const QString KQOAuthRequestPrivate::OAUTH_KEY_CALLBACK("oauth_callback");
+const QString KQOAuthRequestPrivate::OAUTH_KEY_VERIFIER("oauth_verifier");
 const QString KQOAuthRequestPrivate::OAUTH_KEY_VERSION("oauth_version");
 
 #endif // KQOAUTHGLOBALS_H
