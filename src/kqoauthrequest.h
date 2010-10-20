@@ -75,6 +75,9 @@ public:
     QList<QByteArray> requestParameters();
     bool isValid() const;
 
+    // Clear the request so we can reuse it.
+    void clearRequest();
+
 signals:
 
 public slots:
@@ -84,6 +87,7 @@ private:
     KQOAuthRequestPrivate * const d_ptr;
     Q_DECLARE_PRIVATE(KQOAuthRequest);
 
+    friend class KQOAuthManager;
 #ifdef UNIT_TEST
     friend class Ut_KQOAuth;
 #endif

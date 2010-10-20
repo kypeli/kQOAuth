@@ -28,6 +28,8 @@ class KQOAuthManagerThread;
 class KQOAuthManagerPrivate;
 class QNetworkReply;
 class QNetworkAccessManager;
+class QUrl;
+class QByteArray;
 class KQOAuthManager : public QObject
 {
     Q_OBJECT
@@ -38,14 +40,22 @@ public:
         NetworkError,
         RequestEndpointError,
         RequestValidationError,
+        RequestInvalid,
+        RequestUnauthorized,
         RequestError
     };
 
     explicit KQOAuthManager(QObject *parent = 0);
     ~KQOAuthManager();
 
-    void executeRequest(KQOAuthRequest *request);
     KQOAuthError lastError();
+
+    void executeRequest(KQOAuthRequest *request);
+
+    bool isVerified();
+    bool isAuthorized();
+
+    void sendAuthorizedRequest(QUrl requestEndpoint, QMultiMap<QByteArray, QByteArray> requestParameters);
 
 signals:
     void requestReady(QMultiMap<QString, QString>);

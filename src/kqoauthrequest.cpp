@@ -377,3 +377,23 @@ bool KQOAuthRequest::isValid() const {
 
     return d->validateRequest();
 }
+
+void KQOAuthRequest::clearRequest() {
+    Q_D(KQOAuthRequest);
+
+    d->oauthRequestEndpoint = "";
+    d->oauthHttpMethod = "";
+    d->oauthConsumerKey = "";
+    d->oauthConsumerSecretKey = "";
+    d->oauthToken = "";
+    d->oauthTokenSecret = "";
+    d->oauthSignatureMethod = "";
+    d->oauthCallbackUrl = "";
+    d->oauthVersion = "";
+    d->oauthVerifier = "";
+    d->oauthTimestamp_ = "";
+    d->oauthNonce_ = "";
+    d->requestParameters.clear();
+    d->additionalParams.clear();
+}
+

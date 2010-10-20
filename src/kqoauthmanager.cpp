@@ -21,6 +21,7 @@
 #include <QNetworkReply>
 
 #include "kqoauthrequest.h"
+#include "kqoauthrequest_p.h"
 #include "kqoauthmanager.h"
 
 ////////////// Private implementation ////////////////
@@ -29,7 +30,9 @@ class KQOAuthManagerPrivate {
 public:
     KQOAuthManagerPrivate(KQOAuthManager *parent) :
         error(KQOAuthManager::NoError) ,
-        q_ptr(parent)
+        q_ptr(parent) ,
+        isVerified(false) ,
+        isAuthorized(false)
     {
 
     }
@@ -50,9 +53,48 @@ public:
         return result;
     }
 
-    KQOAuthRequest *r;
+    bool setSuccessfulVerified( const QMultiMap<QString, QString> request ){
+        if(currentRequestType == KQOAuthRequest::TemporaryCredentials) {
+
+        }
+        return false;
+    }
+
+    bool setSuccessfulAuthorized( const QMultiMap<QString, QString> request ){
+        if(currentRequestType == KQOAuthRequest::AccessToken) {
+            isAuthorized = (!QString(request.key("oauth_token")).isEmpty() && !QString(request.key("oauth_token_secret")).isEmpty());
+        } else {
+            return false;
+        }
+
+        if(isAuthorized) {
+            requestToken = QString(request.key("oauth_token"));
+            requestTokenSecret = QString(request.key("oauth_token_secret"));
+
+        }
+
+        return isAuthorized;
+    }
+
     KQOAuthManager::KQOAuthError error;
+    KQOAuthRequest *r;                  // This request is used to cache the user sent request.
+    KQOAuthRequest opaqueRequest;       // This request is used to creating opaque convenience requests for the user.
     KQOAuthManager *q_ptr;
+
+    /**
+     * The items below are needed in order to store the state of the manager and
+     * by that be able to do convenience operations for the user.
+     */
+    KQOAuthRequest::RequestType currentRequestType;
+
+    // Variables we store here for opaque request handling.
+    // NOTE: The variables are labeled the same for both access token request
+    //       and protected resource access.
+    QString requestToken;
+    QString requestTokenSecret;
+
+    bool isVerified;
+    bool isAuthorized;
 };
 
 
@@ -93,6 +135,7 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
         return;
     }
 
+    d->currentRequestType = request->requestType;
     QNetworkRequest m_networkRequest;
     // Set the request's URL to the OAuth request's endpoint.
     m_networkRequest.setUrl( request->requestEndpoint() );
@@ -133,15 +176,46 @@ void KQOAuthManager::requestReplyReceived( QNetworkReply *reply ) {
         d->error = KQOAuthManager::NoError;
         break;
 
+    case QNetworkReply::ContentAccessDenied:
+        d->error = KQOAuthManager::RequestUnauthorized;
+        break;
+
     default:
         d->error = KQOAuthManager::NetworkError;
+        break;
+    }
+
+    if(d->error != KQOAuthManager::NoError) {
+        return;
     }
 
     QMultiMap<QString, QString> requestResponse;
     requestResponse = d->createRequestResponse(reply);
 
+    if( !d->isAuthorized || !d->isVerified ) {
+        if( d->setSuccessfulVerified(requestResponse) ) {
+        } else if( d->setSuccessfulAuthorized(requestResponse) ) {
+            d->opaqueRequest.setConsumerKey(d->r->d_ptr->oauthConsumerKey);
+            d->opaqueRequest.setConsumerSecretKey(d->r->d_ptr->oauthConsumerSecretKey);
+            d->opaqueRequest.setToken(d->r->d_ptr->oauthToken);
+            d->opaqueRequest.setSignatureMethod(KQOAuthRequest::HMAC_SHA1);
+        }
+    }
+
     emit requestReady(requestResponse);
     reply->deleteLater();           // We need to clean this up, after the event processing is done.
+}
+
+bool KQOAuthManager::isVerified() {
+    Q_D(KQOAuthManager);
+
+    return d->isVerified;
+}
+
+bool KQOAuthManager::isAuthorized() {
+    Q_D(KQOAuthManager);
+
+    return d->isAuthorized;
 }
 
 KQOAuthManager::KQOAuthError KQOAuthManager::lastError() {
@@ -149,3 +223,19 @@ KQOAuthManager::KQOAuthError KQOAuthManager::lastError() {
 
     return d->error;
 }
+
+//////////// Public convenience API /////////////
+
+void KQOAuthManager::sendAuthorizedRequest(QUrl requestEndpoint, QMultiMap<QByteArray, QByteArray> requestParameters) {
+    Q_D(KQOAuthManager);
+
+    if( d->isAuthorized ) {
+        d->error = KQOAuthManager::RequestUnauthorized;
+        return;
+    }
+
+    d->r->clearRequest();
+
+    // TODO: Create request and send it and handle it.
+}
+
