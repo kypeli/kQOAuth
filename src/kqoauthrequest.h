@@ -24,6 +24,8 @@
 #include <QUrl>
 #include <QMultiMap>
 
+typedef QMultiMap<QString, QString> KQOAuthParameters;
+
 class KQOAuthRequestPrivate;
 class KQOAuthRequest : public QObject
 {
@@ -35,7 +37,8 @@ public:
     enum RequestType {
         TemporaryCredentials = 0,
         ResourceOwnerAuth,
-        AccessToken
+        AccessToken,
+        AuthorizedRequest
     };
 
     enum RequestSignatureMethod {
@@ -48,8 +51,6 @@ public:
         GET = 0,
         POST
     };
-
-    typedef QMultiMap<QString, QString> KQOAuthAdditionalParameters;
 
     // Mandatory methods to setup a request
     void initRequest(KQOAuthRequest::RequestType, const QUrl &requestEndpoint);
@@ -69,7 +70,11 @@ public:
     void setHttpMethod(KQOAuthRequest::RequestHttpMethod = KQOAuthRequest::POST);
 
     // Additional optional parameters to the request.
-    void setAdditionalParameters(const KQOAuthAdditionalParameters &additionalParams);
+    void setAdditionalParameters(const KQOAuthParameters &additionalParams);
+
+    void setRequestBody(const KQOAuthParameters &requestParams);
+    QByteArray requestBody() const;
+    // TODO: requestBodyParams() needed?
 
     QUrl requestEndpoint() const;
     QList<QByteArray> requestParameters();

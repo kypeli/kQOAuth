@@ -78,6 +78,17 @@ void KQOAuthRequestPrivate::prepareRequest() {
         insertAdditionalParams(requestParameters);
         break;
 
+    case KQOAuthRequest::AuthorizedRequest:
+        requestParameters.append( qMakePair( OAUTH_KEY_SIGNATURE_METHOD, oauthSignatureMethod ));
+        requestParameters.append( qMakePair( OAUTH_KEY_CONSUMER_KEY, oauthConsumerKey ));
+        requestParameters.append( qMakePair( OAUTH_KEY_VERSION, oauthVersion ));
+        requestParameters.append( qMakePair( OAUTH_KEY_TIMESTAMP, this->oauthTimestamp() ));
+        requestParameters.append( qMakePair( OAUTH_KEY_NONCE, this->oauthNonce() ));
+        requestParameters.append( qMakePair( OAUTH_KEY_TOKEN, oauthToken ));
+        insertAdditionalParams(requestParameters);
+        insertPostBody(requestParameters);
+        break;
+
     default:
         break;
     }
@@ -90,6 +101,28 @@ void KQOAuthRequestPrivate::insertAdditionalParams(QList< QPair<QString, QString
     for(int i=0; i<additionalKeys.size(); i++) {
         requestParams.append( qMakePair(additionalKeys.at(i),
                                         additionalValues.at(i))
+                             );
+    }
+}
+
+void KQOAuthRequestPrivate::insertPostBody(QList< QPair<QString, QString> > &requestParams) {
+    QList<QString> postBodyKeys = this->postBody.keys();
+    QList<QString> postBodyValues = this->postBody.values();
+
+    postBodyContent.clear();
+    bool first = true;
+    for(int i=0; i<postBodyKeys.size(); i++) {
+        if(!first) {
+            postBodyContent.append("&");
+        } else {
+            first = false;
+        }
+
+        QString key = postBodyKeys.at(i);
+        QString value = postBodyValues.at(i);
+        postBodyContent.append(QUrl::toPercentEncoding(key) + "=" + QUrl::toPercentEncoding(value));
+        requestParams.append( qMakePair(key,
+                                        value)
                              );
     }
 }
@@ -339,7 +372,7 @@ void KQOAuthRequest::setHttpMethod(KQOAuthRequest::RequestHttpMethod httpMethod)
     d->oauthHttpMethod = requestHttpMethodString;
 }
 
-void KQOAuthRequest::setAdditionalParameters(const KQOAuthAdditionalParameters &additionalParams) {
+void KQOAuthRequest::setAdditionalParameters(const KQOAuthParameters &additionalParams) {
     Q_D(KQOAuthRequest);
     d->additionalParams = additionalParams;
 }
@@ -395,5 +428,17 @@ void KQOAuthRequest::clearRequest() {
     d->oauthNonce_ = "";
     d->requestParameters.clear();
     d->additionalParams.clear();
+    d->postBody.clear();
 }
+
+void KQOAuthRequest::setRequestBody(const KQOAuthParameters &requestParams) {
+    Q_D(KQOAuthRequest);
+    d->postBody = requestParams;
+}
+
+QByteArray KQOAuthRequest::requestBody() const {
+    Q_D(const KQOAuthRequest);
+    return d->postBodyContent;
+}
+
 

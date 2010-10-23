@@ -23,6 +23,9 @@
 #include <QObject>
 #include <QMultiMap>
 
+#include "kqoauthrequest.h"
+#include "kqoauthrequest_p.h"
+
 class KQOAuthRequest;
 class KQOAuthManagerThread;
 class KQOAuthManagerPrivate;
@@ -55,7 +58,7 @@ public:
     bool isVerified();
     bool isAuthorized();
 
-    void sendAuthorizedRequest(QUrl requestEndpoint, QMultiMap<QByteArray, QByteArray> requestParameters);
+    void sendAuthorizedRequest(QUrl requestEndpoint, const KQOAuthParameters &requestParameters);
 
 signals:
     void requestReady(QMultiMap<QString, QString>);

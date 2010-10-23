@@ -147,6 +147,10 @@ void Ft_KQOAuth::ft_getAccessToken() {
     req->setToken(token);
     req->setVerifier(verifier);
 
+    KQOAuthParameters params;
+    params.insert("test", "empty");
+    req->setRequestBody(params);
+
     MyEventLoop loop;
 
     connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), &loop, SLOT(quit()));
