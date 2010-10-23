@@ -62,6 +62,7 @@ public:
 
 signals:
     void requestReady(QMultiMap<QString, QString>);
+    void receivedToken(QString, QString);   // oauth_token, oauth_token_secret
 
 public slots:
 

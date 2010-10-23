@@ -77,10 +77,25 @@ public:
         return isAuthorized;
     }
 
+    void emitTokens(const QMultiMap<QString, QString> &requestResponse) {
+        Q_Q(KQOAuthManager);
+
+        QString oauthToken = requestResponse.value("oauth_token");
+        QString oauthTokenSecret = requestResponse.value("oauth_token_secret");
+
+        if( oauthToken.isEmpty() || oauthTokenSecret.isEmpty() ) {
+            error = KQOAuthManager::RequestUnauthorized;
+        }
+
+        emit q->receivedToken(oauthToken, oauthTokenSecret);
+    }
+
+
+
     KQOAuthManager::KQOAuthError error;
     KQOAuthRequest *r;                  // This request is used to cache the user sent request.
     KQOAuthRequest *opaqueRequest;       // This request is used to creating opaque convenience requests for the user.
-    KQOAuthManager *q_ptr;
+    KQOAuthManager * const q_ptr;
 
     /**
      * The items below are needed in order to store the state of the manager and
@@ -96,6 +111,8 @@ public:
 
     bool isVerified;
     bool isAuthorized;
+
+    Q_DECLARE_PUBLIC(KQOAuthManager);
 };
 
 
@@ -205,6 +222,13 @@ void KQOAuthManager::requestReplyReceived( QNetworkReply *reply ) {
     }
 
     emit requestReady(requestResponse);
+
+    if( d->currentRequestType == KQOAuthRequest::TemporaryCredentials ||
+        d->currentRequestType == KQOAuthRequest::AccessToken) {
+
+        d->emitTokens(requestResponse);
+    }
+
     reply->deleteLater();           // We need to clean this up, after the event processing is done.
 }
 
