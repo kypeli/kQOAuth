@@ -6,7 +6,6 @@ VERSION = 0.1
 
 TEMPLATE = lib
 QT += network
-QT -= gui
 CONFIG += \
     create_prl
 
@@ -23,16 +22,19 @@ PUBLIC_HEADERS += kqoauthmanager.h \
                   kqoauthglobals.h \
                   kqoauthutils.h
 
-PRIVATE_HEADERS +=  kqoauthrequest_p.h
+PRIVATE_HEADERS +=  kqoauthrequest_p.h \
+                kqoauthauthreplyserver.h
 
 HEADERS = \
     $$PUBLIC_HEADERS \
     $$PRIVATE_HEADERS
 
+
 SOURCES += \ 
     kqoauthmanager.cpp \
     kqoauthrequest.cpp \
-    kqoauthutils.cpp
+    kqoauthutils.cpp \
+    kqoauthauthreplyserver.cpp
 
 DEFINES += KQOAUTH
 

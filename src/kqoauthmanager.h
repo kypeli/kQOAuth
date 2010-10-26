@@ -54,10 +54,13 @@ public:
     KQOAuthError lastError();
 
     void executeRequest(KQOAuthRequest *request);
+    void setHandleUserAuthentication(bool set);
 
+    bool hasTemporaryToken();
     bool isVerified();
     bool isAuthorized();
 
+    void getUserAuthorization(QUrl authorizationEndpoint);
     void sendAuthorizedRequest(QUrl requestEndpoint, const KQOAuthParameters &requestParameters);
 
 signals:
@@ -68,6 +71,7 @@ public slots:
 
 private slots:
     void requestReplyReceived( QNetworkReply *reply );
+    void onAuthReady();
 
 
 private:

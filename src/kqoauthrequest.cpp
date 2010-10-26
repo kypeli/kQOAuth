@@ -221,7 +221,6 @@ bool KQOAuthRequestPrivate::validateRequest() const {
     case KQOAuthRequest::TemporaryCredentials:
 
         if( oauthRequestEndpoint.isEmpty() ||
-            oauthCallbackUrl.isEmpty() ||
             oauthConsumerKey.isEmpty() ||
             oauthNonce_.isEmpty() ||
             oauthSignatureMethod.isEmpty() ||
@@ -309,6 +308,7 @@ void KQOAuthRequest::setConsumerSecretKey(const QString &consumerSecretKey) {
 
 void KQOAuthRequest::setCallbackUrl(const QUrl &callbackUrl) {
     Q_D(KQOAuthRequest);
+
     d->oauthCallbackUrl = callbackUrl;
 }
 
