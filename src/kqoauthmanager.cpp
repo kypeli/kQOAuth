@@ -20,9 +20,9 @@
 #include <QtCore>
 #include <QNetworkReply>
 #include <QDesktopServices>
-#include <QTcpServer>
 
 #include "kqoauthmanager.h"
+#include "kqoauthauthreplyserver.h"
 
 ////////////// Private implementation ////////////////
 
@@ -33,6 +33,7 @@ public:
         r(0) ,
         opaqueRequest(new KQOAuthRequest) ,
         q_ptr(parent) ,
+        callbackServer( new KQOAuthAuthReplyServer(parent) ) ,
         isVerified(false) ,
         isAuthorized(false) ,
         autoAuth(false)
@@ -109,7 +110,7 @@ public:
     }
 
     bool setupCallbackServer() {
-        return callbackServer.listen();
+        return callbackServer->listen();
     }
 
 
@@ -129,7 +130,9 @@ public:
     //       and protected resource access.
     QString requestToken;
     QString requestTokenSecret;
-    QTcpServer callbackServer;
+    QString requestVerifier;
+
+    KQOAuthAuthReplyServer *callbackServer;
 
     bool hasTemporaryToken;
     bool isVerified;
@@ -188,10 +191,9 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
 
     if( d->autoAuth && d->currentRequestType == KQOAuthRequest::TemporaryCredentials) {
         d->setupCallbackServer();
-        connect( &d->callbackServer, SIGNAL(newConnetion()), this, SLOT(onAuthReady()));
 
         QString serverString = "http://localhost:";
-        serverString.append(QString::number(d->callbackServer.serverPort()));
+        serverString.append(QString::number(d->callbackServer->serverPort()));
         request->setCallbackUrl(QUrl(serverString));
     }
 
@@ -213,13 +215,13 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
     networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
     connect(m_networkManager, SIGNAL(finished(QNetworkReply *)),
-            this, SLOT(requestReplyReceived(QNetworkReply*) ));
+            this, SLOT(onRequestReplyReceived(QNetworkReply*) ));
     m_networkManager->post(networkRequest, request->requestBody());
     qDebug() << "Request sent.";
 }
 
 
-void KQOAuthManager::requestReplyReceived( QNetworkReply *reply ) {
+void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
     Q_D(KQOAuthManager);
 
     qDebug() << "Response received.";
@@ -308,10 +310,6 @@ KQOAuthManager::KQOAuthError KQOAuthManager::lastError() {
     return d->error;
 }
 
-void KQOAuthManager::onAuthReady() {
-
-}
-
 //////////// Public convenience API /////////////
 
 void KQOAuthManager::getUserAuthorization(QUrl authorizationEndpoint) {
@@ -327,6 +325,9 @@ void KQOAuthManager::getUserAuthorization(QUrl authorizationEndpoint) {
         return;
     }
 
+    connect(d->callbackServer, SIGNAL(verificationReceived(QMultiMap<QString, QString>)),
+            this, SLOT( onVerificationReceived(QMultiMap<QString, QString>)));
+
     QPair<QString, QString> tokenParam = qMakePair(QString("oauth_token"), d->requestToken);
     QList< QPair<QString, QString> > queryParams;
     queryParams.append(tokenParam);
@@ -336,6 +337,10 @@ void KQOAuthManager::getUserAuthorization(QUrl authorizationEndpoint) {
     // Open the user's default browser to the resource authorization page provided
     // by the service.
     QDesktopServices::openUrl(authorizationEndpoint);
+}
+
+void KQOAuthManager::onVerificationReceived(QMultiMap<QString, QString> response) {
+    qDebug() << "Got verification: " << response;
 }
 
 void KQOAuthManager::sendAuthorizedRequest(QUrl requestEndpoint, const KQOAuthParameters &requestParameters) {

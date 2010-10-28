@@ -66,13 +66,13 @@ public:
 signals:
     void requestReady(QMultiMap<QString, QString>);
     void receivedToken(QString, QString);   // oauth_token, oauth_token_secret
+    void authorizationReceived(QString, QString); // oauth_token, oauth_token_secret.
 
 public slots:
 
 private slots:
-    void requestReplyReceived( QNetworkReply *reply );
-    void onAuthReady();
-
+    void onRequestReplyReceived( QNetworkReply *reply );
+    void onVerificationReceived(QMultiMap<QString, QString> response);
 
 private:
     KQOAuthManagerPrivate *d_ptr;

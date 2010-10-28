@@ -23,7 +23,7 @@ PUBLIC_HEADERS += kqoauthmanager.h \
                   kqoauthutils.h
 
 PRIVATE_HEADERS +=  kqoauthrequest_p.h \
-                kqoauthauthreplyserver.h
+                    kqoauthauthreplyserver.h
 
 HEADERS = \
     $$PUBLIC_HEADERS \
