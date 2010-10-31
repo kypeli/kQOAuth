@@ -49,6 +49,7 @@ void KQOAuthAuthReplyServer::onBytesReady() {
     reply.append(QString("Content-Length: %1\r\n").arg(content.size()));
     reply.append("\r\n");
     reply.append(content);
+    s->write(reply);
 
     QByteArray data = s->readAll();
 
