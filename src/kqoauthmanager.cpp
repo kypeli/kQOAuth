@@ -98,9 +98,14 @@ public:
             error = KQOAuthManager::RequestUnauthorized;
         }
 
+        if(currentRequestType == KQOAuthRequest::TemporaryCredentials) {
+            // Signal that we are ready to use the protected resources.
+            emit q->temporaryTokenReceived(oauthToken, oauthTokenSecret);
+        }
+
         if(currentRequestType == KQOAuthRequest::AccessToken) {
             // Signal that we are ready to use the protected resources.
-            emit q->accessReceived(oauthToken, oauthTokenSecret);
+            emit q->accessTokenReceived(oauthToken, oauthTokenSecret);
         }
 
         emit q->receivedToken(oauthToken, oauthTokenSecret);

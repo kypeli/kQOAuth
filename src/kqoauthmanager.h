@@ -66,20 +66,25 @@ public:
 
 signals:
     // This signal will be emitted after each request has got a reply.
-    void requestReady(QMultiMap<QString, QString>);
+    void requestReady(QMultiMap<QString, QString> replyParameters);
 
-    // This signal will be emited when we have an authorization token available
+    // This signal will be emited when we have an request tokens available
     // (either temporary resource tokens, or authorization tokens).
-    void receivedToken(QString, QString);   // oauth_token, oauth_token_secret
+    void receivedToken(QString oauth_token, QString oauth_token_secret);   // oauth_token, oauth_token_secret
+
+    // This signal is emited when temporary tokens are returned from the service.
+    // Note that this signal is also emited in case temporary tokens are not available.
+    void temporaryTokenReceived(QString oauth_token, QString oauth_token_secret);   // oauth_token, oauth_token_secret
 
     // This signal is emited when the user has authenticated the application to
     // communicate with the protected resources. Next we need to exchange the
     // temporary tokens for access tokens.
-    void authorizationReceived(QString, QString); // oauth_token, oauth_verifier
+    // Note that this signal is also emited if user denies access.
+    void authorizationReceived(QString oauth_token, QString oauth_verifier); // oauth_token, oauth_verifier
 
     // This signal is emited when access tokens are received from the service. We are
     // ready to start communicating with the protected resources.
-    void accessReceived(QString, QString);  // oauth_token, oauth_token_secret
+    void accessTokenReceived(QString oauth_token, QString oauth_token_secret);  // oauth_token, oauth_token_secret
 
     // This signal is emited when the authorized request is done.
     // This ends the kQOAuth interactions.
