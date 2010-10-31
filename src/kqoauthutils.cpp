@@ -21,18 +21,22 @@
 #include <QCryptographicHash>
 #include <QByteArray>
 
+#include <QtDebug>
 #include "kqoauthutils.h"
 
 QString KQOAuthUtils::hmac_sta1(const QString &message, const QString &key)
 {
-    QByteArray keyBytes = key.toLocal8Bit();
+    QByteArray keyBytes = key.toAscii();
     int keyLength;              // Lenght of key word
     const int blockSize = 64;   // Both MD5 and SHA-1 have a block size of 64.
 
     keyLength = keyBytes.size();
     // If key is longer than block size, we need to hash the key
     if(keyLength > blockSize) {
-        keyBytes = QCryptographicHash::hash(keyBytes, QCryptographicHash::Sha1);
+        QCryptographicHash hash(QCryptographicHash::Sha1);
+        hash.addData(keyBytes);
+        keyBytes = hash.result();
+        keyLength = keyBytes.size();
     }
 
     // Create the opad and ipad for the hash function.
@@ -55,7 +59,8 @@ QString KQOAuthUtils::hmac_sta1(const QString &message, const QString &key)
     QByteArray workArray;
     workArray.append(ipad, 64);
     /* http://tools.ietf.org/html/rfc2104 - (3) */
-    workArray.append(message.toLocal8Bit());
+    workArray.append(message.toAscii());
+
 
     /* http://tools.ietf.org/html/rfc2104 - (4) */
     QByteArray sha1 = QCryptographicHash::hash(workArray, QCryptographicHash::Sha1);
