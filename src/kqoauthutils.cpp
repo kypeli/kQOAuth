@@ -24,7 +24,7 @@
 #include <QtDebug>
 #include "kqoauthutils.h"
 
-QString KQOAuthUtils::hmac_sta1(const QString &message, const QString &key)
+QString KQOAuthUtils::hmac_sha1(const QString &message, const QString &key)
 {
     QByteArray keyBytes = key.toAscii();
     int keyLength;              // Lenght of key word

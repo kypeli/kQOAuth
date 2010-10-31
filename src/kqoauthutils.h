@@ -25,7 +25,7 @@ class KQOAuthUtils
 {
 public:
 
-    static QString hmac_sta1(const QString &message, const QString &key);
+    static QString hmac_sha1(const QString &message, const QString &key);
 };
 
 #endif // KQOAUTHUTILS_H

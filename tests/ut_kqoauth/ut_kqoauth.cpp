@@ -115,7 +115,7 @@ void Ut_KQOAuth::ut_hmac_sha1() {
     QFETCH(QString, key);
     QFETCH(QString, result);
 
-    QString hmac_sha1 = KQOAuthUtils::hmac_sta1(message, key);
+    QString hmac_sha1 = KQOAuthUtils::hmac_sha1(message, key);
 
     QCOMPARE(hmac_sha1, result);
 }
