@@ -3,9 +3,9 @@ exec_prefix=${prefix}
 libdir=${prefix}/lib
 includedir=${prefix}/include/QtKOAuth
 
-Name: QOAuth
+Name: kQOAuth
 Description: Qt OAuth support library
-Version: 0.1
+Version: 0.9
 Requires: QtCore QtNetwork 
 Libs: -L${libdir} -lkqoauth
 Cflags: -I${includedir}
