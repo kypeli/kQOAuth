@@ -44,7 +44,7 @@ KQOAuthRequestPrivate::~KQOAuthRequestPrivate() {
 
 }
 
-// This method will not include the "oauth_signature" paramater, since it is calculated from these parameters.
+// This method will not include the "oauthSignature" paramater, since it is calculated from these parameters.
 void KQOAuthRequestPrivate::prepareRequest() {
     // If parameter list is not empty, we don't want to insert these values by
     // accident a second time. So giving up.
@@ -52,7 +52,7 @@ void KQOAuthRequestPrivate::prepareRequest() {
         return;
     }
 
-    switch ( q_ptr->requestType ) {
+    switch ( q_ptr->m_requestType ) {
     case KQOAuthRequest::TemporaryCredentials:
         requestParameters.append( qMakePair( OAUTH_KEY_CALLBACK, QString(QUrl::toPercentEncoding( oauthCallbackUrl.toString()) )));  // This is so ugly that it is almost beautiful.
         requestParameters.append( qMakePair( OAUTH_KEY_SIGNATURE_METHOD, oauthSignatureMethod ));
@@ -61,10 +61,6 @@ void KQOAuthRequestPrivate::prepareRequest() {
         requestParameters.append( qMakePair( OAUTH_KEY_TIMESTAMP, this->oauthTimestamp() ));
         requestParameters.append( qMakePair( OAUTH_KEY_NONCE, this->oauthNonce() ));
         insertAdditionalParams(requestParameters);
-        break;
-
-    case KQOAuthRequest::ResourceOwnerAuth:
-        requestParameters.append( qMakePair( OAUTH_KEY_TOKEN, oauthToken ));
         break;
 
     case KQOAuthRequest::AccessToken:
@@ -120,11 +116,11 @@ void KQOAuthRequestPrivate::insertPostBody(QList< QPair<QString, QString> > &req
 
         QString key = postBodyKeys.at(i);
         QString value = postBodyValues.at(i);
-        postBodyContent.append(QUrl::toPercentEncoding(key) + "=" + QUrl::toPercentEncoding(value));
-        requestParams.append( qMakePair(key,
-                                        value)
-                             );
+
+        postBodyContent.append(QUrl::toPercentEncoding(key) + QString("=").toUtf8() +
+                               QUrl::toPercentEncoding(value));
     }
+
 }
 
 void KQOAuthRequestPrivate::signRequest() {
@@ -134,6 +130,7 @@ void KQOAuthRequestPrivate::signRequest() {
 
 QString KQOAuthRequestPrivate::oauthSignature()  {
     QByteArray baseString = this->requestBaseString();
+
     QString signature = KQOAuthUtils::hmac_sta1(baseString, oauthConsumerSecretKey + "&" + oauthTokenSecret);
     return QString( QUrl::toPercentEncoding( signature ) );
 }
@@ -157,15 +154,31 @@ QByteArray KQOAuthRequestPrivate::requestBaseString() {
     baseString.append( oauthHttpMethod.toUtf8() + "&");                                                     // HTTP method
     baseString.append( QUrl::toPercentEncoding( oauthRequestEndpoint.toString(QUrl::RemoveQuery) ) + "&" ); // The path and query components
 
+    QList< QPair<QString, QString> > baseStringParameters;
+    QList<QString> postBodyKeys = this->postBody.keys();
+    QList<QString> postBodyValues = this->postBody.values();
+
+    for(int i=0; i<postBodyKeys.size(); i++) {
+        QString key = postBodyKeys.at(i);
+        QString value = postBodyValues.at(i);
+
+        baseStringParameters.append( qMakePair(QString(QUrl::toPercentEncoding(key) ),
+                                               QString(QUrl::toPercentEncoding(value)))
+                                   );
+    }
+
+    baseStringParameters.append(requestParameters);
+
+
     // Sort the request parameters. These parameters have been
     // initialized earlier.
-    qSort(requestParameters.begin(),
-          requestParameters.end(),
+    qSort(baseStringParameters.begin(),
+          baseStringParameters.end(),
           normalizedParameterSort
           );
 
     // Last append the request parameters correctly encoded.
-    baseString.append( encodedParamaterList(requestParameters) );
+    baseString.append( encodedParamaterList(baseStringParameters) );
 
     return baseString;
 }
@@ -198,7 +211,7 @@ QString KQOAuthRequestPrivate::oauthTimestamp() const {
     if( !oauthTimestamp_.isEmpty() ) {
         return oauthTimestamp_;
     }
-    return QString::number(QDateTime::currentDateTime().toTime_t());
+    return QString::number(QDateTime::currentDateTimeUtc().toTime_t());
 }
 
 QString KQOAuthRequestPrivate::oauthNonce() const {
@@ -217,7 +230,7 @@ QString KQOAuthRequestPrivate::oauthNonce() const {
 }
 
 bool KQOAuthRequestPrivate::validateRequest() const {
-    switch ( q_ptr->requestType ) {
+    switch ( q_ptr->m_requestType ) {
     case KQOAuthRequest::TemporaryCredentials:
 
         if( oauthRequestEndpoint.isEmpty() ||
@@ -243,7 +256,20 @@ bool KQOAuthRequestPrivate::validateRequest() const {
             oauthTimestamp_.isEmpty() ||
             oauthToken.isEmpty() ||
             oauthTokenSecret.isEmpty() ||
-            oauthVerifier.isEmpty() ||
+            oauthVersion.isEmpty() )
+        {
+            return false;
+        }
+        return true;
+
+    case KQOAuthRequest::AuthorizedRequest:
+        if( oauthRequestEndpoint.isEmpty() ||
+            oauthConsumerKey.isEmpty() ||
+            oauthNonce_.isEmpty() ||
+            oauthSignatureMethod.isEmpty() ||
+            oauthTimestamp_.isEmpty() ||
+            oauthToken.isEmpty() ||
+            oauthTokenSecret.isEmpty() ||
             oauthVersion.isEmpty() )
         {
             return false;
@@ -265,12 +291,6 @@ KQOAuthRequest::KQOAuthRequest(QObject *parent) :
     QObject(parent),
     d_ptr(new KQOAuthRequestPrivate(this))
 {
-    Q_D(KQOAuthRequest);
-
-    // Set smart defaults.
-    this->setSignatureMethod(KQOAuthRequest::HMAC_SHA1);
-    this->setHttpMethod(KQOAuthRequest::POST);
-    d->oauthVersion = "1.0"; // Currently supports only version 1.0
 }
 
 KQOAuthRequest::~KQOAuthRequest() {
@@ -285,15 +305,19 @@ void KQOAuthRequest::initRequest(KQOAuthRequest::RequestType rtype, const QUrl &
         return;
     }
 
-    if(rtype < 0 || rtype > KQOAuthRequest::AccessToken) {
+    if(rtype < 0 || rtype > KQOAuthRequest::AuthorizedRequest) {
         qWarning() << "Invalid request type. Ignoring. This request might not work.";
         return;
     }
 
-    requestType = rtype;
+    // Set smart defaults.
+    m_requestType = rtype;
     d->oauthRequestEndpoint = requestEndpoint;
     d->oauthTimestamp_ = d->oauthTimestamp();
     d->oauthNonce_ = d->oauthNonce();
+    this->setSignatureMethod(KQOAuthRequest::HMAC_SHA1);
+    this->setHttpMethod(KQOAuthRequest::POST);
+    d->oauthVersion = "1.0"; // Currently supports only version 1.0
 }
 
 void KQOAuthRequest::setConsumerKey(const QString &consumerKey) {
@@ -377,6 +401,10 @@ void KQOAuthRequest::setAdditionalParameters(const KQOAuthParameters &additional
     d->additionalParams = additionalParams;
 }
 
+KQOAuthRequest::RequestType KQOAuthRequest::requestType() const {
+    return m_requestType;
+}
+
 QUrl KQOAuthRequest::requestEndpoint() const {
     Q_D(const KQOAuthRequest);
     return d->oauthRequestEndpoint;
@@ -422,7 +450,6 @@ void KQOAuthRequest::clearRequest() {
     d->oauthTokenSecret = "";
     d->oauthSignatureMethod = "";
     d->oauthCallbackUrl = "";
-    d->oauthVersion = "";
     d->oauthVerifier = "";
     d->oauthTimestamp_ = "";
     d->oauthNonce_ = "";

@@ -76,6 +76,7 @@ public:
     QByteArray requestBody() const;
     // TODO: requestBodyParams() needed?
 
+    KQOAuthRequest::RequestType requestType() const;
     QUrl requestEndpoint() const;
     QList<QByteArray> requestParameters();
     bool isValid() const;
@@ -88,7 +89,7 @@ signals:
 public slots:
 
 private:
-    KQOAuthRequest::RequestType requestType;
+    KQOAuthRequest::RequestType m_requestType;
     KQOAuthRequestPrivate * const d_ptr;
     Q_DECLARE_PRIVATE(KQOAuthRequest);
 

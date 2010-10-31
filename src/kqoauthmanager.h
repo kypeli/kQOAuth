@@ -54,19 +54,36 @@ public:
     KQOAuthError lastError();
 
     void executeRequest(KQOAuthRequest *request);
-    void setHandleUserAuthentication(bool set);
+    void setHandleUserAuthorization(bool set);
 
     bool hasTemporaryToken();
     bool isVerified();
     bool isAuthorized();
 
     void getUserAuthorization(QUrl authorizationEndpoint);
+    void getUserAccessTokens(QUrl accessTokenEndpoint);
     void sendAuthorizedRequest(QUrl requestEndpoint, const KQOAuthParameters &requestParameters);
 
 signals:
+    // This signal will be emitted after each request has got a reply.
     void requestReady(QMultiMap<QString, QString>);
+
+    // This signal will be emited when we have an authorization token available
+    // (either temporary resource tokens, or authorization tokens).
     void receivedToken(QString, QString);   // oauth_token, oauth_token_secret
-    void authorizationReceived(QString, QString); // oauth_token, oauth_token_secret.
+
+    // This signal is emited when the user has authenticated the application to
+    // communicate with the protected resources. Next we need to exchange the
+    // temporary tokens for access tokens.
+    void authorizationReceived(QString, QString); // oauth_token, oauth_verifier
+
+    // This signal is emited when access tokens are received from the service. We are
+    // ready to start communicating with the protected resources.
+    void accessReceived(QString, QString);  // oauth_token, oauth_token_secret
+
+    // This signal is emited when the authorized request is done.
+    // This ends the kQOAuth interactions.
+    void authorizedRequestReady();
 
 public slots:
 

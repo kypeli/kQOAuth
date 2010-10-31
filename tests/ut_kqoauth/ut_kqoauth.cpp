@@ -30,6 +30,7 @@
 #include <kqoauthutils.h>
 
 const QString Ut_KQOAuth::twitterExampleBaseString = QString("POST&https%3A%2F%2Fapi.twitter.com%2Foauth%2Frequest_token&oauth_callback%3Dhttp%253A%252F%252Flocalhost%253A3005%252Fthe_dance%252Fprocess_callback%253Fservice_provider_id%253D11%26oauth_consumer_key%3DGDdmIQH6jhtmLUypg82g%26oauth_nonce%3DQP70eNmVz8jvdPevU3oJD2AfF7R7odC2XJcn4XlZJqk%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D1272323042%26oauth_version%3D1.0");
+const QString Ut_KQOAuth::googleBaseString = QString("POST&http%3A%2F%2Fapi.twitter.com%2F1%2Fstatuses%2Fupdate.xml&oauth_consumer_key%3D9PqhX2sX7DlmjNJ5j2Q%26oauth_nonce%3D9275bae57071b54b6077a9d5561d45ad%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D1288513281%26oauth_token%3D210109965-FPE2myUlNMCix2l5dyo9AlUvPu3VvIOvCTbd1CvJ%26oauth_version%3D1.0%26status%3Dsetting%2520up%2520my%2520twitter");
 
 void Ut_KQOAuth::init()
 {
@@ -76,8 +77,7 @@ void Ut_KQOAuth::ut_requestBaseString() {
     QFETCH(QString, version);
     QFETCH(QUrl, endpoint);
 
-    r->requestType = KQOAuthRequest::TemporaryCredentials;
-    d_ptr->oauthRequestEndpoint = endpoint;
+    r->initRequest(KQOAuthRequest::TemporaryCredentials, endpoint);
     d_ptr->oauthCallbackUrl = callback;
     d_ptr->oauthConsumerKey = consumerKey;
     d_ptr->oauthNonce_ = nonce;
@@ -103,6 +103,11 @@ void Ut_KQOAuth::ut_hmac_sha1_data() {
             << QString(twitterExampleBaseString)
             << QString("MCD8BKwGdgPHvAuvgvz4EQpqDAtx89grbuNMRd7Eh98&")
             << QString("8wUi7m5HFQy76nowoCThusfgB+Q=");
+
+    QTest::newRow("GoogleSignedBasestring")
+            << QString(googleBaseString)
+            << QString("1NYYhpIw1fXItywS9Bw6gGRmkRyF9zB54UXkTGcI8&CBP6yupjMl1VLEuN5EMcWm43QLf1MCO4jeSFr7jhOI")
+            << QString("csX8BwnX35BbUlX9PqYxmvXI/KM=");
 }
 
 void Ut_KQOAuth::ut_hmac_sha1() {

@@ -43,6 +43,7 @@ private:
     KQOAuthRequestPrivate *d_ptr;
 
     static const QString twitterExampleBaseString;
+    static const QString googleBaseString;
 
 };
 

@@ -54,6 +54,9 @@ private Q_SLOTS:
     void ft_getAccessToken_data();
     void ft_getAccessToken();
 
+    void ft_AuthenticatedCall_data();
+    void ft_AuthenticatedCall();
+
     void onRequestReady(QMultiMap<QString, QString> response);
 
 private:

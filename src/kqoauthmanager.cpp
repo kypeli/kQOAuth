@@ -45,9 +45,9 @@ public:
         delete opaqueRequest;
     }
 
-    QMultiMap<QString, QString> createRequestResponse(QNetworkReply *reply) {
+    QMultiMap<QString, QString> createRequestResponse(QByteArray reply) {
         QMultiMap<QString, QString> result;
-        QString replyString(reply->readAll());
+        QString replyString(reply);
 
         QStringList parameterPairs = replyString.split('&', QString::SkipEmptyParts);
         foreach(const QString &parameterPair, parameterPairs) {
@@ -71,14 +71,6 @@ public:
         }
 
         return hasTemporaryToken;
-    }
-
-    bool setSuccessfulVerified( const QMultiMap<QString, QString> &request ){
-        Q_UNUSED(request)
-        if(currentRequestType == KQOAuthRequest::TemporaryCredentials) {
-
-        }
-        return false;
     }
 
     bool setSuccessfulAuthorized( const QMultiMap<QString, QString> &request ){
@@ -106,6 +98,11 @@ public:
             error = KQOAuthManager::RequestUnauthorized;
         }
 
+        if(currentRequestType == KQOAuthRequest::AccessToken) {
+            // Signal that we are ready to use the protected resources.
+            emit q->accessReceived(oauthToken, oauthTokenSecret);
+        }
+
         emit q->receivedToken(oauthToken, oauthTokenSecret);
     }
 
@@ -130,6 +127,8 @@ public:
     //       and protected resource access.
     QString requestToken;
     QString requestTokenSecret;
+    QString consumerKey;
+    QString consumerKeySecret;
     QString requestVerifier;
 
     KQOAuthAuthReplyServer *callbackServer;
@@ -161,9 +160,6 @@ KQOAuthManager::~KQOAuthManager() {
 void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
     Q_D(KQOAuthManager);
 
-    if( d->r != 0 ) {
-        delete d->r;
-    }
     d->r = request;
 
     if( request == 0) {
@@ -184,7 +180,7 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
         return;
     }
 
-    d->currentRequestType = request->requestType;
+    d->currentRequestType = request->m_requestType;
     QNetworkRequest networkRequest;
     // Set the request's URL to the OAuth request's endpoint.
     networkRequest.setUrl( request->requestEndpoint() );
@@ -214,73 +210,15 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
     networkRequest.setRawHeader("Authorization", authHeader);
     networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
+//    qDebug() << "Sending header: " << authHeader;
     connect(m_networkManager, SIGNAL(finished(QNetworkReply *)),
             this, SLOT(onRequestReplyReceived(QNetworkReply*) ));
     m_networkManager->post(networkRequest, request->requestBody());
-    qDebug() << "Request sent.";
+//    qDebug() << "Request sent: " << request->requestBody();
 }
 
 
-void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
-    Q_D(KQOAuthManager);
-
-    qDebug() << "Response received.";
-
-    QNetworkReply::NetworkError networkError = reply->error();
-    switch(networkError) {
-    case QNetworkReply::NoError:
-        d->error = KQOAuthManager::NoError;
-        break;
-
-    case QNetworkReply::ContentAccessDenied:
-    case QNetworkReply::AuthenticationRequiredError:
-        d->error = KQOAuthManager::RequestUnauthorized;
-        break;
-
-    default:
-        d->error = KQOAuthManager::NetworkError;
-        break;
-    }
-
-    QMultiMap<QString, QString> requestResponse;
-
-    // We need to emit the signal even if we got an error.
-    if(d->error != KQOAuthManager::NoError) {
-        emit requestReady(requestResponse);
-        d->emitTokens(requestResponse);
-        qDebug() << "Network reply " << reply->readAll();
-        return;
-    }
-
-    requestResponse = d->createRequestResponse(reply);
-    d->opaqueRequest->clearRequest();
-    if( !d->isAuthorized || !d->isVerified ) {
-        if( d->setSuccessfulRequestToken(requestResponse)) {
-            qDebug() << "Successfully got request token.";
-            d->opaqueRequest->setConsumerKey(d->r->d_ptr->oauthConsumerKey);
-            d->opaqueRequest->setConsumerSecretKey(d->r->d_ptr->oauthConsumerSecretKey);
-            d->opaqueRequest->setSignatureMethod(KQOAuthRequest::HMAC_SHA1);
-            d->opaqueRequest->setCallbackUrl(d->r->d_ptr->oauthCallbackUrl);
-        } else
-          if( d->setSuccessfulAuthorized(requestResponse) ) {
-              d->opaqueRequest->setConsumerKey(d->r->d_ptr->oauthConsumerKey);
-              d->opaqueRequest->setConsumerSecretKey(d->r->d_ptr->oauthConsumerSecretKey);
-              d->opaqueRequest->setSignatureMethod(KQOAuthRequest::HMAC_SHA1);
-          }
-    }
-
-    emit requestReady(requestResponse);
-
-    if( d->currentRequestType == KQOAuthRequest::TemporaryCredentials ||
-        d->currentRequestType == KQOAuthRequest::AccessToken) {
-
-        d->emitTokens(requestResponse);
-    }
-
-    reply->deleteLater();           // We need to clean this up, after the event processing is done.
-}
-
-void KQOAuthManager::setHandleUserAuthentication(bool set) {
+void KQOAuthManager::setHandleUserAuthorization(bool set) {
     Q_D(KQOAuthManager);
 
     d->autoAuth = set;
@@ -339,8 +277,28 @@ void KQOAuthManager::getUserAuthorization(QUrl authorizationEndpoint) {
     QDesktopServices::openUrl(authorizationEndpoint);
 }
 
-void KQOAuthManager::onVerificationReceived(QMultiMap<QString, QString> response) {
-    qDebug() << "Got verification: " << response;
+void KQOAuthManager::getUserAccessTokens(QUrl accessTokenEndpoint) {
+    Q_D(KQOAuthManager);
+
+    if( !d->isVerified) {
+        d->error = KQOAuthManager::RequestUnauthorized;
+        return;
+    }
+
+    if(!accessTokenEndpoint.isValid()) {
+        d->error = KQOAuthManager::RequestEndpointError;
+        return;
+    }
+
+    d->opaqueRequest->clearRequest();
+    d->opaqueRequest->initRequest(KQOAuthRequest::AccessToken, accessTokenEndpoint);
+    d->opaqueRequest->setToken(d->requestToken);
+    d->opaqueRequest->setTokenSecret(d->requestTokenSecret);
+    d->opaqueRequest->setVerifier(d->requestVerifier);
+    d->opaqueRequest->setConsumerKey(d->consumerKey);
+    d->opaqueRequest->setConsumerSecretKey(d->consumerKeySecret);
+
+    executeRequest(d->opaqueRequest);
 }
 
 void KQOAuthManager::sendAuthorizedRequest(QUrl requestEndpoint, const KQOAuthParameters &requestParameters) {
@@ -356,10 +314,94 @@ void KQOAuthManager::sendAuthorizedRequest(QUrl requestEndpoint, const KQOAuthPa
         return;
     }
 
+    d->opaqueRequest->clearRequest();
     d->opaqueRequest->initRequest(KQOAuthRequest::AuthorizedRequest, requestEndpoint);
     d->opaqueRequest->setRequestBody(requestParameters);
     d->opaqueRequest->setToken(d->requestToken);
     d->opaqueRequest->setTokenSecret(d->requestTokenSecret);
-    this->executeRequest(d->opaqueRequest);
+    d->opaqueRequest->setConsumerKey(d->consumerKey);
+    d->opaqueRequest->setConsumerSecretKey(d->consumerKeySecret);
+
+    executeRequest(d->opaqueRequest);
+}
+
+
+/////////////// Private slots //////////////////
+
+void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
+    Q_D(KQOAuthManager);
+
+    QNetworkReply::NetworkError networkError = reply->error();
+    switch(networkError) {
+    case QNetworkReply::NoError:
+        d->error = KQOAuthManager::NoError;
+        break;
+
+    case QNetworkReply::ContentAccessDenied:
+    case QNetworkReply::AuthenticationRequiredError:
+        d->error = KQOAuthManager::RequestUnauthorized;
+        break;
+
+    default:
+        d->error = KQOAuthManager::NetworkError;
+        break;
+    }
+
+    QByteArray networkReply = reply->readAll();
+    QMultiMap<QString, QString> requestResponse;
+
+    // We need to emit the signal even if we got an error.
+    if(d->error != KQOAuthManager::NoError) {
+        emit requestReady(requestResponse);
+        d->emitTokens(requestResponse);
+        qDebug() << "Network reply " << networkReply;
+        return;
+    }
+
+    requestResponse = d->createRequestResponse(networkReply);
+    d->opaqueRequest->clearRequest();
+    d->opaqueRequest->setHttpMethod(KQOAuthRequest::POST);
+    if( !d->isAuthorized || !d->isVerified ) {
+        if( d->setSuccessfulRequestToken(requestResponse)) {
+            qDebug() << "Successfully got request tokens.";
+            d->consumerKey = d->r->d_ptr->oauthConsumerKey;
+            d->consumerKeySecret = d->r->d_ptr->oauthConsumerSecretKey;
+            d->opaqueRequest->setSignatureMethod(KQOAuthRequest::HMAC_SHA1);
+            d->opaqueRequest->setCallbackUrl(d->r->d_ptr->oauthCallbackUrl);
+
+            d->emitTokens(requestResponse);
+
+        } else
+          if( d->setSuccessfulAuthorized(requestResponse) ) {
+              qDebug() << "Successfully got access tokens.";
+              d->opaqueRequest->setSignatureMethod(KQOAuthRequest::HMAC_SHA1);
+
+              d->emitTokens(requestResponse);
+          } else
+            if( d->currentRequestType == KQOAuthRequest::AuthorizedRequest) {
+                emit authorizedRequestReady();
+            }
+    }
+
+    emit requestReady(requestResponse);
+
+    reply->deleteLater();           // We need to clean this up, after the event processing is done.
+}
+
+void KQOAuthManager::onVerificationReceived(QMultiMap<QString, QString> response) {
+    Q_D(KQOAuthManager);
+
+    QString token = response.value("oauth_token");
+    QString verifier = response.value("oauth_verifier");
+    if(verifier.isEmpty()) {
+        d->error = KQOAuthManager::RequestUnauthorized;
+    }
+
+    if(d->error == KQOAuthManager::NoError) {
+        d->requestVerifier = verifier;
+        d->isVerified = true;
+    }
+
+    emit authorizationReceived(token, verifier);
 }
 

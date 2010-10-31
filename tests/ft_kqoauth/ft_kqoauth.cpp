@@ -147,8 +147,62 @@ void Ft_KQOAuth::ft_getAccessToken() {
     req->setToken(token);
     req->setVerifier(verifier);
 
+    MyEventLoop loop;
+
+    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), &loop, SLOT(quit()));
+    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), this, SLOT(onRequestReady(QMultiMap<QString, QString>)));
+    QTimer::singleShot( 10000, &loop, SLOT(quitWithTimeout()) );
+
+    manager->executeRequest(req);
+    loop.exec();
+
+    if ( loop.timeout() ) {
+        QWARN( "Request timeout" );
+    } else {
+        qDebug() << "Done!";
+    }
+
+}
+
+void Ft_KQOAuth::ft_AuthenticatedCall_data() {
+    QTest::addColumn<QUrl>("endpoint");
+    QTest::addColumn<QString>("consumerKey");
+    QTest::addColumn<QString>("consumerSecret");
+    QTest::addColumn<QString>("tokenSecret");
+    QTest::addColumn<QString>("token");
+    QTest::addColumn<QString>("data_key");
+    QTest::addColumn<QString>("data");
+
+
+    QTest::newRow("basicAccessToken")
+            << QUrl("http://term.ie/oauth/example/echo_api.php")
+            << QString("key")
+            << QString("secret")
+            << QString("accesssecret")
+            << QString("accesskey")
+            << QString("status")
+            << QString("setting up my twitter");
+
+}
+
+void Ft_KQOAuth::ft_AuthenticatedCall() {
+    QFETCH(QUrl, endpoint);
+    QFETCH(QString, consumerKey);
+    QFETCH(QString, consumerSecret);
+    QFETCH(QString, tokenSecret);
+    QFETCH(QString, token);
+    QFETCH(QString, data_key);
+    QFETCH(QString, data);
+
+
     KQOAuthParameters params;
-    params.insert("test", "empty");
+    params.insert(data_key, data);
+    req->initRequest(KQOAuthRequest::AuthorizedRequest, endpoint);
+    req->setToken(token);
+    req->setTokenSecret(tokenSecret);
+    req->setConsumerKey(consumerKey);
+    req->setConsumerSecretKey(consumerSecret);
+
     req->setRequestBody(params);
 
     MyEventLoop loop;
@@ -167,5 +221,6 @@ void Ft_KQOAuth::ft_getAccessToken() {
     }
 
 }
+
 
 QTEST_MAIN(Ft_KQOAuth)
