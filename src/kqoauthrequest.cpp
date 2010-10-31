@@ -82,7 +82,7 @@ void KQOAuthRequestPrivate::prepareRequest() {
         requestParameters.append( qMakePair( OAUTH_KEY_NONCE, this->oauthNonce() ));
         requestParameters.append( qMakePair( OAUTH_KEY_TOKEN, oauthToken ));
         insertAdditionalParams(requestParameters);
-        insertPostBody(requestParameters);
+        insertPostBody();
         break;
 
     default:
@@ -101,7 +101,7 @@ void KQOAuthRequestPrivate::insertAdditionalParams(QList< QPair<QString, QString
     }
 }
 
-void KQOAuthRequestPrivate::insertPostBody(QList< QPair<QString, QString> > &requestParams) {
+void KQOAuthRequestPrivate::insertPostBody() {
     QList<QString> postBodyKeys = this->postBody.keys();
     QList<QString> postBodyValues = this->postBody.values();
 
