@@ -54,7 +54,7 @@ QMultiMap<QString, QString> KQOAuthAuthReplyServer::parseQueryParams(QByteArray 
     QMultiMap<QString, QString> queryParams;
     QPair<QString, QString> tokenPair;
     foreach(tokenPair, tokens) {
-        queryParams.insert(tokenPair.first, tokenPair.second);
+        queryParams.insert(tokenPair.first.trimmed(), tokenPair.second.trimmed());
     }
 
     return queryParams;
