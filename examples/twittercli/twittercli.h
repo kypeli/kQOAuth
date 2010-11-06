@@ -40,7 +40,7 @@ private slots:
     void onTemporaryTokenReceived(QString temporaryToken, QString temporaryTokenSecret);
     void onAuthorizationReceived(QString token, QString verifier);
     void onAccessTokenReceived(QString token, QString tokenSecret);
-    void onAuthorizedRequestReady();
+    void onAuthorizedRequestDone();
 
 private:
     KQOAuthManager *oauthManager;

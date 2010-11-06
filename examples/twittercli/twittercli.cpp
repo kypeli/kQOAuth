@@ -48,7 +48,7 @@ void TwitterCLI::getAccess()  {
             this, SLOT(onAccessTokenReceived(QString,QString)));
 
     connect(oauthManager, SIGNAL(authorizedRequestReady()),
-            this, SLOT(onAuthorizedRequestReady()));
+            this, SLOT(onAuthorizedRequestDone()));
 
     oauthRequest->initRequest(KQOAuthRequest::TemporaryCredentials, QUrl("https://api.twitter.com/oauth/request_token"));
     oauthRequest->setConsumerKey("9PqhX2sX7DlmjNJ5j2Q");
@@ -91,7 +91,7 @@ void TwitterCLI::onAccessTokenReceived(QString token, QString tokenSecret) {
     QCoreApplication::exit(0);
 }
 
-void TwitterCLI::onAuthorizedRequestReady() {
+void TwitterCLI::onAuthorizedRequestDone() {
     qDebug() << "Request sent to Twitter!";
     QCoreApplication::exit(0);
 }

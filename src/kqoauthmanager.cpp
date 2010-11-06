@@ -215,11 +215,9 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
     networkRequest.setRawHeader("Authorization", authHeader);
     networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
-//    qDebug() << "Sending header: " << authHeader;
     connect(m_networkManager, SIGNAL(finished(QNetworkReply *)),
             this, SLOT(onRequestReplyReceived(QNetworkReply*) ));
     m_networkManager->post(networkRequest, request->requestBody());
-//    qDebug() << "Request sent: " << request->requestBody();
 }
 
 
@@ -384,7 +382,7 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
               d->emitTokens(requestResponse);
           } else
             if( d->currentRequestType == KQOAuthRequest::AuthorizedRequest) {
-                emit authorizedRequestReady();
+                emit authorizedRequestDone();
             }
     }
 

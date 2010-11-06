@@ -88,7 +88,7 @@ signals:
 
     // This signal is emited when the authorized request is done.
     // This ends the kQOAuth interactions.
-    void authorizedRequestReady();
+    void authorizedRequestDone();
 
 public slots:
 
