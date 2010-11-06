@@ -10,6 +10,11 @@ server on this address to listen for the reply from the service and then
 process it.
 
 
+COMPONENTS
+===============================
+Below I will present the two fundamental components necessary when using
+kQOAuth; KQOAuthManager and KQOAuthRequest.
+
 KQOAuthManager
 ===============================
 
@@ -237,6 +242,16 @@ http://www.gitorious.org/kqoauth
 
 git clone git://gitorious.org/kqoauth/kqoauth.git
 
+
+EXAMPLE APPLICATION
+============================
+kQOAuth provides as an example application a command line Twitter client.
+Currently it only supports requesting the authorization and sending status
+updates, but this should be enough to show the basic usage of kQOAuth with
+the convenience APIs. 
+
+See example/twittercli/ for source code.
+ 
 
 LICENSE AND AUTHOR
 ============================
