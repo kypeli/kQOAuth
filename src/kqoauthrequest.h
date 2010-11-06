@@ -36,7 +36,6 @@ public:
 
     enum RequestType {
         TemporaryCredentials = 0,
-        ResourceOwnerAuth,
         AccessToken,
         AuthorizedRequest
     };
@@ -53,7 +52,7 @@ public:
     };
 
     // Mandatory methods to setup a request
-    void initRequest(KQOAuthRequest::RequestType, const QUrl &requestEndpoint);
+    void initRequest(KQOAuthRequest::RequestType type, const QUrl &requestEndpoint);
     void setConsumerKey(const QString &consumerKey);
     void setConsumerSecretKey(const QString &consumerSecretKey);
 

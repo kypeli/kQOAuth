@@ -244,9 +244,6 @@ bool KQOAuthRequestPrivate::validateRequest() const {
         }
         return true;
 
-    case KQOAuthRequest::ResourceOwnerAuth:
-        return false;
-
     case KQOAuthRequest::AccessToken:
         if( oauthRequestEndpoint.isEmpty() ||
             oauthVerifier.isEmpty() ||
@@ -297,7 +294,7 @@ KQOAuthRequest::~KQOAuthRequest() {
     delete d_ptr;
 }
 
-void KQOAuthRequest::initRequest(KQOAuthRequest::RequestType rtype, const QUrl &requestEndpoint) {
+void KQOAuthRequest::initRequest(KQOAuthRequest::RequestType type, const QUrl &requestEndpoint) {
     Q_D(KQOAuthRequest);
 
     if( !requestEndpoint.isValid() ) {
@@ -305,13 +302,13 @@ void KQOAuthRequest::initRequest(KQOAuthRequest::RequestType rtype, const QUrl &
         return;
     }
 
-    if(rtype < 0 || rtype > KQOAuthRequest::AuthorizedRequest) {
+    if(type < 0 || type > KQOAuthRequest::AuthorizedRequest) {
         qWarning() << "Invalid request type. Ignoring. This request might not work.";
         return;
     }
 
     // Set smart defaults.
-    m_requestType = rtype;
+    m_requestType = type;
     d->oauthRequestEndpoint = requestEndpoint;
     d->oauthTimestamp_ = d->oauthTimestamp();
     d->oauthNonce_ = d->oauthNonce();
