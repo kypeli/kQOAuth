@@ -1,6 +1,6 @@
 kQOAuth is a OAuth 1.0 library written for Qt in C++. The goals for the 
-library have been to provide easy integration to excisting Qt applications
-utilizing Qt signals describing the OAuth process, and also to provide a 
+library have been to provide easy integration to existing Qt applications
+utilizing Qt signals describing the OAuth process, and to provide a 
 convenient approach to OAuth authentication.
 
 kQOAuth has support for retrieving the user authorization from the service
@@ -23,7 +23,7 @@ signals describing the process of the OAuth authentication.
 
 KQOAuthManager will keep track of the state of the authorization process. 
 This means that the provided convenience methods can be used to achieve the
-necessary steps in OAuth authentication without explicitely constructing
+necessary steps in OAuth authentication without explicitly constructing
 each request. 
 
 Methods
@@ -37,7 +37,7 @@ Methods
     request has been sent. 
 
     When the service responded to this request the signal 
-    requestReady(QMultiMap<QString, QString> replyParameters) is emited.
+    requestReady(QMultiMap<QString, QString> replyParameters) is emitted.
 
     If an error in the request was detected, this method will set the 
     error code which can be retrieved by calling lastError();
@@ -60,10 +60,10 @@ Methods
     a local HTTP server to process the response. 
 
     This method must be called after temporaryTokenReceived(...) signal
-    is emited.
+    is emitted.
 
     When the user's authentication is processed, the signal 
-    authorizationReceived(...) is emited.  
+    authorizationReceived(...) is emitted.  
 
 * void getUserAccessTokens(QUrl accessTokenEndpoint);
     - accessTokenEndpoint: The URL to the service provider which is used for 
@@ -75,8 +75,8 @@ Methods
     This method must be called after the signal authorizationReceived(...)
     is received. 
 
-    When the access token request is procedd, the signal accessTokenReceived(...)
-    is emited. After this signal the protected resources can be accessed.
+    When the access token request is processed, the signal accessTokenReceived(...)
+    is emitted. After this signal the protected resources can be accessed.
 
 * void sendAuthorizedRequest(QUrl requestEndpoint, 
                              const KQOAuthParameters &requestParameters);
@@ -96,7 +96,7 @@ Methods
     false
 
 * bool isVerified()
-   Returns true if the user has succesfully verified us to access the protected
+   Returns true if the user has successfully verified us to access the protected
    resources. Otherwise returns false.
 
 * bool isAuthorized()
@@ -112,15 +112,15 @@ Signals
 * void requestReady(QMultiMap<QString, QString> replyParameters)
     - replyParameters: The parameters as a response to this request.
 
-    This signal is emited after each request has been processed. It will
+    This signal is emitted after each request has been processed. It will
     return all the request response parameters in the QMultiMap, where
-    the first parameter is the name and the second paramer is the value.
+    the first parameter is the name and the second parameter is the value.
 
 * void receivedToken(QString oauth_token, QString oauth_token_secret) 
     - oauth_oken: Token value
     - oauth_token_secret: Token secret value
 
-    This signal is emited after a successful request for temporary tokens or
+    This signal is emitted after a successful request for temporary tokens or
     access tokens. The requested tokens are sent as parameters in this 
     signal. 
 
@@ -128,7 +128,7 @@ Signals
     - oauth_token: Temporary token value
     - oauth_token_secret: Temporary token secret value
 
-    This signal is emited after a successful request for temporary tokens. 
+    This signal is emitted after a successful request for temporary tokens. 
     The tokens are sent as parameters to this signal.
 
 * void authorizationReceived(QString oauth_token, QString oauth_verifier)
@@ -136,7 +136,7 @@ Signals
     - oauth_verifier: The oauth_verifier token received as a reply to the 
                    request. This value is necessary when requesting access token.
 
-    This signal is emited after the user has concluded the authorization request
+    This signal is emitted after the user has concluded the authorization request
     step in the service provider's website. 
 
     Note that setHandleUserAuthorization(true) must be called when requesting for
@@ -146,7 +146,7 @@ Signals
     - oauth_token: The access token value.
     - oauth_token_secret: The access token secret value. 
 
-    This signal is emited after a successful request for access tokens. The
+    This signal is emitted after a successful request for access tokens. The
     requested tokens are sent as parameters in this signal. These tokens
     are necessary when requesting for protected resources. 
 
