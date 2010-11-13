@@ -99,12 +99,12 @@ void Ut_KQOAuth::ut_hmac_sha1_data() {
     QTest::addColumn<QString>("key");
     QTest::addColumn<QString>("result");
 
-    QTest::newRow("twitterExample")
+    QTest::newRow("shortSigningKey")
             << QString(twitterExampleBaseString)
             << QString("MCD8BKwGdgPHvAuvgvz4EQpqDAtx89grbuNMRd7Eh98&")
             << QString("8wUi7m5HFQy76nowoCThusfgB+Q=");
 
-    QTest::newRow("GoogleSignedBasestring")
+    QTest::newRow("longSigningKey")
             << QString(googleBaseString)
             << QString("1NYYhpIw1fXItywS9Bw6gGRmkRyF9zB54UXkTGcI8&CBP6yupjMl1VLEuN5EMcWm43QLf1MCO4jeSFr7jhOI")
             << QString("csX8BwnX35BbUlX9PqYxmvXI/KM=");

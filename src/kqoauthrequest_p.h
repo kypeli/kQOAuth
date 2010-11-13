@@ -19,19 +19,16 @@
  */
 #ifndef KQOAUTHREQUEST_P_H
 #define KQOAUTHREQUEST_P_H
-
+#include "kqoauthrequest.h"
 #include <QString>
 #include <QUrl>
 #include <QMap>
 #include <QPair>
 #include <QMultiMap>
 
-class KQOAuthRequestPrivate {
-
-    Q_DECLARE_PUBLIC(KQOAuthRequest);
-
+class KQOAuthRequestPrivate {    
 public:
-    explicit KQOAuthRequestPrivate(KQOAuthRequest *parent);
+    KQOAuthRequestPrivate();
     ~KQOAuthRequestPrivate();
 
     // Helper methods to get the values for the OAuth request parameters.
@@ -90,8 +87,7 @@ public:
     // are used in the "Authorized" header of the HTTP request.
     QList< QPair<QString, QString> > requestParameters;
 
-    // Q-pointer
-    KQOAuthRequest *q_ptr;
+    KQOAuthRequest::RequestType requestType;    
 
 };
 #endif // KQOAUTHREQUEST_P_H

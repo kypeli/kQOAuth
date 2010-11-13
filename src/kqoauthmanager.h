@@ -64,7 +64,7 @@ public:
     void getUserAccessTokens(QUrl accessTokenEndpoint);
     void sendAuthorizedRequest(QUrl requestEndpoint, const KQOAuthParameters &requestParameters);
 
-signals:
+Q_SIGNALS:
     // This signal will be emitted after each request has got a reply.
     void requestReady(QMultiMap<QString, QString> replyParameters);
 
@@ -90,17 +90,17 @@ signals:
     // This ends the kQOAuth interactions.
     void authorizedRequestDone();
 
-public slots:
 
-private slots:
+
+private Q_SLOTS:
     void onRequestReplyReceived( QNetworkReply *reply );
     void onVerificationReceived(QMultiMap<QString, QString> response);
 
 private:
     KQOAuthManagerPrivate *d_ptr;
     Q_DECLARE_PRIVATE(KQOAuthManager);
+    Q_DISABLE_COPY(KQOAuthManager);
 
-    QNetworkAccessManager *m_networkManager;
 };
 
 #endif // KQOAUTHMANAGER_H

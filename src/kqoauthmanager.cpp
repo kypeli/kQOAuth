@@ -36,13 +36,17 @@ public:
         callbackServer( new KQOAuthAuthReplyServer(parent) ) ,
         isVerified(false) ,
         isAuthorized(false) ,
-        autoAuth(false)
+        autoAuth(false),
+        networkManager( new QNetworkAccessManager)
     {
 
     }
 
     ~KQOAuthManagerPrivate() {
         delete opaqueRequest;
+        opaqueRequest = 0;
+        delete networkManager;
+        networkManager = 0;
     }
 
     QMultiMap<QString, QString> createRequestResponse(QByteArray reply) {
@@ -142,6 +146,7 @@ public:
     bool isVerified;
     bool isAuthorized;
     bool autoAuth;
+    QNetworkAccessManager *networkManager;
 
     Q_DECLARE_PUBLIC(KQOAuthManager);
 };
@@ -152,14 +157,12 @@ public:
 KQOAuthManager::KQOAuthManager(QObject *parent) :
     QObject(parent) ,
     d_ptr(new KQOAuthManagerPrivate(this))
-{
-    m_networkManager = new QNetworkAccessManager;
+{    
 
 }
 
 KQOAuthManager::~KQOAuthManager() {
-    delete d_ptr;
-    delete m_networkManager;
+    delete d_ptr;    
 }
 
 void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
@@ -185,7 +188,7 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
         return;
     }
 
-    d->currentRequestType = request->m_requestType;
+    d->currentRequestType = request->requestType();
     QNetworkRequest networkRequest;
     // Set the request's URL to the OAuth request's endpoint.
     networkRequest.setUrl( request->requestEndpoint() );
@@ -215,9 +218,12 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
     networkRequest.setRawHeader("Authorization", authHeader);
     networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
-    connect(m_networkManager, SIGNAL(finished(QNetworkReply *)),
+    connect(d->networkManager, SIGNAL(finished(QNetworkReply *)),
             this, SLOT(onRequestReplyReceived(QNetworkReply*) ));
-    m_networkManager->post(networkRequest, request->requestBody());
+    d->networkManager->post(networkRequest, request->requestBody());
+    connect(d->networkManager, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(onRequestReplyReceived(QNetworkReply*) ));
+    d->networkManager->post(networkRequest, request->requestBody());
 }
 
 

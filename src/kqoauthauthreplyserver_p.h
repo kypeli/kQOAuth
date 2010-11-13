@@ -17,29 +17,31 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with KQOAuth.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef KQOAUTHAUTHREPLYSERVER_H
-#define KQOAUTHAUTHREPLYSERVER_H
+// Note this class shouldn't be copied or used and the implementation might change later.
+#ifndef KQOAUTHAUTHREPLYSERVER_P_H
+#define KQOAUTHAUTHREPLYSERVER_P_H
 
-#include <QTcpServer>
+#include "kqoauthauthreplyserver.h"
+#include <QMultiMap>
+#include <QString>
 
-class KQOAuthAuthReplyServerPrivate;
-class KQOAuthAuthReplyServer : public QTcpServer
+class KQOAuthAuthReplyServerPrivate: public QObject
 {
     Q_OBJECT
 public:
-    explicit KQOAuthAuthReplyServer(QObject *parent);
-    ~KQOAuthAuthReplyServer();
+    KQOAuthAuthReplyServerPrivate( KQOAuthAuthReplyServer * parent );
+    ~KQOAuthAuthReplyServerPrivate();
+    QMultiMap<QString, QString> parseQueryParams(QByteArray *sdata);
 
-Q_SIGNALS:
-    void verificationReceived(QMultiMap<QString, QString>);
+public Q_SLOTS:
+    void onIncomingConnection();
+    void onBytesReady();
 
-
-private:
-    KQOAuthAuthReplyServerPrivate * const d_ptr;
-    Q_DECLARE_PRIVATE(KQOAuthAuthReplyServer);
-    Q_DISABLE_COPY(KQOAuthAuthReplyServer);
-
+public:
+    KQOAuthAuthReplyServer * q_ptr;
+    Q_DECLARE_PUBLIC(KQOAuthAuthReplyServer);
+    QTcpSocket *socket;
 
 };
 
-#endif // KQOAUTHAUTHREPLYSERVER_H
+#endif // KQOAUTHAUTHREPLYSERVER_P_H

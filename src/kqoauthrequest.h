@@ -64,6 +64,7 @@ public:
     void setToken(const QString &token);
     void setVerifier(const QString &verifier);
 
+
     // Optional methods when setting up the request
     void setSignatureMethod(KQOAuthRequest::RequestSignatureMethod = KQOAuthRequest::HMAC_SHA1);
     void setHttpMethod(KQOAuthRequest::RequestHttpMethod = KQOAuthRequest::POST);
@@ -83,14 +84,11 @@ public:
     // Clear the request so we can reuse it.
     void clearRequest();
 
-signals:
 
-public slots:
-
-private:
-    KQOAuthRequest::RequestType m_requestType;
+private:    
     KQOAuthRequestPrivate * const d_ptr;
     Q_DECLARE_PRIVATE(KQOAuthRequest);
+    Q_DISABLE_COPY(KQOAuthRequest);
 
     friend class KQOAuthManager;
 #ifdef UNIT_TEST

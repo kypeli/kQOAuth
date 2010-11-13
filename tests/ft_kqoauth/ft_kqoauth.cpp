@@ -147,6 +147,8 @@ void Ft_KQOAuth::ft_getAccessToken() {
     req->setToken(token);
     req->setVerifier(verifier);
 
+    QCOMPARE(req->isValid(), true);
+
     MyEventLoop loop;
 
     connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), &loop, SLOT(quit()));
@@ -204,6 +206,8 @@ void Ft_KQOAuth::ft_AuthenticatedCall() {
     req->setConsumerSecretKey(consumerSecret);
 
     req->setRequestBody(params);
+
+    QCOMPARE(req->isValid(), true);
 
     MyEventLoop loop;
 

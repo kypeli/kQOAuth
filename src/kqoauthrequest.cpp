@@ -34,8 +34,7 @@
 
 //////////// Private d_ptr implementation /////////
 
-KQOAuthRequestPrivate::KQOAuthRequestPrivate( KQOAuthRequest *parent ) :
-    q_ptr(parent)
+KQOAuthRequestPrivate::KQOAuthRequestPrivate()
 {
 
 }
@@ -52,7 +51,7 @@ void KQOAuthRequestPrivate::prepareRequest() {
         return;
     }
 
-    switch ( q_ptr->m_requestType ) {
+    switch ( requestType ) {
     case KQOAuthRequest::TemporaryCredentials:
         requestParameters.append( qMakePair( OAUTH_KEY_CALLBACK, QString(QUrl::toPercentEncoding( oauthCallbackUrl.toString()) )));  // This is so ugly that it is almost beautiful.
         requestParameters.append( qMakePair( OAUTH_KEY_SIGNATURE_METHOD, oauthSignatureMethod ));
@@ -229,8 +228,8 @@ QString KQOAuthRequestPrivate::oauthNonce() const {
     return QCryptographicHash::hash(nonceTimestamp.toAscii(), QCryptographicHash::Md5).toHex();
 }
 
-bool KQOAuthRequestPrivate::validateRequest() const {
-    switch ( q_ptr->m_requestType ) {
+bool KQOAuthRequestPrivate::validateRequest() const {    
+    switch ( requestType ) {
     case KQOAuthRequest::TemporaryCredentials:
 
         if( oauthRequestEndpoint.isEmpty() ||
@@ -286,7 +285,7 @@ bool KQOAuthRequestPrivate::validateRequest() const {
 
 KQOAuthRequest::KQOAuthRequest(QObject *parent) :
     QObject(parent),
-    d_ptr(new KQOAuthRequestPrivate(this))
+    d_ptr(new KQOAuthRequestPrivate)
 {
 }
 
@@ -308,7 +307,7 @@ void KQOAuthRequest::initRequest(KQOAuthRequest::RequestType type, const QUrl &r
     }
 
     // Set smart defaults.
-    m_requestType = type;
+    d->requestType = type;
     d->oauthRequestEndpoint = requestEndpoint;
     d->oauthTimestamp_ = d->oauthTimestamp();
     d->oauthNonce_ = d->oauthNonce();
@@ -399,7 +398,8 @@ void KQOAuthRequest::setAdditionalParameters(const KQOAuthParameters &additional
 }
 
 KQOAuthRequest::RequestType KQOAuthRequest::requestType() const {
-    return m_requestType;
+    Q_D(const KQOAuthRequest);
+    return d->requestType;
 }
 
 QUrl KQOAuthRequest::requestEndpoint() const {

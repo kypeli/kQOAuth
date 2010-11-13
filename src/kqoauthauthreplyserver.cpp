@@ -22,24 +22,28 @@
 #include <QUrl>
 
 #include "kqoauthauthreplyserver.h"
+#include "kqoauthauthreplyserver_p.h"
 
-
-KQOAuthAuthReplyServer::KQOAuthAuthReplyServer(QObject *parent) :
-    QTcpServer(parent)
+KQOAuthAuthReplyServerPrivate::KQOAuthAuthReplyServerPrivate(KQOAuthAuthReplyServer *parent):
+    q_ptr(parent)
 {
-    connect(this, SIGNAL(newConnection()),
-            this, SLOT(onIncomingConnection()));
+
 }
 
-KQOAuthAuthReplyServer::~KQOAuthAuthReplyServer() {}
+KQOAuthAuthReplyServerPrivate::~KQOAuthAuthReplyServerPrivate()
+{
 
-void KQOAuthAuthReplyServer::onIncomingConnection() {
-    s = nextPendingConnection();
-    connect(s, SIGNAL(readyRead()),
-            this, SLOT(onBytesReady()));
 }
 
-void KQOAuthAuthReplyServer::onBytesReady() {
+void KQOAuthAuthReplyServerPrivate::onIncomingConnection() {
+    Q_Q(KQOAuthAuthReplyServer);
+    socket = q->nextPendingConnection();
+    connect(socket, SIGNAL(readyRead()),
+            this, SLOT(onBytesReady()), Qt::UniqueConnection);
+}
+
+void KQOAuthAuthReplyServerPrivate::onBytesReady() {
+    Q_Q(KQOAuthAuthReplyServer);
     QByteArray reply;
     QByteArray content;
     content.append("<HTML></HTML>");
@@ -49,19 +53,18 @@ void KQOAuthAuthReplyServer::onBytesReady() {
     reply.append(QString("Content-Length: %1\r\n").arg(content.size()));
     reply.append("\r\n");
     reply.append(content);
-    s->write(reply);
+    socket->write(reply);
 
-    QByteArray data = s->readAll();
+    QByteArray data = socket->readAll();
 
     QMultiMap<QString, QString> queryParams = parseQueryParams(&data);
 
-    s->disconnectFromHost();
-    close();
-
-    emit verificationReceived(queryParams);
+    socket->disconnectFromHost();
+    q->close();
+    emit q->verificationReceived(queryParams);
 }
 
-QMultiMap<QString, QString> KQOAuthAuthReplyServer::parseQueryParams(QByteArray *data) {
+QMultiMap<QString, QString> KQOAuthAuthReplyServerPrivate::parseQueryParams(QByteArray *data) {
     QString splitGetLine = QString(*data).split("\r\n").first();   // Retrieve the first line with query params.
     splitGetLine.remove("GET ");                                   // Clean the line from GET
     splitGetLine.remove("HTTP/1.1");                               // From HTTP
@@ -79,4 +82,21 @@ QMultiMap<QString, QString> KQOAuthAuthReplyServer::parseQueryParams(QByteArray 
 
     return queryParams;
 }
+
+
+
+KQOAuthAuthReplyServer::KQOAuthAuthReplyServer(QObject *parent) :
+    QTcpServer(parent),
+    d_ptr( new KQOAuthAuthReplyServerPrivate(this) )
+{
+    Q_D(KQOAuthAuthReplyServer);
+    connect(this, SIGNAL(newConnection()),
+            d, SLOT(onIncomingConnection()));
+}
+
+KQOAuthAuthReplyServer::~KQOAuthAuthReplyServer()
+{
+    delete d_ptr;
+}
+
 
