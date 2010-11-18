@@ -2,7 +2,7 @@ TARGET = kqoauth
 DESTDIR = ../lib
 win32:DLLDESTDIR = $${DESTDIR}
 
-VERSION = 0.1
+VERSION = 0.9
 
 TEMPLATE = lib
 QT += network

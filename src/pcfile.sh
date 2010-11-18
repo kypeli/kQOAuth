@@ -11,5 +11,5 @@ Name: KQOAuth
 Description: Qt OAuth support library
 Version: $2
 Requires: QtCore QtNetwork
-Libs: -L\${libdir} -lqoauth
-Cflags: -I\${includedir}" > qoauth.pc
+Libs: -L\${libdir} -lkqoauth
+Cflags: -I\${includedir}" > kqoauth.pc

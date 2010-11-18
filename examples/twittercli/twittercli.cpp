@@ -47,7 +47,7 @@ void TwitterCLI::getAccess()  {
     connect(oauthManager, SIGNAL(accessTokenReceived(QString,QString)),
             this, SLOT(onAccessTokenReceived(QString,QString)));
 
-    connect(oauthManager, SIGNAL(authorizedRequestReady()),
+    connect(oauthManager, SIGNAL(authorizedRequestDone()),
             this, SLOT(onAuthorizedRequestDone()));
 
     oauthRequest->initRequest(KQOAuthRequest::TemporaryCredentials, QUrl("https://api.twitter.com/oauth/request_token"));
