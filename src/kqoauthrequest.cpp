@@ -39,12 +39,14 @@ KQOAuthRequestPrivate::KQOAuthRequestPrivate()
 
 }
 
-KQOAuthRequestPrivate::~KQOAuthRequestPrivate() {
+KQOAuthRequestPrivate::~KQOAuthRequestPrivate()
+{
 
 }
 
 // This method will not include the "oauthSignature" paramater, since it is calculated from these parameters.
 void KQOAuthRequestPrivate::prepareRequest() {
+
     // If parameter list is not empty, we don't want to insert these values by
     // accident a second time. So giving up.
     if( !requestParameters.isEmpty() ) {
@@ -187,7 +189,7 @@ QByteArray KQOAuthRequestPrivate::encodedParamaterList(const QList< QPair<QStrin
 
     bool first = true;
     QPair<QString, QString> parameter;
-    foreach(parameter, parameters) {
+    foreach (parameter, parameters) {
         if(!first) {
             resultList.append( "%26" );
         } else {
@@ -207,7 +209,7 @@ QByteArray KQOAuthRequestPrivate::encodedParamaterList(const QList< QPair<QStrin
 
 QString KQOAuthRequestPrivate::oauthTimestamp() const {
     // This is basically for unit tests only. In most cases we don't set the nonce beforehand.
-    if( !oauthTimestamp_.isEmpty() ) {
+    if (!oauthTimestamp_.isEmpty()) {
         return oauthTimestamp_;
     }
     return QString::number(QDateTime::currentDateTimeUtc().toTime_t());
@@ -215,13 +217,13 @@ QString KQOAuthRequestPrivate::oauthTimestamp() const {
 
 QString KQOAuthRequestPrivate::oauthNonce() const {
     // This is basically for unit tests only. In most cases we don't set the nonce beforehand.
-    if( !oauthNonce_.isEmpty() ) {
+    if (!oauthNonce_.isEmpty()) {
         return oauthNonce_;
     }
 
     QString nonceTimestamp = oauthTimestamp_;
 
-    if( nonceTimestamp.isEmpty()) {
+    if (nonceTimestamp.isEmpty()) {
         nonceTimestamp = oauthTimestamp();
     }
 
@@ -231,42 +233,41 @@ QString KQOAuthRequestPrivate::oauthNonce() const {
 bool KQOAuthRequestPrivate::validateRequest() const {    
     switch ( requestType ) {
     case KQOAuthRequest::TemporaryCredentials:
-
-        if( oauthRequestEndpoint.isEmpty() ||
-            oauthConsumerKey.isEmpty() ||
-            oauthNonce_.isEmpty() ||
-            oauthSignatureMethod.isEmpty() ||
-            oauthTimestamp_.isEmpty() ||
-            oauthVersion.isEmpty() )
+        if (oauthRequestEndpoint.isEmpty()
+            || oauthConsumerKey.isEmpty()
+            || oauthNonce_.isEmpty()
+            || oauthSignatureMethod.isEmpty()
+            || oauthTimestamp_.isEmpty()
+            || oauthVersion.isEmpty())
         {
             return false;
         }
         return true;
 
     case KQOAuthRequest::AccessToken:
-        if( oauthRequestEndpoint.isEmpty() ||
-            oauthVerifier.isEmpty() ||
-            oauthConsumerKey.isEmpty() ||
-            oauthNonce_.isEmpty() ||
-            oauthSignatureMethod.isEmpty() ||
-            oauthTimestamp_.isEmpty() ||
-            oauthToken.isEmpty() ||
-            oauthTokenSecret.isEmpty() ||
-            oauthVersion.isEmpty() )
+        if (oauthRequestEndpoint.isEmpty()
+            ||  oauthVerifier.isEmpty()
+            || oauthConsumerKey.isEmpty()
+            || oauthNonce_.isEmpty()
+            || oauthSignatureMethod.isEmpty()
+            || oauthTimestamp_.isEmpty()
+            || oauthToken.isEmpty()
+            || oauthTokenSecret.isEmpty()
+            || oauthVersion.isEmpty())
         {
             return false;
         }
         return true;
 
     case KQOAuthRequest::AuthorizedRequest:
-        if( oauthRequestEndpoint.isEmpty() ||
-            oauthConsumerKey.isEmpty() ||
-            oauthNonce_.isEmpty() ||
-            oauthSignatureMethod.isEmpty() ||
-            oauthTimestamp_.isEmpty() ||
-            oauthToken.isEmpty() ||
-            oauthTokenSecret.isEmpty() ||
-            oauthVersion.isEmpty() )
+        if (oauthRequestEndpoint.isEmpty()
+            || oauthConsumerKey.isEmpty()
+            || oauthNonce_.isEmpty()
+            || oauthSignatureMethod.isEmpty()
+            || oauthTimestamp_.isEmpty()
+            || oauthToken.isEmpty()
+            || oauthTokenSecret.isEmpty()
+            || oauthVersion.isEmpty())
         {
             return false;
         }
@@ -289,19 +290,20 @@ KQOAuthRequest::KQOAuthRequest(QObject *parent) :
 {
 }
 
-KQOAuthRequest::~KQOAuthRequest() {
+KQOAuthRequest::~KQOAuthRequest()
+{
     delete d_ptr;
 }
 
 void KQOAuthRequest::initRequest(KQOAuthRequest::RequestType type, const QUrl &requestEndpoint) {
     Q_D(KQOAuthRequest);
 
-    if( !requestEndpoint.isValid() ) {
+    if (!requestEndpoint.isValid()) {
         qWarning() << "Endpoint URL is not valid. Ignoring. This request might not work.";
         return;
     }
 
-    if(type < 0 || type > KQOAuthRequest::AuthorizedRequest) {
+    if (type < 0 || type > KQOAuthRequest::AuthorizedRequest) {
         qWarning() << "Invalid request type. Ignoring. This request might not work.";
         return;
     }
@@ -336,7 +338,7 @@ void KQOAuthRequest::setSignatureMethod(KQOAuthRequest::RequestSignatureMethod r
     Q_D(KQOAuthRequest);
     QString requestMethodString;
 
-    switch( requestMethod ) {
+    switch (requestMethod) {
     case KQOAuthRequest::PLAINTEXT:
         requestMethodString = "PLAINTEXT";
         break;
@@ -349,6 +351,7 @@ void KQOAuthRequest::setSignatureMethod(KQOAuthRequest::RequestSignatureMethod r
     default:
         // We should not come here
         qWarning() << "Invalid signature method set.";
+        break;
     }
 
     d->oauthSignatureMethod = requestMethodString;
@@ -378,7 +381,7 @@ void KQOAuthRequest::setHttpMethod(KQOAuthRequest::RequestHttpMethod httpMethod)
 
     QString requestHttpMethodString;
 
-    switch( httpMethod ) {
+    switch (httpMethod) {
     case KQOAuthRequest::GET:
         requestHttpMethodString = "GET";
         break;
@@ -387,6 +390,7 @@ void KQOAuthRequest::setHttpMethod(KQOAuthRequest::RequestHttpMethod httpMethod)
         break;
     default:
         qWarning() << "Invalid HTTP method set.";
+        break;
     }
 
     d->oauthHttpMethod = requestHttpMethodString;
@@ -394,16 +398,19 @@ void KQOAuthRequest::setHttpMethod(KQOAuthRequest::RequestHttpMethod httpMethod)
 
 void KQOAuthRequest::setAdditionalParameters(const KQOAuthParameters &additionalParams) {
     Q_D(KQOAuthRequest);
+
     d->additionalParams = additionalParams;
 }
 
 KQOAuthRequest::RequestType KQOAuthRequest::requestType() const {
     Q_D(const KQOAuthRequest);
+
     return d->requestType;
 }
 
 QUrl KQOAuthRequest::requestEndpoint() const {
     Q_D(const KQOAuthRequest);
+
     return d->oauthRequestEndpoint;
 }
 
@@ -413,7 +420,7 @@ QList<QByteArray> KQOAuthRequest::requestParameters() {
     QList<QByteArray> requestParamList;
 
     d->prepareRequest();
-    if( !d->validateRequest() ) {
+    if (!d->validateRequest() ) {
         qWarning() << "Request is not valid! I will still sign it, but it will probably not work.";
     }
     d->signRequest();
@@ -421,7 +428,7 @@ QList<QByteArray> KQOAuthRequest::requestParameters() {
     QPair<QString, QString> requestParam;
     QString param;
     QString value;
-    foreach(requestParam, d->requestParameters) {
+    foreach (requestParam, d->requestParameters) {
         param = requestParam.first;
         value = requestParam.second;
         requestParamList.append(QString(param + "=\"" + value +"\"").toUtf8());
@@ -457,11 +464,13 @@ void KQOAuthRequest::clearRequest() {
 
 void KQOAuthRequest::setRequestBody(const KQOAuthParameters &requestParams) {
     Q_D(KQOAuthRequest);
+
     d->postBody = requestParams;
 }
 
 QByteArray KQOAuthRequest::requestBody() const {
     Q_D(const KQOAuthRequest);
+
     return d->postBodyContent;
 }
 

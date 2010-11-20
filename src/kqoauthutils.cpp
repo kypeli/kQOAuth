@@ -32,7 +32,7 @@ QString KQOAuthUtils::hmac_sha1(const QString &message, const QString &key)
 
     keyLength = keyBytes.size();
     // If key is longer than block size, we need to hash the key
-    if(keyLength > blockSize) {
+    if (keyLength > blockSize) {
         QCryptographicHash hash(QCryptographicHash::Sha1);
         hash.addData(keyBytes);
         keyBytes = hash.result();

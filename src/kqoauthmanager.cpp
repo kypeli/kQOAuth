@@ -26,7 +26,8 @@
 
 ////////////// Private implementation ////////////////
 
-class KQOAuthManagerPrivate {
+class KQOAuthManagerPrivate
+{
 public:
     KQOAuthManagerPrivate(KQOAuthManager *parent) :
         error(KQOAuthManager::NoError) ,
@@ -54,7 +55,7 @@ public:
         QString replyString(reply);
 
         QStringList parameterPairs = replyString.split('&', QString::SkipEmptyParts);
-        foreach(const QString &parameterPair, parameterPairs) {
+        foreach (const QString &parameterPair, parameterPairs) {
             QStringList parameter = parameterPair.split('=');
             result.insert(parameter.value(0), parameter.value(1));
         }
@@ -63,13 +64,13 @@ public:
     }
 
     bool setSuccessfulRequestToken(const QMultiMap<QString, QString> &request) {
-        if(currentRequestType == KQOAuthRequest::TemporaryCredentials) {
+        if (currentRequestType == KQOAuthRequest::TemporaryCredentials) {
             hasTemporaryToken = (!QString(request.value("oauth_token")).isEmpty() && !QString(request.value("oauth_token_secret")).isEmpty());
         } else {
             return false;
         }
 
-        if(hasTemporaryToken) {
+        if (hasTemporaryToken) {
             requestToken = QString(request.value("oauth_token"));
             requestTokenSecret = QString(request.value("oauth_token_secret"));
         }
@@ -78,13 +79,13 @@ public:
     }
 
     bool setSuccessfulAuthorized( const QMultiMap<QString, QString> &request ){
-        if(currentRequestType == KQOAuthRequest::AccessToken) {
+        if (currentRequestType == KQOAuthRequest::AccessToken) {
             isAuthorized = (!QString(request.value("oauth_token")).isEmpty() && !QString(request.value("oauth_token_secret")).isEmpty());
         } else {
             return false;
         }
 
-        if(isAuthorized) {
+        if (isAuthorized) {
             requestToken = QString(request.value("oauth_token"));
             requestTokenSecret = QString(request.value("oauth_token_secret"));
         }
@@ -98,16 +99,16 @@ public:
         QString oauthToken = requestResponse.value("oauth_token");
         QString oauthTokenSecret = requestResponse.value("oauth_token_secret");
 
-        if( oauthToken.isEmpty() || oauthTokenSecret.isEmpty() ) {
+        if (oauthToken.isEmpty() || oauthTokenSecret.isEmpty()) {
             error = KQOAuthManager::RequestUnauthorized;
         }
 
-        if(currentRequestType == KQOAuthRequest::TemporaryCredentials) {
+        if (currentRequestType == KQOAuthRequest::TemporaryCredentials) {
             // Signal that we are ready to use the protected resources.
             emit q->temporaryTokenReceived(oauthToken, oauthTokenSecret);
         }
 
-        if(currentRequestType == KQOAuthRequest::AccessToken) {
+        if (currentRequestType == KQOAuthRequest::AccessToken) {
             // Signal that we are ready to use the protected resources.
             emit q->accessTokenReceived(oauthToken, oauthTokenSecret);
         }
@@ -161,7 +162,8 @@ KQOAuthManager::KQOAuthManager(QObject *parent) :
 
 }
 
-KQOAuthManager::~KQOAuthManager() {
+KQOAuthManager::~KQOAuthManager()
+{
     delete d_ptr;    
 }
 
@@ -170,19 +172,19 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
 
     d->r = request;
 
-    if( request == 0) {
+    if (request == 0) {
         qWarning() << "Request is NULL. Cannot proceed.";
         d->error = KQOAuthManager::RequestError;
         return;
     }
 
-    if( !request->requestEndpoint().isValid() ) {
+    if (!request->requestEndpoint().isValid()) {
         qWarning() << "Request endpoint URL is not valid. Cannot proceed.";
         d->error = KQOAuthManager::RequestEndpointError;
         return;
     }
 
-    if( !request->isValid() ) {
+    if (!request->isValid()) {
         qWarning() << "Request is not valid. Cannot proceed.";
         d->error = KQOAuthManager::RequestValidationError;
         return;
@@ -193,7 +195,7 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
     // Set the request's URL to the OAuth request's endpoint.
     networkRequest.setUrl( request->requestEndpoint() );
 
-    if( d->autoAuth && d->currentRequestType == KQOAuthRequest::TemporaryCredentials) {
+    if (d->autoAuth && d->currentRequestType == KQOAuthRequest::TemporaryCredentials) {
         d->setupCallbackServer();
 
         QString serverString = "http://localhost:";
@@ -205,8 +207,8 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
     QList<QByteArray> requestHeaders = request->requestParameters();
     QByteArray authHeader;
     bool first = true;
-    foreach(const QByteArray header, requestHeaders) {
-        if(!first) {
+    foreach (const QByteArray header, requestHeaders) {
+        if (!first) {
             authHeader.append(", ");
         } else {
             authHeader.append("OAuth ");
@@ -259,12 +261,12 @@ KQOAuthManager::KQOAuthError KQOAuthManager::lastError() {
 void KQOAuthManager::getUserAuthorization(QUrl authorizationEndpoint) {
     Q_D(KQOAuthManager);
 
-    if( !d->hasTemporaryToken ) {
+    if (!d->hasTemporaryToken) {
         d->error = KQOAuthManager::RequestUnauthorized;
         return;
     }
 
-    if(!authorizationEndpoint.isValid()) {
+    if (!authorizationEndpoint.isValid()) {
         d->error = KQOAuthManager::RequestEndpointError;
         return;
     }
@@ -286,12 +288,12 @@ void KQOAuthManager::getUserAuthorization(QUrl authorizationEndpoint) {
 void KQOAuthManager::getUserAccessTokens(QUrl accessTokenEndpoint) {
     Q_D(KQOAuthManager);
 
-    if( !d->isVerified) {
+    if (!d->isVerified) {
         d->error = KQOAuthManager::RequestUnauthorized;
         return;
     }
 
-    if(!accessTokenEndpoint.isValid()) {
+    if (!accessTokenEndpoint.isValid()) {
         d->error = KQOAuthManager::RequestEndpointError;
         return;
     }
@@ -310,12 +312,12 @@ void KQOAuthManager::getUserAccessTokens(QUrl accessTokenEndpoint) {
 void KQOAuthManager::sendAuthorizedRequest(QUrl requestEndpoint, const KQOAuthParameters &requestParameters) {
     Q_D(KQOAuthManager);
 
-    if( !d->isAuthorized ) {
+    if (!d->isAuthorized) {
         d->error = KQOAuthManager::RequestUnauthorized;
         return;
     }
 
-    if(!requestEndpoint.isValid()) {
+    if (!requestEndpoint.isValid()) {
         d->error = KQOAuthManager::RequestEndpointError;
         return;
     }
@@ -338,7 +340,7 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
     Q_D(KQOAuthManager);
 
     QNetworkReply::NetworkError networkError = reply->error();
-    switch(networkError) {
+    switch (networkError) {
     case QNetworkReply::NoError:
         d->error = KQOAuthManager::NoError;
         break;
@@ -357,7 +359,7 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
     QMultiMap<QString, QString> requestResponse;
 
     // We need to emit the signal even if we got an error.
-    if(d->error != KQOAuthManager::NoError) {
+    if (d->error != KQOAuthManager::NoError) {
         emit requestReady(requestResponse);
         d->emitTokens(requestResponse);
         return;
@@ -366,8 +368,8 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
     requestResponse = d->createRequestResponse(networkReply);
     d->opaqueRequest->clearRequest();
     d->opaqueRequest->setHttpMethod(KQOAuthRequest::POST);
-    if( !d->isAuthorized || !d->isVerified ) {
-        if( d->setSuccessfulRequestToken(requestResponse)) {
+    if (!d->isAuthorized || !d->isVerified) {
+        if (d->setSuccessfulRequestToken(requestResponse)) {
             qDebug() << "Successfully got request tokens.";
             d->consumerKey = d->r->d_ptr->oauthConsumerKey;
             d->consumerKeySecret = d->r->d_ptr->oauthConsumerSecretKey;
@@ -376,14 +378,12 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
 
             d->emitTokens(requestResponse);
 
-        } else
-          if( d->setSuccessfulAuthorized(requestResponse) ) {
+        } else if (d->setSuccessfulAuthorized(requestResponse)) {
               qDebug() << "Successfully got access tokens.";
               d->opaqueRequest->setSignatureMethod(KQOAuthRequest::HMAC_SHA1);
 
               d->emitTokens(requestResponse);
-          } else
-            if( d->currentRequestType == KQOAuthRequest::AuthorizedRequest) {
+          } else if (d->currentRequestType == KQOAuthRequest::AuthorizedRequest) {
                 emit authorizedRequestDone();
             }
     }
@@ -398,11 +398,11 @@ void KQOAuthManager::onVerificationReceived(QMultiMap<QString, QString> response
 
     QString token = response.value("oauth_token");
     QString verifier = response.value("oauth_verifier");
-    if(verifier.isEmpty()) {
+    if (verifier.isEmpty()) {
         d->error = KQOAuthManager::RequestUnauthorized;
     }
 
-    if(d->error == KQOAuthManager::NoError) {
+    if (d->error == KQOAuthManager::NoError) {
         d->requestVerifier = verifier;
         d->isVerified = true;
     }

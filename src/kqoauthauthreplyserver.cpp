@@ -37,6 +37,7 @@ KQOAuthAuthReplyServerPrivate::~KQOAuthAuthReplyServerPrivate()
 
 void KQOAuthAuthReplyServerPrivate::onIncomingConnection() {
     Q_Q(KQOAuthAuthReplyServer);
+
     socket = q->nextPendingConnection();
     connect(socket, SIGNAL(readyRead()),
             this, SLOT(onBytesReady()), Qt::UniqueConnection);
@@ -44,6 +45,7 @@ void KQOAuthAuthReplyServerPrivate::onIncomingConnection() {
 
 void KQOAuthAuthReplyServerPrivate::onBytesReady() {
     Q_Q(KQOAuthAuthReplyServer);
+
     QByteArray reply;
     QByteArray content;
     content.append("<HTML></HTML>");
@@ -76,7 +78,7 @@ QMultiMap<QString, QString> KQOAuthAuthReplyServerPrivate::parseQueryParams(QByt
 
     QMultiMap<QString, QString> queryParams;
     QPair<QString, QString> tokenPair;
-    foreach(tokenPair, tokens) {
+    foreach (tokenPair, tokens) {
         queryParams.insert(tokenPair.first.trimmed(), tokenPair.second.trimmed());
     }
 
@@ -90,6 +92,7 @@ KQOAuthAuthReplyServer::KQOAuthAuthReplyServer(QObject *parent) :
     d_ptr( new KQOAuthAuthReplyServerPrivate(this) )
 {
     Q_D(KQOAuthAuthReplyServer);
+
     connect(this, SIGNAL(newConnection()),
             d, SLOT(onIncomingConnection()));
 }
