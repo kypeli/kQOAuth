@@ -39,21 +39,18 @@ QString KQOAuthUtils::hmac_sha1(const QString &message, const QString &key)
         keyLength = keyBytes.size();
     }
 
-    // Create the opad and ipad for the hash function.
-    char ipad[blockSize+1];
-    char opad[blockSize+1];
-
     /* http://tools.ietf.org/html/rfc2104  - (1) */
-    bzero(ipad, sizeof(ipad));
-    bzero(opad, sizeof(opad));
+    // Create the opad and ipad for the hash function.
+    QByteArray ipad;
+    QByteArray opad;
 
-    bcopy(keyBytes.constData(), ipad, keyLength);
-    bcopy(keyBytes.constData(), opad, keyLength);
+    ipad.append(keyBytes.constData());
+    opad.append(keyBytes.constData());
 
     /* http://tools.ietf.org/html/rfc2104 - (2) & (5) */
     for (int i=0; i<64; i++) {
-        ipad[i] ^= 0x36;
-        opad[i] ^= 0x5c;
+        ipad[i] = ipad[i] ^ 0x36;
+        opad[i] = opad[i] ^ 0x5c;
     }
 
     QByteArray workArray;
