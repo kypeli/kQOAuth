@@ -27,6 +27,7 @@
 #include <QMultiMap>
 
 class KQOAuthRequestPrivate {    
+
 public:
     KQOAuthRequestPrivate();
     ~KQOAuthRequestPrivate();

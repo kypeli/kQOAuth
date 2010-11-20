@@ -22,135 +22,100 @@
 #include <QDesktopServices>
 
 #include "kqoauthmanager.h"
-#include "kqoauthauthreplyserver.h"
+#include "kqoauthmanager_p.h"
 
-////////////// Private implementation ////////////////
+////////////// Private d_ptr implementation ////////////////
 
-class KQOAuthManagerPrivate
+KQOAuthManagerPrivate::KQOAuthManagerPrivate(KQOAuthManager *parent) :
+    error(KQOAuthManager::NoError) ,
+    r(0) ,
+    opaqueRequest(new KQOAuthRequest) ,
+    q_ptr(parent) ,
+    callbackServer(new KQOAuthAuthReplyServer(parent)) ,
+    isVerified(false) ,
+    isAuthorized(false) ,
+    autoAuth(false),
+    networkManager(new QNetworkAccessManager)
 {
-public:
-    KQOAuthManagerPrivate(KQOAuthManager *parent) :
-        error(KQOAuthManager::NoError) ,
-        r(0) ,
-        opaqueRequest(new KQOAuthRequest) ,
-        q_ptr(parent) ,
-        callbackServer( new KQOAuthAuthReplyServer(parent) ) ,
-        isVerified(false) ,
-        isAuthorized(false) ,
-        autoAuth(false),
-        networkManager( new QNetworkAccessManager)
-    {
 
+}
+
+KQOAuthManagerPrivate::~KQOAuthManagerPrivate() {
+    delete opaqueRequest;
+    opaqueRequest = 0;
+    delete networkManager;
+    networkManager = 0;
+}
+
+QMultiMap<QString, QString> KQOAuthManagerPrivate::createRequestResponse(QByteArray reply) {
+    QMultiMap<QString, QString> result;
+    QString replyString(reply);
+
+    QStringList parameterPairs = replyString.split('&', QString::SkipEmptyParts);
+    foreach (const QString &parameterPair, parameterPairs) {
+        QStringList parameter = parameterPair.split('=');
+        result.insert(parameter.value(0), parameter.value(1));
     }
 
-    ~KQOAuthManagerPrivate() {
-        delete opaqueRequest;
-        opaqueRequest = 0;
-        delete networkManager;
-        networkManager = 0;
+    return result;
+}
+
+bool KQOAuthManagerPrivate::setSuccessfulRequestToken(const QMultiMap<QString, QString> &request) {
+    if (currentRequestType == KQOAuthRequest::TemporaryCredentials) {
+        hasTemporaryToken = (!QString(request.value("oauth_token")).isEmpty() && !QString(request.value("oauth_token_secret")).isEmpty());
+    } else {
+        return false;
     }
 
-    QMultiMap<QString, QString> createRequestResponse(QByteArray reply) {
-        QMultiMap<QString, QString> result;
-        QString replyString(reply);
-
-        QStringList parameterPairs = replyString.split('&', QString::SkipEmptyParts);
-        foreach (const QString &parameterPair, parameterPairs) {
-            QStringList parameter = parameterPair.split('=');
-            result.insert(parameter.value(0), parameter.value(1));
-        }
-
-        return result;
+    if (hasTemporaryToken) {
+        requestToken = QString(request.value("oauth_token"));
+        requestTokenSecret = QString(request.value("oauth_token_secret"));
     }
 
-    bool setSuccessfulRequestToken(const QMultiMap<QString, QString> &request) {
-        if (currentRequestType == KQOAuthRequest::TemporaryCredentials) {
-            hasTemporaryToken = (!QString(request.value("oauth_token")).isEmpty() && !QString(request.value("oauth_token_secret")).isEmpty());
-        } else {
-            return false;
-        }
+    return hasTemporaryToken;
+}
 
-        if (hasTemporaryToken) {
-            requestToken = QString(request.value("oauth_token"));
-            requestTokenSecret = QString(request.value("oauth_token_secret"));
-        }
-
-        return hasTemporaryToken;
+bool KQOAuthManagerPrivate::setSuccessfulAuthorized(const QMultiMap<QString, QString> &request ) {
+    if (currentRequestType == KQOAuthRequest::AccessToken) {
+        isAuthorized = (!QString(request.value("oauth_token")).isEmpty() && !QString(request.value("oauth_token_secret")).isEmpty());
+    } else {
+        return false;
     }
 
-    bool setSuccessfulAuthorized( const QMultiMap<QString, QString> &request ){
-        if (currentRequestType == KQOAuthRequest::AccessToken) {
-            isAuthorized = (!QString(request.value("oauth_token")).isEmpty() && !QString(request.value("oauth_token_secret")).isEmpty());
-        } else {
-            return false;
-        }
-
-        if (isAuthorized) {
-            requestToken = QString(request.value("oauth_token"));
-            requestTokenSecret = QString(request.value("oauth_token_secret"));
-        }
-
-        return isAuthorized;
+    if (isAuthorized) {
+        requestToken = QString(request.value("oauth_token"));
+        requestTokenSecret = QString(request.value("oauth_token_secret"));
     }
 
-    void emitTokens(const QMultiMap<QString, QString> &requestResponse) {
-        Q_Q(KQOAuthManager);
+    return isAuthorized;
+}
 
-        QString oauthToken = requestResponse.value("oauth_token");
-        QString oauthTokenSecret = requestResponse.value("oauth_token_secret");
+void KQOAuthManagerPrivate::emitTokens(const QMultiMap<QString, QString> &requestResponse) {
+    Q_Q(KQOAuthManager);
 
-        if (oauthToken.isEmpty() || oauthTokenSecret.isEmpty()) {
-            error = KQOAuthManager::RequestUnauthorized;
-        }
+    QString oauthToken = requestResponse.value("oauth_token");
+    QString oauthTokenSecret = requestResponse.value("oauth_token_secret");
 
-        if (currentRequestType == KQOAuthRequest::TemporaryCredentials) {
-            // Signal that we are ready to use the protected resources.
-            emit q->temporaryTokenReceived(oauthToken, oauthTokenSecret);
-        }
-
-        if (currentRequestType == KQOAuthRequest::AccessToken) {
-            // Signal that we are ready to use the protected resources.
-            emit q->accessTokenReceived(oauthToken, oauthTokenSecret);
-        }
-
-        emit q->receivedToken(oauthToken, oauthTokenSecret);
+    if (oauthToken.isEmpty() || oauthTokenSecret.isEmpty()) {
+        error = KQOAuthManager::RequestUnauthorized;
     }
 
-    bool setupCallbackServer() {
-        return callbackServer->listen();
+    if (currentRequestType == KQOAuthRequest::TemporaryCredentials) {
+        // Signal that we are ready to use the protected resources.
+        emit q->temporaryTokenReceived(oauthToken, oauthTokenSecret);
     }
 
+    if (currentRequestType == KQOAuthRequest::AccessToken) {
+        // Signal that we are ready to use the protected resources.
+        emit q->accessTokenReceived(oauthToken, oauthTokenSecret);
+    }
 
-    KQOAuthManager::KQOAuthError error;
-    KQOAuthRequest *r;                  // This request is used to cache the user sent request.
-    KQOAuthRequest *opaqueRequest;       // This request is used to creating opaque convenience requests for the user.
-    KQOAuthManager * const q_ptr;
+    emit q->receivedToken(oauthToken, oauthTokenSecret);
+}
 
-    /**
-     * The items below are needed in order to store the state of the manager and
-     * by that be able to do convenience operations for the user.
-     */
-    KQOAuthRequest::RequestType currentRequestType;
-
-    // Variables we store here for opaque request handling.
-    // NOTE: The variables are labeled the same for both access token request
-    //       and protected resource access.
-    QString requestToken;
-    QString requestTokenSecret;
-    QString consumerKey;
-    QString consumerKeySecret;
-    QString requestVerifier;
-
-    KQOAuthAuthReplyServer *callbackServer;
-
-    bool hasTemporaryToken;
-    bool isVerified;
-    bool isAuthorized;
-    bool autoAuth;
-    QNetworkAccessManager *networkManager;
-
-    Q_DECLARE_PUBLIC(KQOAuthManager);
-};
+bool KQOAuthManagerPrivate::setupCallbackServer() {
+    return callbackServer->listen();
+}
 
 
 /////////////// Public implementation ////////////////
@@ -206,6 +171,7 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
     // And now fill the request with "Authorization" header data.
     QList<QByteArray> requestHeaders = request->requestParameters();
     QByteArray authHeader;
+
     bool first = true;
     foreach (const QByteArray header, requestHeaders) {
         if (!first) {
@@ -255,6 +221,7 @@ KQOAuthManager::KQOAuthError KQOAuthManager::lastError() {
 
     return d->error;
 }
+
 
 //////////// Public convenience API /////////////
 
