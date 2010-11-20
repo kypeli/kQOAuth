@@ -47,9 +47,6 @@ void TwitterCLI::getAccess()  {
     connect(oauthManager, SIGNAL(accessTokenReceived(QString,QString)),
             this, SLOT(onAccessTokenReceived(QString,QString)));
 
-    connect(oauthManager, SIGNAL(authorizedRequestDone()),
-            this, SLOT(onAuthorizedRequestDone()));
-
     oauthRequest->initRequest(KQOAuthRequest::TemporaryCredentials, QUrl("https://api.twitter.com/oauth/request_token"));
     oauthRequest->setConsumerKey("9PqhX2sX7DlmjNJ5j2Q");
     oauthRequest->setConsumerSecretKey("1NYYhpIw1fXItywS9Bw6gGRmkRyF9zB54UXkTGcI8");
@@ -117,8 +114,8 @@ void TwitterCLI::sendTweet(QString tweet) {
 
     oauthManager->executeRequest(oauthRequest);
 
-    connect(oauthManager, SIGNAL(authorizedRequestReady()),
-            this, SLOT(onAuthorizedRequestReady()));
+    connect(oauthManager, SIGNAL(authorizedRequestDone()),
+            this, SLOT(onAuthorizedRequestDone()));
 }
 
 void TwitterCLI::showHelp() {
