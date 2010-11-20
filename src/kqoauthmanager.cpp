@@ -221,9 +221,6 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
     connect(d->networkManager, SIGNAL(finished(QNetworkReply *)),
             this, SLOT(onRequestReplyReceived(QNetworkReply*) ));
     d->networkManager->post(networkRequest, request->requestBody());
-    connect(d->networkManager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(onRequestReplyReceived(QNetworkReply*) ));
-    d->networkManager->post(networkRequest, request->requestBody());
 }
 
 
@@ -363,7 +360,6 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
     if(d->error != KQOAuthManager::NoError) {
         emit requestReady(requestResponse);
         d->emitTokens(requestResponse);
-        qDebug() << "Network reply " << networkReply;
         return;
     }
 
