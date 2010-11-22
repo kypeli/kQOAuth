@@ -212,7 +212,13 @@ QString KQOAuthRequestPrivate::oauthTimestamp() const {
     if (!oauthTimestamp_.isEmpty()) {
         return oauthTimestamp_;
     }
+
+#if QT_VERSION >= 0x040700
     return QString::number(QDateTime::currentDateTimeUtc().toTime_t());
+#else
+   return QString::number(QDateTime::currentDateTime().toUTC().toTime_t());
+#endif
+
 }
 
 QString KQOAuthRequestPrivate::oauthNonce() const {
