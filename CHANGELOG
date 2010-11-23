@@ -1,0 +1,10 @@
+Version 0.91
+===================
++ Added support for HTTP GET requests
+- Removed method setRequestBody()
+   * Both GET and POST methods shall use the same method for specifying service 
+     specific variables: setAdditionalParameters(KQOAuthParameters);
+
+Version 0.9
+===================
+Initial release
