@@ -45,6 +45,8 @@ public:
     QByteArray encodedParamaterList(const QList< QPair<QString, QString> > &requestParameters);
     void insertAdditionalParams(QList< QPair<QString, QString> > &requestParams);
     void insertPostBody();
+    QByteArray requestBody() const;
+
 
     // Let's define the OAuth keys for the request
     // parameters here.
@@ -61,7 +63,8 @@ public:
     static const QString OAUTH_KEY_VERIFIER;
 
     QUrl oauthRequestEndpoint;
-    QString oauthHttpMethod;
+    KQOAuthRequest::RequestHttpMethod oauthHttpMethod;
+    QString oauthHttpMethodString;
     QString oauthConsumerKey;
     QString oauthConsumerSecretKey;
     QString oauthToken;
@@ -80,7 +83,7 @@ public:
 
     // Optional body for a POST request.
     // This is usually used when doing the authorized request to the service.
-     QMultiMap<QString, QString> postBody;
+//     QMultiMap<QString, QString> postBody;
      // The raw POST body content as given to the HTTP request.
      QByteArray postBodyContent;
 

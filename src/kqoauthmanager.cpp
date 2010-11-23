@@ -47,6 +47,20 @@ KQOAuthManagerPrivate::~KQOAuthManagerPrivate() {
     networkManager = 0;
 }
 
+QList< QPair<QString, QString> > KQOAuthManagerPrivate::createQueryParams(const KQOAuthParameters &requestParams) {
+    QList<QString> requestKeys = requestParams.keys();
+    QList<QString> requestValues = requestParams.values();
+
+    QList< QPair<QString, QString> > result;
+    for(int i=0; i<requestKeys.size(); i++) {
+        result.append( qMakePair(requestKeys.at(i),
+                                 requestValues.at(i))
+                      );
+    }
+
+    return result;
+}
+
 QMultiMap<QString, QString> KQOAuthManagerPrivate::createRequestResponse(QByteArray reply) {
     QMultiMap<QString, QString> result;
     QString replyString(reply);
@@ -188,7 +202,21 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
 
     connect(d->networkManager, SIGNAL(finished(QNetworkReply *)),
             this, SLOT(onRequestReplyReceived(QNetworkReply*) ));
-    d->networkManager->post(networkRequest, request->requestBody());
+
+    if (request->httpMethod() == KQOAuthRequest::GET) {
+        // Get the requested additional params as a list of pairs we can give QUrl
+        QList< QPair<QString, QString> > urlParams = d->createQueryParams(request->additionalParameters());
+
+        // Take the original URL and append the query params to it.
+        QUrl urlWithParams = networkRequest.url();
+        urlWithParams.setQueryItems(urlParams);
+        networkRequest.setUrl(urlWithParams);
+
+        // Submit the request including the params.
+        d->networkManager->get(networkRequest);
+    } else if( request->httpMethod() == KQOAuthRequest::POST) {
+        d->networkManager->post(networkRequest, request->d_func()->requestBody());
+    }
 }
 
 
@@ -291,7 +319,7 @@ void KQOAuthManager::sendAuthorizedRequest(QUrl requestEndpoint, const KQOAuthPa
 
     d->opaqueRequest->clearRequest();
     d->opaqueRequest->initRequest(KQOAuthRequest::AuthorizedRequest, requestEndpoint);
-    d->opaqueRequest->setRequestBody(requestParameters);
+    d->opaqueRequest->setAdditionalParameters(requestParameters);
     d->opaqueRequest->setToken(d->requestToken);
     d->opaqueRequest->setTokenSecret(d->requestTokenSecret);
     d->opaqueRequest->setConsumerKey(d->consumerKey);

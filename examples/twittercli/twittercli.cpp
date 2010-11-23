@@ -110,7 +110,7 @@ void TwitterCLI::sendTweet(QString tweet) {
 
     KQOAuthParameters params;
     params.insert("status", tweet);
-    oauthRequest->setRequestBody(params);
+    oauthRequest->setAdditionalParameters(params);
 
     oauthManager->executeRequest(oauthRequest);
 

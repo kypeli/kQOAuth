@@ -21,6 +21,7 @@
 #define KQOAUTHMANAGER_P_H
 
 #include "kqoauthauthreplyserver.h"
+#include "kqoauthrequest.h"
 
 class KQOAuthManagerPrivate {
 
@@ -28,6 +29,7 @@ public:
     KQOAuthManagerPrivate(KQOAuthManager *parent);
     ~KQOAuthManagerPrivate();
 
+    QList< QPair<QString, QString> > createQueryParams(const KQOAuthParameters &requestParams);
     QMultiMap<QString, QString> createRequestResponse(QByteArray reply);
     bool setSuccessfulRequestToken(const QMultiMap<QString, QString> &request);
     bool setSuccessfulAuthorized(const QMultiMap<QString, QString> &request);

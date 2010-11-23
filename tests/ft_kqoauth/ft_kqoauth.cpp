@@ -197,6 +197,66 @@ void Ft_KQOAuth::ft_AuthenticatedCall() {
     QFETCH(QString, data);
 
 
+    req->initRequest(KQOAuthRequest::AuthorizedRequest, endpoint);
+    req->setToken(token);
+    req->setTokenSecret(tokenSecret);
+    req->setConsumerKey(consumerKey);
+    req->setConsumerSecretKey(consumerSecret);
+
+    KQOAuthParameters params;
+    params.insert(data_key, data);
+    req->setAdditionalParameters(params);
+
+    QCOMPARE(req->isValid(), true);
+
+    MyEventLoop loop;
+
+    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), &loop, SLOT(quit()));
+    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), this, SLOT(onRequestReady(QMultiMap<QString, QString>)));
+    QTimer::singleShot( 10000, &loop, SLOT(quitWithTimeout()) );
+
+    manager->executeRequest(req);
+    loop.exec();
+
+    if ( loop.timeout() ) {
+        QWARN( "Request timeout" );
+    } else {
+        qDebug() << "Done!";
+    }
+
+}
+
+void Ft_KQOAuth::ft_AuthenticatedGetCall_data() {
+    QTest::addColumn<QUrl>("endpoint");
+    QTest::addColumn<QString>("consumerKey");
+    QTest::addColumn<QString>("consumerSecret");
+    QTest::addColumn<QString>("tokenSecret");
+    QTest::addColumn<QString>("token");
+    QTest::addColumn<QString>("data_key");
+    QTest::addColumn<QString>("data");
+
+
+    QTest::newRow("basicAccessToken")
+            << QUrl("http://term.ie/oauth/example/echo_api.php")
+            << QString("key")
+            << QString("secret")
+            << QString("accesssecret")
+            << QString("accesskey")
+            << QString("status")
+            << QString("This is a GET call");
+
+}
+
+void Ft_KQOAuth::ft_AuthenticatedGetCall() {
+    QFETCH(QUrl, endpoint);
+    QFETCH(QString, consumerKey);
+    QFETCH(QString, consumerSecret);
+    QFETCH(QString, tokenSecret);
+    QFETCH(QString, token);
+    QFETCH(QString, data_key);
+    QFETCH(QString, data);
+
+
     KQOAuthParameters params;
     params.insert(data_key, data);
     req->initRequest(KQOAuthRequest::AuthorizedRequest, endpoint);
@@ -204,8 +264,9 @@ void Ft_KQOAuth::ft_AuthenticatedCall() {
     req->setTokenSecret(tokenSecret);
     req->setConsumerKey(consumerKey);
     req->setConsumerSecretKey(consumerSecret);
+    req->setHttpMethod(KQOAuthRequest::GET);
 
-    req->setRequestBody(params);
+    req->setAdditionalParameters(params);
 
     QCOMPARE(req->isValid(), true);
 

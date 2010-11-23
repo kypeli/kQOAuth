@@ -65,16 +65,17 @@ public:
     void setVerifier(const QString &verifier);
 
 
-    // Optional methods when setting up the request
+    /* Optional methods when setting up the request */
+    // Request signature method to use - HMAC_SHA1 currently only supported
     void setSignatureMethod(KQOAuthRequest::RequestSignatureMethod = KQOAuthRequest::HMAC_SHA1);
+
+    // Request's HTTP method.
     void setHttpMethod(KQOAuthRequest::RequestHttpMethod = KQOAuthRequest::POST);
+    KQOAuthRequest::RequestHttpMethod httpMethod() const;
 
     // Additional optional parameters to the request.
     void setAdditionalParameters(const KQOAuthParameters &additionalParams);
-
-    void setRequestBody(const KQOAuthParameters &requestParams);
-    QByteArray requestBody() const;
-    // TODO: requestBodyParams() needed?
+    KQOAuthParameters additionalParameters() const;
 
     KQOAuthRequest::RequestType requestType() const;
     QUrl requestEndpoint() const;
