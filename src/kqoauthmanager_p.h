@@ -30,7 +30,7 @@ public:
     ~KQOAuthManagerPrivate();
 
     QList< QPair<QString, QString> > createQueryParams(const KQOAuthParameters &requestParams);
-    QMultiMap<QString, QString> createRequestResponse(QByteArray reply);
+    QMultiMap<QString, QString> createTokensFromResponse(QByteArray reply);
     bool setSuccessfulRequestToken(const QMultiMap<QString, QString> &request);
     bool setSuccessfulAuthorized(const QMultiMap<QString, QString> &request);
     void emitTokens(const QMultiMap<QString, QString> &requestResponse);

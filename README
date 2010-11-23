@@ -37,7 +37,8 @@ Methods
     request has been sent. 
 
     When the service responded to this request the signal 
-    requestReady(QMultiMap<QString, QString> replyParameters) is emitted.
+    requestReady(QByteArray) is emitted. This will contain the raw data
+    that the service sent back as a response to the request.
 
     If an error in the request was detected, this method will set the 
     error code which can be retrieved by calling lastError();
@@ -109,8 +110,8 @@ Methods
     
 Signals
 -------------------------------
-* void requestReady(QMultiMap<QString, QString> replyParameters)
-    - replyParameters: The parameters as a response to this request.
+* void requestReady(QByteArray networkReply)
+    - networkReply: The response as sent from the service the each request.
 
     This signal is emitted after each request has been processed. It will
     return all the request response parameters in the QMultiMap, where

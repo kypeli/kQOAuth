@@ -66,7 +66,8 @@ public:
 
 Q_SIGNALS:
     // This signal will be emitted after each request has got a reply.
-    void requestReady(QMultiMap<QString, QString> replyParameters);
+    // Parameter is the raw response from the service.
+    void requestReady(QByteArray networkReply);
 
     // This signal will be emited when we have an request tokens available
     // (either temporary resource tokens, or authorization tokens).

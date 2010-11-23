@@ -61,7 +61,7 @@ QList< QPair<QString, QString> > KQOAuthManagerPrivate::createQueryParams(const 
     return result;
 }
 
-QMultiMap<QString, QString> KQOAuthManagerPrivate::createRequestResponse(QByteArray reply) {
+QMultiMap<QString, QString> KQOAuthManagerPrivate::createTokensFromResponse(QByteArray reply) {
     QMultiMap<QString, QString> result;
     QString replyString(reply);
 
@@ -351,39 +351,39 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
     }
 
     QByteArray networkReply = reply->readAll();
-    QMultiMap<QString, QString> requestResponse;
+    QMultiMap<QString, QString> responseTokens;
 
     // We need to emit the signal even if we got an error.
     if (d->error != KQOAuthManager::NoError) {
-        emit requestReady(requestResponse);
-        d->emitTokens(requestResponse);
+        emit requestReady(networkReply);
+        d->emitTokens(responseTokens);
         return;
     }
 
-    requestResponse = d->createRequestResponse(networkReply);
+    responseTokens = d->createTokensFromResponse(networkReply);
     d->opaqueRequest->clearRequest();
-    d->opaqueRequest->setHttpMethod(KQOAuthRequest::POST);
+    d->opaqueRequest->setHttpMethod(KQOAuthRequest::POST);   // XXX FIXME: Convenient API does not support GET
     if (!d->isAuthorized || !d->isVerified) {
-        if (d->setSuccessfulRequestToken(requestResponse)) {
+        if (d->setSuccessfulRequestToken(responseTokens)) {
             qDebug() << "Successfully got request tokens.";
             d->consumerKey = d->r->d_ptr->oauthConsumerKey;
             d->consumerKeySecret = d->r->d_ptr->oauthConsumerSecretKey;
             d->opaqueRequest->setSignatureMethod(KQOAuthRequest::HMAC_SHA1);
             d->opaqueRequest->setCallbackUrl(d->r->d_ptr->oauthCallbackUrl);
 
-            d->emitTokens(requestResponse);
+            d->emitTokens(responseTokens);
 
-        } else if (d->setSuccessfulAuthorized(requestResponse)) {
+        } else if (d->setSuccessfulAuthorized(responseTokens)) {
               qDebug() << "Successfully got access tokens.";
               d->opaqueRequest->setSignatureMethod(KQOAuthRequest::HMAC_SHA1);
 
-              d->emitTokens(requestResponse);
+              d->emitTokens(responseTokens);
           } else if (d->currentRequestType == KQOAuthRequest::AuthorizedRequest) {
                 emit authorizedRequestDone();
             }
     }
 
-    emit requestReady(requestResponse);
+    emit requestReady(networkReply);
 
     reply->deleteLater();           // We need to clean this up, after the event processing is done.
 }
