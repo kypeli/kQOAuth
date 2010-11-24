@@ -43,6 +43,9 @@ QString KQOAuthUtils::hmac_sha1(const QString &message, const QString &key)
     // Create the opad and ipad for the hash function.
     QByteArray ipad;
     QByteArray opad;
+    ipad.clear();
+    ipad.clear();
+
     ipad.fill( 0, blockSize+1);
     opad.fill( 0, blockSize+1);
 
@@ -56,6 +59,8 @@ QString KQOAuthUtils::hmac_sha1(const QString &message, const QString &key)
     }
 
     QByteArray workArray;
+    workArray.clear();
+
     workArray.append(ipad, 64);
     /* http://tools.ietf.org/html/rfc2104 - (3) */
     workArray.append(message.toAscii());
