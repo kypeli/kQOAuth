@@ -91,8 +91,8 @@ void Ft_KQOAuth::ft_getRequestToken() {
 
     MyEventLoop loop;
 
-    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), &loop, SLOT(quit()));
-    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), this, SLOT(onRequestReady(QMultiMap<QString, QString>)));
+    connect(manager, SIGNAL(requestReady(QByteArray)), &loop, SLOT(quit()));
+    connect(manager, SIGNAL(requestReady(QByteArray)), this, SLOT(onRequestReady(QByteArray)));
     QTimer::singleShot( 10000, &loop, SLOT(quitWithTimeout()) );
 
     manager->executeRequest(req);
@@ -106,11 +106,9 @@ void Ft_KQOAuth::ft_getRequestToken() {
 
 }
 
-void Ft_KQOAuth::onRequestReady(QMultiMap<QString, QString> response) {
+void Ft_KQOAuth::onRequestReady(QByteArray response) {
     qDebug() << response;
     QCOMPARE(manager->lastError(), KQOAuthManager::NoError );
-    QVERIFY(QString(response.key("oauth_token")).isEmpty());
-    QVERIFY(QString(response.key("oauth_token_secret")).isEmpty());
 }
 
 
@@ -151,8 +149,8 @@ void Ft_KQOAuth::ft_getAccessToken() {
 
     MyEventLoop loop;
 
-    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), &loop, SLOT(quit()));
-    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), this, SLOT(onRequestReady(QMultiMap<QString, QString>)));
+    connect(manager, SIGNAL(requestReady(QByteArray)), &loop, SLOT(quit()));
+    connect(manager, SIGNAL(requestReady(QByteArray)), this, SLOT(onRequestReady(QByteArray)));
     QTimer::singleShot( 10000, &loop, SLOT(quitWithTimeout()) );
 
     manager->executeRequest(req);
@@ -211,8 +209,8 @@ void Ft_KQOAuth::ft_AuthenticatedCall() {
 
     MyEventLoop loop;
 
-    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), &loop, SLOT(quit()));
-    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), this, SLOT(onRequestReady(QMultiMap<QString, QString>)));
+    connect(manager, SIGNAL(requestReady(QByteArray)), &loop, SLOT(quit()));
+    connect(manager, SIGNAL(requestReady(QByteArray)), this, SLOT(onRequestReady(QByteArray)));
     QTimer::singleShot( 10000, &loop, SLOT(quitWithTimeout()) );
 
     manager->executeRequest(req);
@@ -272,8 +270,8 @@ void Ft_KQOAuth::ft_AuthenticatedGetCall() {
 
     MyEventLoop loop;
 
-    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), &loop, SLOT(quit()));
-    connect(manager, SIGNAL(requestReady(QMultiMap<QString, QString>)), this, SLOT(onRequestReady(QMultiMap<QString, QString>)));
+    connect(manager, SIGNAL(requestReady(QByteArray)), &loop, SLOT(quit()));
+    connect(manager, SIGNAL(requestReady(QByteArray)), this, SLOT(onRequestReady(QByteArray)));
     QTimer::singleShot( 10000, &loop, SLOT(quitWithTimeout()) );
 
     manager->executeRequest(req);

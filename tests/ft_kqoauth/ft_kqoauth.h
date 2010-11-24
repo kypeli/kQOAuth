@@ -60,7 +60,7 @@ private Q_SLOTS:
     void ft_AuthenticatedGetCall_data();
     void ft_AuthenticatedGetCall();
 
-    void onRequestReady(QMultiMap<QString, QString> response);
+    void onRequestReady(QByteArray response);
 
 private:
     KQOAuthManager *manager;
