@@ -308,6 +308,9 @@ void KQOAuthRequest::initRequest(KQOAuthRequest::RequestType type, const QUrl &r
         return;
     }
 
+    // Clear the request
+    clearRequest();
+
     // Set smart defaults.
     d->requestType = type;
     d->oauthRequestEndpoint = requestEndpoint;
