@@ -361,6 +361,7 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
 
     // We need to emit the signal even if we got an error.
     if (d->error != KQOAuthManager::NoError) {
+        reply->deleteLater();
         emit requestReady(networkReply);
         d->emitTokens(responseTokens);
         return;
