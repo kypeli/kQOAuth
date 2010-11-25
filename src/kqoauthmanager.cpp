@@ -198,7 +198,6 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
         authHeader.append(header);
     }
     networkRequest.setRawHeader("Authorization", authHeader);
-    networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
     connect(d->networkManager, SIGNAL(finished(QNetworkReply *)),
             this, SLOT(onRequestReplyReceived(QNetworkReply*) ));
@@ -215,6 +214,7 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
         // Submit the request including the params.
         d->networkManager->get(networkRequest);
     } else if( request->httpMethod() == KQOAuthRequest::POST) {
+        networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
         d->networkManager->post(networkRequest, request->d_func()->requestBody());
     }
 }
