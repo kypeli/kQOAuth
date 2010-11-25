@@ -354,6 +354,7 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
 
     // Just don't do anything if we didn't get anything useful.
     if(networkReply.isEmpty()) {
+        reply->deleteLater();
         return;
     }
     QMultiMap<QString, QString> responseTokens;
