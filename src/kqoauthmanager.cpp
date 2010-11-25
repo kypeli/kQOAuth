@@ -351,6 +351,11 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
     }
 
     QByteArray networkReply = reply->readAll();
+
+    // Just don't do anything if we didn't get anything useful.
+    if(networkReply.isEmpty()) {
+        return;
+    }
     QMultiMap<QString, QString> responseTokens;
 
     // We need to emit the signal even if we got an error.
