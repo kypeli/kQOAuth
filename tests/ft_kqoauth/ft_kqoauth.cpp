@@ -1,8 +1,8 @@
 /**
  * KQOAuth - An OAuth authentication library for Qt.
  *
- * Author: Johan Paul (johan.paul@gmail.com)
- *         http://www.johanpaul.com
+ * Author: Johan Paul (johan.paul@d-pointer.com)
+ *         http://www.d-pointer.com
  *
  *  KQOAuth is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
