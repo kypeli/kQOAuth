@@ -1,8 +1,8 @@
 /**
  * TwitterCLI - This file is a part of the kQOAuth library.
  *
- * Author: Johan Paul (johan.paul@d-pointer.com)
- *         http://www.d-pointer.com
+ * Author: Johan Paul (johan.paul@gmail.com)
+ *         http://www.johanpaul.com
  *
  *  KQOAuth is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
@@ -77,7 +77,9 @@ void TwitterCLI::onAuthorizationReceived(QString token, QString verifier) {
     qDebug() << "User authorization received: " << token << verifier;
 
     oauthManager->getUserAccessTokens(QUrl("https://api.twitter.com/oauth/access_token"));
-
+    if( oauthManager->lastError() != KQOAuthManager::NoError) {
+        QCoreApplication::exit();
+    }
 }
 
 void TwitterCLI::onAccessTokenReceived(QString token, QString tokenSecret) {
@@ -88,12 +90,12 @@ void TwitterCLI::onAccessTokenReceived(QString token, QString tokenSecret) {
 
     qDebug() << "Access tokens now stored. You are ready to send Tweets from user's account!";
 
-    QCoreApplication::exit(0);
+    QCoreApplication::exit();
 }
 
 void TwitterCLI::onAuthorizedRequestDone() {
     qDebug() << "Request sent to Twitter!";
-    QCoreApplication::exit(0);
+    QCoreApplication::exit();
 }
 
 void TwitterCLI::onRequestReady(QByteArray response) {

@@ -257,14 +257,18 @@ void KQOAuthManager::getUserAuthorization(QUrl authorizationEndpoint) {
     Q_D(KQOAuthManager);
 
     if (!d->hasTemporaryToken) {
+        qWarning() << "No temporary tokens retreieved. Cannot get user authorization.";
         d->error = KQOAuthManager::RequestUnauthorized;
         return;
     }
 
     if (!authorizationEndpoint.isValid()) {
+        qWarning() << "Authorization endpoint not valid. Cannot proceed.";
         d->error = KQOAuthManager::RequestEndpointError;
         return;
     }
+
+    d->error = KQOAuthManager::NoError;
 
     connect(d->callbackServer, SIGNAL(verificationReceived(QMultiMap<QString, QString>)),
             this, SLOT( onVerificationReceived(QMultiMap<QString, QString>)));
@@ -284,14 +288,18 @@ void KQOAuthManager::getUserAccessTokens(QUrl accessTokenEndpoint) {
     Q_D(KQOAuthManager);
 
     if (!d->isVerified) {
+        qWarning() << "Not verified. Cannot get access tokens.";
         d->error = KQOAuthManager::RequestUnauthorized;
         return;
     }
 
     if (!accessTokenEndpoint.isValid()) {
+        qWarning() << "Endpoint for access token exchange is not valid. Cannot proceed.";
         d->error = KQOAuthManager::RequestEndpointError;
         return;
     }
+
+    d->error = KQOAuthManager::NoError;
 
     d->opaqueRequest->clearRequest();
     d->opaqueRequest->initRequest(KQOAuthRequest::AccessToken, accessTokenEndpoint);
@@ -308,14 +316,18 @@ void KQOAuthManager::sendAuthorizedRequest(QUrl requestEndpoint, const KQOAuthPa
     Q_D(KQOAuthManager);
 
     if (!d->isAuthorized) {
+        qWarning() << "No access tokens retrieved. Cannot send authorized requests.";
         d->error = KQOAuthManager::RequestUnauthorized;
         return;
     }
 
     if (!requestEndpoint.isValid()) {
+        qWarning() << "Endpoint for authorized request is not valid. Cannot proceed.";
         d->error = KQOAuthManager::RequestEndpointError;
         return;
     }
+
+    d->error = KQOAuthManager::NoError;
 
     d->opaqueRequest->clearRequest();
     d->opaqueRequest->initRequest(KQOAuthRequest::AuthorizedRequest, requestEndpoint);
