@@ -24,6 +24,7 @@
 #include "kqoauthmanager.h"
 #include "kqoauthmanager_p.h"
 
+
 ////////////// Private d_ptr implementation ////////////////
 
 KQOAuthManagerPrivate::KQOAuthManagerPrivate(KQOAuthManager *parent) :
@@ -215,7 +216,7 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
         d->networkManager->get(networkRequest);
     } else if( request->httpMethod() == KQOAuthRequest::POST) {
         networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-        d->networkManager->post(networkRequest, request->d_func()->requestBody());
+        d->networkManager->post(networkRequest, request->requestBody());
     }
 }
 
@@ -385,10 +386,10 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
     if (!d->isAuthorized || !d->isVerified) {
         if (d->setSuccessfulRequestToken(responseTokens)) {
             qDebug() << "Successfully got request tokens.";
-            d->consumerKey = d->r->d_ptr->oauthConsumerKey;
-            d->consumerKeySecret = d->r->d_ptr->oauthConsumerSecretKey;
+            d->consumerKey = d->r->consumerKeyForManager();
+            d->consumerKeySecret = d->r->consumerKeySecretForManager();
             d->opaqueRequest->setSignatureMethod(KQOAuthRequest::HMAC_SHA1);
-            d->opaqueRequest->setCallbackUrl(d->r->d_ptr->oauthCallbackUrl);
+            d->opaqueRequest->setCallbackUrl(d->r->callbackUrlForManager());
 
             d->emitTokens(responseTokens);
 

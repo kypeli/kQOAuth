@@ -80,6 +80,7 @@ public:
     KQOAuthRequest::RequestType requestType() const;
     QUrl requestEndpoint() const;
     QList<QByteArray> requestParameters();
+    QByteArray requestBody() const;
     bool isValid() const;
 
     // Clear the request so we can reuse it.
@@ -90,6 +91,12 @@ private:
     KQOAuthRequestPrivate * const d_ptr;
     Q_DECLARE_PRIVATE(KQOAuthRequest);
     Q_DISABLE_COPY(KQOAuthRequest);
+
+    // These classes are only for the internal use of KQOAuthManager so it can
+    // work with the opaque request.
+    QString consumerKeyForManager() const;
+    QString consumerKeySecretForManager() const;
+    QUrl callbackUrlForManager() const;
 
     friend class KQOAuthManager;
 #ifdef UNIT_TEST

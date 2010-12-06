@@ -24,7 +24,6 @@
 #include <QMultiMap>
 
 #include "kqoauthrequest.h"
-#include "kqoauthrequest_p.h"
 
 class KQOAuthRequest;
 class KQOAuthManagerThread;

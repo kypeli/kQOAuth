@@ -20,6 +20,8 @@
 #ifndef KQOAUTHGLOBALS_H
 #define KQOAUTHGLOBALS_H
 
+#include "kqoauthrequest_p.h"
+
 //////////// Static constant definitions ///////////
 const QString KQOAuthRequestPrivate::OAUTH_KEY_CONSUMER("oauth_consumer");
 const QString KQOAuthRequestPrivate::OAUTH_KEY_CONSUMER_KEY("oauth_consumer_key");

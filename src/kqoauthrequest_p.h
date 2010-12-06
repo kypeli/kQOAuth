@@ -45,8 +45,6 @@ public:
     QByteArray encodedParamaterList(const QList< QPair<QString, QString> > &requestParameters);
     void insertAdditionalParams(QList< QPair<QString, QString> > &requestParams);
     void insertPostBody();
-    QByteArray requestBody() const;
-
 
     // Let's define the OAuth keys for the request
     // parameters here.

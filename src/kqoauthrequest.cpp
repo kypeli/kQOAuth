@@ -271,11 +271,6 @@ bool KQOAuthRequestPrivate::validateRequest() const {
     return false;
 }
 
-QByteArray KQOAuthRequestPrivate::requestBody() const {
-    return postBodyContent;
-}
-
-
 //////////// Public implementation ////////////////
 
 KQOAuthRequest::KQOAuthRequest(QObject *parent) :
@@ -447,6 +442,11 @@ QList<QByteArray> KQOAuthRequest::requestParameters() {
     return requestParamList;
 }
 
+QByteArray KQOAuthRequest::requestBody() const {
+    Q_D(const KQOAuthRequest);
+    return d->postBodyContent;
+}
+
 bool KQOAuthRequest::isValid() const {
     Q_D(const KQOAuthRequest);
 
@@ -472,3 +472,17 @@ void KQOAuthRequest::clearRequest() {
 }
 
 
+QString KQOAuthRequest::consumerKeyForManager() const {
+    Q_D(const KQOAuthRequest);
+    return d->oauthConsumerKey;
+}
+
+QString KQOAuthRequest::consumerKeySecretForManager() const {
+    Q_D(const KQOAuthRequest);
+    return d->oauthConsumerSecretKey;
+}
+
+QUrl KQOAuthRequest::callbackUrlForManager() const {
+    Q_D(const KQOAuthRequest);
+    return d->oauthCallbackUrl;
+}

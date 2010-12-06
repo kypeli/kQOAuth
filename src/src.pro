@@ -18,14 +18,14 @@ INC_DIR = ../include
 INCLUDEPATH += .
 
 PUBLIC_HEADERS += kqoauthmanager.h \
-                  kqoauthrequest.h \
-                  kqoauthglobals.h \
-                  kqoauthutils.h
+                  kqoauthrequest.h 
 
 PRIVATE_HEADERS +=  kqoauthrequest_p.h \
                     kqoauthmanager_p.h \
                     kqoauthauthreplyserver.h \
-                    kqoauthauthreplyserver_p.h
+                    kqoauthauthreplyserver_p.h \
+                    kqoauthglobals.h \
+                    kqoauthutils.h
 
 HEADERS = \
     $$PUBLIC_HEADERS \

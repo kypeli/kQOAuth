@@ -1,4 +1,2 @@
 #include "kqoauthrequest.h"
 #include "kqoauthmanager.h"
-#include "kqoauthglobals.h" 
-#include "kqoauthutils.h"
