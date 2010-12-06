@@ -46,8 +46,8 @@ QString KQOAuthUtils::hmac_sha1(const QString &message, const QString &key)
     ipad.fill( 0, blockSize);
     opad.fill( 0, blockSize);
 
-    ipad.replace(0, keyBytes.length(), keyBytes.constData());
-    opad.replace(0, keyBytes.length(), keyBytes.constData());
+    ipad.replace(0, keyBytes.length(), keyBytes);
+    opad.replace(0, keyBytes.length(), keyBytes);
 
     /* http://tools.ietf.org/html/rfc2104 - (2) & (5) */
     for (int i=0; i<64; i++) {
