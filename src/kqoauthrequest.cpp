@@ -133,9 +133,16 @@ void KQOAuthRequestPrivate::signRequest() {
 }
 
 QString KQOAuthRequestPrivate::oauthSignature()  {
+    /**
+     * http://oauth.net/core/1.0/#anchor16
+     * The HMAC-SHA1 signature method uses the HMAC-SHA1 signature algorithm as defined in [RFC2104] where the 
+     * Signature Base String is the text and the key is the concatenated values (each first encoded per Parameter 
+     * Encoding) of the Consumer Secret and Token Secret, separated by an ‘&’ character (ASCII code 38) even if empty.
+     **/
     QByteArray baseString = this->requestBaseString();
 
-    QString signature = KQOAuthUtils::hmac_sha1(baseString, oauthConsumerSecretKey + "&" + oauthTokenSecret);
+    QString secret = QString(QUrl::toPercentEncoding(oauthConsumerSecretKey)) + "&" + QString(QUrl::toPercentEncoding(oauthTokenSecret));
+    QString signature = KQOAuthUtils::hmac_sha1(baseString, secret);
     return QString( QUrl::toPercentEncoding( signature ) );
 }
 
