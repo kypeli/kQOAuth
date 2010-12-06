@@ -37,6 +37,7 @@ private Q_SLOTS:
     void ut_requestBaseString();
     void ut_hmac_sha1_data();
     void ut_hmac_sha1();
+    void ut_random_nonce();
 
 private:
     KQOAuthRequest *r;

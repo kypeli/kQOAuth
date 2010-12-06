@@ -120,4 +120,17 @@ void Ut_KQOAuth::ut_hmac_sha1() {
     QCOMPARE(hmac_sha1, result);
 }
 
+void Ut_KQOAuth::ut_random_nonce() {
+    KQOAuthRequest request;
+
+    request.initRequest(KQOAuthRequest::TemporaryCredentials, QUrl("http://foo.bar"));
+    QString nonce1 = request.d_func()->oauthNonce_;
+    request.clearRequest();
+
+    request.initRequest(KQOAuthRequest::TemporaryCredentials, QUrl("http://foo.bar"));
+    QString nonce2 = request.d_func()->oauthNonce_;
+
+    QVERIFY2(nonce1 != nonce2, "Nonce should not be used again.");
+}
+
 QTEST_MAIN(Ut_KQOAuth)

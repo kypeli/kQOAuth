@@ -217,13 +217,7 @@ QString KQOAuthRequestPrivate::oauthNonce() const {
         return oauthNonce_;
     }
 
-    QString nonceTimestamp = oauthTimestamp_;
-
-    if (nonceTimestamp.isEmpty()) {
-        nonceTimestamp = oauthTimestamp();
-    }
-
-    return QCryptographicHash::hash(nonceTimestamp.toAscii(), QCryptographicHash::Md5).toHex();
+    return QString::number(qrand());
 }
 
 bool KQOAuthRequestPrivate::validateRequest() const {    
