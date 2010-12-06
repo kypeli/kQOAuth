@@ -23,9 +23,9 @@
 
 #include <QtKOAuth>
 
-#include <QDesktopServices>
 #include "twittercli.h"
-#include "kqoauthauthreplyserver.h"
+
+// #include "kqoauthauthreplyserver.h"
 
 TwitterCLI::TwitterCLI() {
     oauthRequest = new KQOAuthRequest;
