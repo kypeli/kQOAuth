@@ -248,6 +248,7 @@ QString KQOAuthRequestPrivate::oauthNonce() const {
         return oauthNonce_;
     }
 
+    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
     return QString::number(qrand());
 }
 
