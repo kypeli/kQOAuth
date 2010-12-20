@@ -63,6 +63,7 @@ public:
     bool isAuthorized;
     bool autoAuth;
     QNetworkAccessManager *networkManager;
+    bool managerUserSet;
 
     Q_DECLARE_PUBLIC(KQOAuthManager);
 };

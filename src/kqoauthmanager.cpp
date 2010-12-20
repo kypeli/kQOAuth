@@ -36,7 +36,8 @@ KQOAuthManagerPrivate::KQOAuthManagerPrivate(KQOAuthManager *parent) :
     isVerified(false) ,
     isAuthorized(false) ,
     autoAuth(false),
-    networkManager(new QNetworkAccessManager)
+    networkManager(new QNetworkAccessManager),
+    managerUserSet(false)
 {
 
 }
@@ -44,8 +45,11 @@ KQOAuthManagerPrivate::KQOAuthManagerPrivate(KQOAuthManager *parent) :
 KQOAuthManagerPrivate::~KQOAuthManagerPrivate() {
     delete opaqueRequest;
     opaqueRequest = 0;
-    delete networkManager;
-    networkManager = 0;
+
+    if (!managerUserSet) {
+        delete networkManager;
+        networkManager = 0;
+    }
 }
 
 QList< QPair<QString, QString> > KQOAuthManagerPrivate::createQueryParams(const KQOAuthParameters &requestParams) {
@@ -249,6 +253,29 @@ KQOAuthManager::KQOAuthError KQOAuthManager::lastError() {
     Q_D(KQOAuthManager);
 
     return d->error;
+}
+
+void KQOAuthManager::setNetworkManager(QNetworkAccessManager *manager) {
+    Q_D(KQOAuthManager);
+
+    if (manager == 0) {
+        d->error = KQOAuthManager::ManagerError;
+        return;
+    }
+
+    d->managerUserSet = true;
+    d->networkManager = manager;
+}
+
+QNetworkAccessManager * KQOAuthManager::networkManager() const {
+    Q_D(const KQOAuthManager);
+
+    if (d->managerUserSet) {
+        return d->networkManager;
+    } else {
+        return NULL;
+    }
+
 }
 
 

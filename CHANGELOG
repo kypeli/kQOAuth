@@ -1,3 +1,7 @@
+Version 0.93
+===================
++ Added API for setting the QNetworkAccessManager that KQOAuthManager uses.
+
 Version 0.92
 ===================
 + Changed requestReady() signal to contain the raw network service response

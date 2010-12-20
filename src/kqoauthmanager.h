@@ -43,7 +43,8 @@ public:
         RequestEndpointError,       // Request endpoint is not valid.
         RequestValidationError,     // Request is not valid: some parameter missing?
         RequestUnauthorized,        // Authorization error: trying to access a resource without tokens.
-        RequestError                // The given request to KQOAuthManager is invalid: NULL?
+        RequestError,               // The given request to KQOAuthManager is invalid: NULL?,
+        ManagerError                // Manager error, cannot use for sending requests.
     };
 
     explicit KQOAuthManager(QObject *parent = 0);
@@ -118,6 +119,21 @@ public:
      * Set setHandleUserAuthorization() to true and retrieve user authorization with void getUserAuthorization.
      */
     void sendAuthorizedRequest(QUrl requestEndpoint, const KQOAuthParameters &requestParameters);
+
+    /**
+     * Sets a custom QNetworkAccessManager to handle network requests. This method can be useful if the
+     * application is using some proxy settings for example.
+     * The application is responsible for deleting this manager. KQOAuthManager will not delete any
+     * previously given manager.
+     * If the manager is NULL, the manager will not be set and the KQOAuthManager::Error.
+     * If no manager is given, KQOAuthManager will use the default one it will create by itself.
+     */
+    void setNetworkManager(QNetworkAccessManager *manager);
+
+    /**
+     * Returns the given QNetworkAccessManager. Returns NULL if none is given.
+     */
+    QNetworkAccessManager* networkManager() const;
 
 Q_SIGNALS:
     // This signal will be emitted after each request has got a reply.
