@@ -86,6 +86,8 @@ public:
     // Clear the request so we can reuse it.
     void clearRequest();
 
+    // Enable verbose debug output for request content.
+    void setEnableDebugOutput(bool enabled);
 
 private:    
     KQOAuthRequestPrivate * const d_ptr;

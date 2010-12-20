@@ -25,11 +25,11 @@
 
 #include "twittercli.h"
 
-// #include "kqoauthauthreplyserver.h"
-
 TwitterCLI::TwitterCLI() {
     oauthRequest = new KQOAuthRequest;
     oauthManager = new KQOAuthManager(this);
+
+    oauthRequest->setEnableDebugOutput(true);
 }
 
 TwitterCLI::~TwitterCLI() {

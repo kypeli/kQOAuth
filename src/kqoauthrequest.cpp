@@ -143,7 +143,12 @@ QString KQOAuthRequestPrivate::oauthSignature()  {
 
     QString secret = QString(QUrl::toPercentEncoding(oauthConsumerSecretKey)) + "&" + QString(QUrl::toPercentEncoding(oauthTokenSecret));
     QString signature = KQOAuthUtils::hmac_sha1(baseString, secret);
-    return QString( QUrl::toPercentEncoding( signature ) );
+
+    if (debugOutput) {
+        qDebug() << "========== KQOAuthRequest has the following signature:";
+        qDebug() << " * Signature : " << QUrl::toPercentEncoding(signature) << "\n";
+    }
+    return QString( QUrl::toPercentEncoding(signature) );
 }
 
 bool normalizedParameterSort(const QPair<QString, QString> &left, const QPair<QString, QString> &right) {
@@ -178,6 +183,11 @@ QByteArray KQOAuthRequestPrivate::requestBaseString() {
     // Last append the request parameters correctly encoded.
     baseString.append( encodedParamaterList(baseStringParameters) );
 
+    if (debugOutput) {
+        qDebug() << "========== KQOAuthRequest has the following base string:";
+        qDebug() << baseString << "\n";
+    }
+
     return baseString;
 }
 
@@ -186,6 +196,11 @@ QByteArray KQOAuthRequestPrivate::encodedParamaterList(const QList< QPair<QStrin
 
     bool first = true;
     QPair<QString, QString> parameter;
+
+    // Do the debug output.
+    if (debugOutput) {
+        qDebug() << "========== KQOAuthRequest has the following parameters:";
+    }
     foreach (parameter, parameters) {
         if(!first) {
             resultList.append( "%26" );
@@ -199,6 +214,15 @@ QByteArray KQOAuthRequestPrivate::encodedParamaterList(const QList< QPair<QStrin
                            + "%3D"                                      // '=' encoded
                            + QUrl::toPercentEncoding(parameter.second)  // Parameter value
                           );
+        if (debugOutput) {
+            qDebug() << " * "
+                     << QUrl::toPercentEncoding(parameter.first)
+                     << " : "
+                     << QUrl::toPercentEncoding(parameter.second);
+        }
+    }
+    if (debugOutput) {
+        qDebug() << "\n";
     }
 
     return resultList;
@@ -478,6 +502,10 @@ void KQOAuthRequest::clearRequest() {
     d->additionalParams.clear();
 }
 
+void KQOAuthRequest::setEnableDebugOutput(bool enabled) {
+    Q_D(KQOAuthRequest);
+    d->debugOutput = enabled;
+}
 
 QString KQOAuthRequest::consumerKeyForManager() const {
     Q_D(const KQOAuthRequest);

@@ -79,9 +79,6 @@ public:
     // User specified additional parameters needed for the request.
     QMultiMap<QString, QString> additionalParams;
 
-    // Optional body for a POST request.
-    // This is usually used when doing the authorized request to the service.
-//     QMultiMap<QString, QString> postBody;
      // The raw POST body content as given to the HTTP request.
      QByteArray postBodyContent;
 
@@ -90,6 +87,8 @@ public:
     QList< QPair<QString, QString> > requestParameters;
 
     KQOAuthRequest::RequestType requestType;    
+
+    bool debugOutput;
 
 };
 #endif // KQOAUTHREQUEST_P_H

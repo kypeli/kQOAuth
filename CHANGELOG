@@ -1,6 +1,8 @@
 Version 0.93
 ===================
 + Added API for setting the QNetworkAccessManager that KQOAuthManager uses.
++ Added debug output.
+    * Set KQOAuthRequest::setEnableDebugOutput(true) to enable debug output for requests.
 
 Version 0.92
 ===================
