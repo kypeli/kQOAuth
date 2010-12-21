@@ -309,6 +309,9 @@ KQOAuthRequest::KQOAuthRequest(QObject *parent) :
     d_ptr(new KQOAuthRequestPrivate)
 {
     d_ptr->debugOutput = false;  // No debug output by default.
+    qsrand(QTime::currentTime().msec());  // We need to seed the nonce random number with something.
+                                          // However, we cannot do this while generating the nonce since
+                                          // we might get the same seed. So initializing here should be fine.
 }
 
 KQOAuthRequest::~KQOAuthRequest()
@@ -340,6 +343,7 @@ void KQOAuthRequest::initRequest(KQOAuthRequest::RequestType type, const QUrl &r
     this->setSignatureMethod(KQOAuthRequest::HMAC_SHA1);
     this->setHttpMethod(KQOAuthRequest::POST);
     d->oauthVersion = "1.0"; // Currently supports only version 1.0
+
 }
 
 void KQOAuthRequest::setConsumerKey(const QString &consumerKey) {
