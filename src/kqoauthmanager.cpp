@@ -444,6 +444,9 @@ void KQOAuthManager::onVerificationReceived(QMultiMap<QString, QString> response
         d->error = KQOAuthManager::RequestUnauthorized;
     }
 
+    verifier = QUrl::fromPercentEncoding(verifier.toUtf8());     // We get the raw URL response here so we need to convert it back
+                                                                 // to plain string so we can percent encode it again later in requests.
+
     if (d->error == KQOAuthManager::NoError) {
         d->requestVerifier = verifier;
         d->isVerified = true;

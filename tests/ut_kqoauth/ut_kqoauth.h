@@ -40,6 +40,7 @@ private Q_SLOTS:
     void ut_random_nonce();
     void ut_basestring_with_percent_encoding();
     void ut_basestring_with_percent_encoding_data();
+    void ut_convert_verifier();
 
 private:
     KQOAuthRequest *r;

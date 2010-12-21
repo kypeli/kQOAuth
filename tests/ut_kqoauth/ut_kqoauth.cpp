@@ -170,4 +170,12 @@ void Ut_KQOAuth::ut_basestring_with_percent_encoding() {
     QVERIFY2(requestSignature == QUrl::toPercentEncoding(signature),
              "Signature is not correct");
 }
+
+void Ut_KQOAuth::ut_convert_verifier() {
+    QString rawVerifier = "%3DRwO3QvpqQ5dL7jP";
+    QString storedVerifier = QUrl::fromPercentEncoding(rawVerifier.toUtf8());
+
+    QVERIFY(storedVerifier == "=RwO3QvpqQ5dL7jP");
+}
+
 QTEST_MAIN(Ut_KQOAuth)
