@@ -55,8 +55,8 @@ void KQOAuthRequestPrivate::prepareRequest() {
 
     switch ( requestType ) {
     case KQOAuthRequest::TemporaryCredentials:
-        requestParameters.append( qMakePair( OAUTH_KEY_CALLBACK, QString(QUrl::toPercentEncoding( oauthCallbackUrl.toString()) )));  // This is so ugly that it is almost beautiful.
-        requestParameters.append( qMakePair( OAUTH_KEY_SIGNATURE_METHOD, oauthSignatureMethod ));
+        requestParameters.append( qMakePair( OAUTH_KEY_CALLBACK, oauthCallbackUrl.toString()) );  // This is so ugly that it is almost beautiful.
+        requestParameters.append( qMakePair( OAUTH_KEY_SIGNATURE_METHOD, oauthSignatureMethod) );
         requestParameters.append( qMakePair( OAUTH_KEY_CONSUMER_KEY, oauthConsumerKey ));
         requestParameters.append( qMakePair( OAUTH_KEY_VERSION, oauthVersion ));
         requestParameters.append( qMakePair( OAUTH_KEY_TIMESTAMP, this->oauthTimestamp() ));
@@ -95,8 +95,8 @@ void KQOAuthRequestPrivate::insertAdditionalParams(QList< QPair<QString, QString
     QList<QString> additionalValues = this->additionalParams.values();
 
     for(int i=0; i<additionalKeys.size(); i++) {
-        requestParams.append( qMakePair(QString(QUrl::toPercentEncoding(additionalKeys.at(i))),
-                                        QString(QUrl::toPercentEncoding(additionalValues.at(i))))
+        requestParams.append( qMakePair(QString(additionalKeys.at(i)),
+                                        QString(additionalValues.at(i)))
                              );
     }
 
@@ -203,7 +203,7 @@ QByteArray KQOAuthRequestPrivate::encodedParamaterList(const QList< QPair<QStrin
     }
     foreach (parameter, parameters) {
         if(!first) {
-            resultList.append( "%26" );
+            resultList.append( "&" );
         } else {
             first = false;
         }
@@ -211,21 +211,21 @@ QByteArray KQOAuthRequestPrivate::encodedParamaterList(const QList< QPair<QStrin
         // Here we don't need to explicitely encode the strings to UTF-8 since
         // QUrl::toPercentEncoding() takes care of that for us.
         resultList.append( QUrl::toPercentEncoding(parameter.first)     // Parameter key
-                           + "%3D"                                      // '=' encoded
+                           + "="
                            + QUrl::toPercentEncoding(parameter.second)  // Parameter value
                           );
         if (debugOutput) {
             qDebug() << " * "
-                     << QUrl::toPercentEncoding(parameter.first)
+                     << parameter.first
                      << " : "
-                     << QUrl::toPercentEncoding(parameter.second);
+                     << parameter.second;
         }
     }
     if (debugOutput) {
         qDebug() << "\n";
     }
 
-    return resultList;
+    return QUrl::toPercentEncoding(resultList);
 }
 
 QString KQOAuthRequestPrivate::oauthTimestamp() const {
@@ -248,7 +248,6 @@ QString KQOAuthRequestPrivate::oauthNonce() const {
         return oauthNonce_;
     }
 
-    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
     return QString::number(qrand());
 }
 

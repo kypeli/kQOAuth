@@ -38,6 +38,8 @@ private Q_SLOTS:
     void ut_hmac_sha1_data();
     void ut_hmac_sha1();
     void ut_random_nonce();
+    void ut_basestring_with_percent_encoding();
+    void ut_basestring_with_percent_encoding_data();
 
 private:
     KQOAuthRequest *r;

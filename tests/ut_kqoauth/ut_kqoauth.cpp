@@ -35,6 +35,7 @@ const QString Ut_KQOAuth::googleBaseString = QString("POST&http%3A%2F%2Fapi.twit
 void Ut_KQOAuth::init()
 {
     r = new KQOAuthRequest;
+    r->setEnableDebugOutput(false);
     d_ptr = r->d_ptr;
 }
 
@@ -133,4 +134,41 @@ void Ut_KQOAuth::ut_random_nonce() {
     QVERIFY2(nonce1 != nonce2, "Nonce should not be used again.");
 }
 
+void Ut_KQOAuth::ut_basestring_with_percent_encoding_data() {
+    QTest::addColumn<QString>("consumerKey");
+    QTest::addColumn<QString>("nonce");
+    QTest::addColumn<QString>("timestamp");
+    QTest::addColumn<QString>("baseString");
+    QTest::addColumn<QString>("signature");
+
+
+    QTest::newRow("consumerKeyWith=Sign")
+            << ("OcfHRs=DbyRdmGvCCapeal8")
+            << ("d8LTKZIGAvf")
+            << ("1292930595")
+            << ("POST&http%3A%2F%2Ffoo.bar%2F&oauth_callback%3D%26oauth_consumer_key%3DOcfHRs%253DDbyRdmGvCCapeal8%26oauth_nonce%3Dd8LTKZIGAvf%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D1292930595%26oauth_version%3D1.0")
+            << ("H9gnpAqLl0dVtFU87R4TmAccc9g=");
+}
+
+void Ut_KQOAuth::ut_basestring_with_percent_encoding() {
+    QFETCH(QString, consumerKey);
+    QFETCH(QString, nonce);
+    QFETCH(QString, timestamp);
+    QFETCH(QString, baseString);
+    QFETCH(QString, signature);
+
+    r->initRequest(KQOAuthRequest::TemporaryCredentials, QUrl("http://foo.bar/"));
+    r->setConsumerKey(consumerKey);
+    d_ptr->oauthNonce_ = nonce;
+    d_ptr->oauthTimestamp_ = timestamp;
+    d_ptr->prepareRequest();
+
+    QByteArray requestBaseString = d_ptr->requestBaseString();
+    QString requestSignature = d_ptr->oauthSignature();
+
+    QVERIFY2(requestBaseString == baseString.toLocal8Bit(),
+             "Base string not properly encoded.");
+    QVERIFY2(requestSignature == QUrl::toPercentEncoding(signature),
+             "Signature is not correct");
+}
 QTEST_MAIN(Ut_KQOAuth)
