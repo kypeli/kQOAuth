@@ -19,7 +19,9 @@
  */
 #ifndef KQOAUTHREQUEST_P_H
 #define KQOAUTHREQUEST_P_H
+#include "kqoauthglobals.h"
 #include "kqoauthrequest.h"
+
 #include <QString>
 #include <QUrl>
 #include <QMap>
@@ -45,20 +47,6 @@ public:
     QByteArray encodedParamaterList(const QList< QPair<QString, QString> > &requestParameters);
     void insertAdditionalParams(QList< QPair<QString, QString> > &requestParams);
     void insertPostBody();
-
-    // Let's define the OAuth keys for the request
-    // parameters here.
-    static const QString OAUTH_KEY_CONSUMER;
-    static const QString OAUTH_KEY_CONSUMER_KEY;
-    static const QString OAUTH_KEY_TOKEN;
-    static const QString OAUTH_KEY_SIGNATURE_METHOD;
-    static const QString OAUTH_KEY_TOKEN_SECRET;
-    static const QString OAUTH_KEY_TIMESTAMP;
-    static const QString OAUTH_KEY_NONCE;
-    static const QString OAUTH_KEY_SIGNATURE;
-    static const QString OAUTH_KEY_CALLBACK;
-    static const QString OAUTH_KEY_VERSION;
-    static const QString OAUTH_KEY_VERIFIER;
 
     QUrl oauthRequestEndpoint;
     KQOAuthRequest::RequestHttpMethod oauthHttpMethod;

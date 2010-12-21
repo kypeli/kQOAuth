@@ -20,19 +20,17 @@
 #ifndef KQOAUTHGLOBALS_H
 #define KQOAUTHGLOBALS_H
 
-#include "kqoauthrequest_p.h"
-
 //////////// Static constant definitions ///////////
-const QString KQOAuthRequestPrivate::OAUTH_KEY_CONSUMER("oauth_consumer");
-const QString KQOAuthRequestPrivate::OAUTH_KEY_CONSUMER_KEY("oauth_consumer_key");
-const QString KQOAuthRequestPrivate::OAUTH_KEY_TOKEN("oauth_token");
-const QString KQOAuthRequestPrivate::OAUTH_KEY_TOKEN_SECRET("oauth_token_secret");
-const QString KQOAuthRequestPrivate::OAUTH_KEY_SIGNATURE_METHOD("oauth_signature_method");
-const QString KQOAuthRequestPrivate::OAUTH_KEY_TIMESTAMP("oauth_timestamp");
-const QString KQOAuthRequestPrivate::OAUTH_KEY_NONCE("oauth_nonce");
-const QString KQOAuthRequestPrivate::OAUTH_KEY_SIGNATURE("oauth_signature");
-const QString KQOAuthRequestPrivate::OAUTH_KEY_CALLBACK("oauth_callback");
-const QString KQOAuthRequestPrivate::OAUTH_KEY_VERIFIER("oauth_verifier");
-const QString KQOAuthRequestPrivate::OAUTH_KEY_VERSION("oauth_version");
+const QString OAUTH_KEY_CONSUMER("oauth_consumer");
+const QString OAUTH_KEY_CONSUMER_KEY("oauth_consumer_key");
+const QString OAUTH_KEY_TOKEN("oauth_token");
+const QString OAUTH_KEY_TOKEN_SECRET("oauth_token_secret");
+const QString OAUTH_KEY_SIGNATURE_METHOD("oauth_signature_method");
+const QString OAUTH_KEY_TIMESTAMP("oauth_timestamp");
+const QString OAUTH_KEY_NONCE("oauth_nonce");
+const QString OAUTH_KEY_SIGNATURE("oauth_signature");
+const QString OAUTH_KEY_CALLBACK("oauth_callback");
+const QString OAUTH_KEY_VERIFIER("oauth_verifier");
+const QString OAUTH_KEY_VERSION("oauth_version");
 
 #endif // KQOAUTHGLOBALS_H
