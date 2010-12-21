@@ -35,7 +35,6 @@ const QString Ut_KQOAuth::googleBaseString = QString("POST&http%3A%2F%2Fapi.twit
 void Ut_KQOAuth::init()
 {
     r = new KQOAuthRequest;
-    r->setEnableDebugOutput(false);
     d_ptr = r->d_ptr;
 }
 

@@ -308,6 +308,7 @@ KQOAuthRequest::KQOAuthRequest(QObject *parent) :
     QObject(parent),
     d_ptr(new KQOAuthRequestPrivate)
 {
+    d_ptr->debugOutput = false;  // No debug output by default.
 }
 
 KQOAuthRequest::~KQOAuthRequest()
