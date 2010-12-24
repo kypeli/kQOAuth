@@ -19,7 +19,8 @@ LINKAGE =
 
 # on mac, if kqoauth was built as a framework, link against it
 mac: {
-    framework_dir = $${KQOAUTH_LIBDIR}
+    framework_dir = $$[QT_INSTALL_LIBS]
+    KQOAUTH_INCDIR = $$[QT_INSTALL_HEADERS]
     exists($$framework_dir/kqoauth.framework) {
         LIBS += -F$$framework_dir
         exists($$PWD/kqoauth.pro): INCLUDEPATH += $$KQOAUTH_INCDIR
