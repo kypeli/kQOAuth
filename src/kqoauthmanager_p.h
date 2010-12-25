@@ -33,7 +33,7 @@ public:
     QMultiMap<QString, QString> createTokensFromResponse(QByteArray reply);
     bool setSuccessfulRequestToken(const QMultiMap<QString, QString> &request);
     bool setSuccessfulAuthorized(const QMultiMap<QString, QString> &request);
-    void emitTokens(const QMultiMap<QString, QString> &requestResponse);
+    void emitTokens();
     bool setupCallbackServer();
 
     KQOAuthManager::KQOAuthError error;
