@@ -1,3 +1,7 @@
+Version 0.94
+===================
++ Added support for xAuth (http://dev.twitter.com/pages/xauth).
+
 Version 0.93
 ===================
 + Added API for setting the QNetworkAccessManager that KQOAuthManager uses.
