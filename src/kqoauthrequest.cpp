@@ -267,7 +267,7 @@ bool KQOAuthRequestPrivate::validateRequest() const {
 
     case KQOAuthRequest::AccessToken:
         if (oauthRequestEndpoint.isEmpty()
-            ||  oauthVerifier.isEmpty()
+            || oauthVerifier.isEmpty()
             || oauthConsumerKey.isEmpty()
             || oauthNonce_.isEmpty()
             || oauthSignatureMethod.isEmpty()
@@ -461,7 +461,7 @@ QList<QByteArray> KQOAuthRequest::requestParameters() {
     QList<QByteArray> requestParamList;
 
     d->prepareRequest();
-    if (!d->validateRequest() ) {
+    if (!isValid() ) {
         qWarning() << "Request is not valid! I will still sign it, but it will probably not work.";
     }
     d->signRequest();
@@ -512,6 +512,28 @@ void KQOAuthRequest::setEnableDebugOutput(bool enabled) {
     d->debugOutput = enabled;
 }
 
+/**
+ * Protected implementations for inherited classes
+ */
+bool KQOAuthRequest::validateXAuthRequest() const {
+    Q_D(const KQOAuthRequest);
+
+    if (d->oauthRequestEndpoint.isEmpty()
+        || d->oauthConsumerKey.isEmpty()
+        || d->oauthNonce_.isEmpty()
+        || d->oauthSignatureMethod.isEmpty()
+        || d->oauthTimestamp_.isEmpty()
+        || d->oauthVersion.isEmpty())
+    {
+        return false;
+    }
+    return true;
+}
+
+
+/**
+ * Private implementations for friend classes
+ */
 QString KQOAuthRequest::consumerKeyForManager() const {
     Q_D(const KQOAuthRequest);
     return d->oauthConsumerKey;

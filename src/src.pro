@@ -18,25 +18,30 @@ INC_DIR = ../include
 INCLUDEPATH += .
 
 PUBLIC_HEADERS += kqoauthmanager.h \
-                  kqoauthrequest.h 
+                  kqoauthrequest.h \
+                  kqoauthrequest_1.h \
+                  kqoauthrequest_xauth.h
 
 PRIVATE_HEADERS +=  kqoauthrequest_p.h \
                     kqoauthmanager_p.h \
                     kqoauthauthreplyserver.h \
                     kqoauthauthreplyserver_p.h \
                     kqoauthglobals.h \
-                    kqoauthutils.h
+                    kqoauthutils.h \
+                    kqoauthrequest_xauth_p.h
 
 HEADERS = \
     $$PUBLIC_HEADERS \
-    $$PRIVATE_HEADERS
+    $$PRIVATE_HEADERS \
 
 
 SOURCES += \ 
     kqoauthmanager.cpp \
     kqoauthrequest.cpp \
     kqoauthutils.cpp \
-    kqoauthauthreplyserver.cpp
+    kqoauthauthreplyserver.cpp \
+    kqoauthrequest_1.cpp \
+    kqoauthrequest_xauth.cpp
 
 DEFINES += KQOAUTH
 
