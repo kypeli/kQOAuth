@@ -298,15 +298,16 @@ void KQOAuthManager::getUserAuthorization(QUrl authorizationEndpoint) {
     connect(d->callbackServer, SIGNAL(verificationReceived(QMultiMap<QString, QString>)),
             this, SLOT( onVerificationReceived(QMultiMap<QString, QString>)));
 
-    QPair<QString, QString> tokenParam = qMakePair(QString("oauth_token"), d->requestToken);
+    QPair<QString, QString> tokenParam = qMakePair(QString("oauth_token"), QString(QUrl::toPercentEncoding(d->requestToken)));
     QList< QPair<QString, QString> > queryParams;
     queryParams.append(tokenParam);
 
-    authorizationEndpoint.setQueryItems(queryParams);
+    QUrl openWebPageUrl(authorizationEndpoint.toString(), QUrl::StrictMode);
+    openWebPageUrl.setQueryItems(queryParams);
 
     // Open the user's default browser to the resource authorization page provided
     // by the service.
-    QDesktopServices::openUrl(authorizationEndpoint);
+    QDesktopServices::openUrl(openWebPageUrl);
 }
 
 void KQOAuthManager::getUserAccessTokens(QUrl accessTokenEndpoint) {
