@@ -9,6 +9,17 @@ authorization page, give a local URL as the callback URL and setup a HTTP
 server on this address to listen for the reply from the service and then
 process it.
 
+BUILDING kQOAuth
+===============================
+- Make sure that you have Qt 4.7 installed
+- run "make" to build
+- Run "sudo make install" to install
+- To run unit tests you need to set platform specific variable to point 
+  correct directory in order to make unit tests to find the library. Note
+  that it doesn't require kQOAuth to be installed in order to run unit tests.
+ * for lLnux:  export LD_LIBRARY_PATH=/path/to/kQOAuth/lib/dir
+  * for OS X:  export DYLD_LIBRARY_PATH=/path/to/kQOAuth/lib/dir
+
 
 COMPONENTS
 ===============================
