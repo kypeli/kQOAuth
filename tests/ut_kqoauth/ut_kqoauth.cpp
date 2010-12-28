@@ -25,7 +25,8 @@
 #include <QUrl>
 
 // Project includes
-#include <QtKOAuth>
+#include "kqoauthrequest.h"
+#include "kqoauthmanager.h"
 #include <kqoauthrequest_p.h>
 #include <kqoauthutils.h>
 

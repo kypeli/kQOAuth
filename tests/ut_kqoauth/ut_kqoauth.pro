@@ -2,16 +2,15 @@ TARGET = ut_kqoauth
 TEMPLATE = app
 
 DEFINES += UNIT_TEST
-include(../../kqoauth.prf)
+#include(../../kqoauth.prf)
 
 QT += testlib network
 QT -= gui
 CONFIG += crypto
 
 macx {
-    CONFIG -= app_bundle
-    QMAKE_POST_LINK += install_name_tool -change kqoauth.framework/Versions/0/kqoauth \
-                       ../../lib/kqoauth.framework/Versions/0/kqoauth $${TARGET}
+    CONFIG -= app_bundle    
+    LIBS += -F../../lib -framework kqoauth
 }
 else:unix {
   # the second argument (after colon) is for

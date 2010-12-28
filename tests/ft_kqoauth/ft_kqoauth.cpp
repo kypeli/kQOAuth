@@ -27,7 +27,8 @@
 #include <QNetworkReply>
 
 // Project includes
-#include <QtKOAuth>
+#include "kqoauthrequest.h"
+#include "kqoauthmanager.h"
 
 bool MyEventLoop::timeout() const
 {
