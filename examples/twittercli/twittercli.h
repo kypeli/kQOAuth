@@ -33,6 +33,7 @@ public:
     ~TwitterCLI();
 
     void getAccess();
+    void xauth();
     void sendTweet(QString tweet);
     void showHelp();
 

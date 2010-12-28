@@ -102,6 +102,19 @@ void TwitterCLI::onRequestReady(QByteArray response) {
     qDebug() << "Response from the service: " << response;
 }
 
+void TwitterCLI::xauth() {
+    connect(oauthManager, SIGNAL(accessTokenReceived(QString,QString)),
+            this, SLOT(onAccessTokenReceived(QString,QString)));
+
+    KQOAuthRequest_XAuth *oauthRequest = new KQOAuthRequest_XAuth(this);
+    oauthRequest->initRequest(KQOAuthRequest::AccessToken, QUrl("https://api.twitter.com/oauth/access_token"));
+    oauthRequest->setConsumerKey("9PqhX2sX7DlmjNJ5j2Q");
+    oauthRequest->setConsumerSecretKey("1NYYhpIw1fXItywS9Bw6gGRmkRyF9zB54UXkTGcI8");
+    oauthRequest->setXAuthLogin(/* Your username*/ /*,*/ /* Your password */);
+
+    oauthManager->executeRequest(oauthRequest);
+}
+
 void TwitterCLI::sendTweet(QString tweet) {
 
     if( oauthSettings.value("oauth_token").toString().isEmpty() ||
@@ -152,6 +165,8 @@ int main(int argc, char *argv[])
         }
      } else if( args.contains("-a")){
         tAuth.getAccess();
+    } else if (args.contains("-x")) {
+        tAuth.xauth();
     } else {
         tAuth.showHelp();
         return 0;

@@ -51,8 +51,21 @@ public:
         POST
     };
 
-    // Mandatory methods to setup a request
+    /**
+     * These methods can be overridden in child classes which are different types of
+     * OAuth requests.
+     */
+    // Validate the request of this type.
+    virtual bool isValid() const;
+
+    /**
+     * These methods are OAuth request type specific and not overridden in child
+     * classes.
+     * NOTE: Refactorting still a TODO
+     */
+    // Initialize the request of this type.
     void initRequest(KQOAuthRequest::RequestType type, const QUrl &requestEndpoint);
+
     void setConsumerKey(const QString &consumerKey);
     void setConsumerSecretKey(const QString &consumerSecretKey);
 
@@ -64,8 +77,6 @@ public:
     void setToken(const QString &token);
     void setVerifier(const QString &verifier);
 
-
-    /* Optional methods when setting up the request */
     // Request signature method to use - HMAC_SHA1 currently only supported
     void setSignatureMethod(KQOAuthRequest::RequestSignatureMethod = KQOAuthRequest::HMAC_SHA1);
 
@@ -76,18 +87,20 @@ public:
     // Additional optional parameters to the request.
     void setAdditionalParameters(const KQOAuthParameters &additionalParams);
     KQOAuthParameters additionalParameters() const;
+    QList<QByteArray> requestParameters();  // This will return all request's parameters in the raw format given
+                                            // to the QNetworkRequest.
+    QByteArray requestBody() const;         // This will return the POST body as given to the QNetworkRequest.
 
     KQOAuthRequest::RequestType requestType() const;
     QUrl requestEndpoint() const;
-    QList<QByteArray> requestParameters();
-    QByteArray requestBody() const;
-    bool isValid() const;
 
-    // Clear the request so we can reuse it.
     void clearRequest();
 
     // Enable verbose debug output for request content.
     void setEnableDebugOutput(bool enabled);
+
+protected:
+    bool validateXAuthRequest() const;
 
 private:    
     KQOAuthRequestPrivate * const d_ptr;
