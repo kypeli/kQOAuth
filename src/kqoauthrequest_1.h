@@ -3,7 +3,7 @@
 
 #include "kqoauthrequest.h"
 
-class KQOAuthRequest_1 : public KQOAuthRequest
+class KQOAUTH_EXPORT KQOAuthRequest_1 : public KQOAuthRequest
 {
 public:
     KQOAuthRequest_1();

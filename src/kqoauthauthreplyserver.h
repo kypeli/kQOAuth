@@ -22,8 +22,10 @@
 
 #include <QTcpServer>
 
+#include "kqoauthglobals.h"
+
 class KQOAuthAuthReplyServerPrivate;
-class KQOAuthAuthReplyServer : public QTcpServer
+class KQOAUTH_EXPORT KQOAuthAuthReplyServer : public QTcpServer
 {
     Q_OBJECT
 public:

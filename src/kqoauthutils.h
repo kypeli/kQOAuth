@@ -20,8 +20,10 @@
 #ifndef KQOAUTHUTILS_H
 #define KQOAUTHUTILS_H
 
+#include "kqoauthglobals.h"
+
 class QString;
-class KQOAuthUtils
+class KQOAUTH_EXPORT KQOAuthUtils
 {
 public:
 

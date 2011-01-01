@@ -24,10 +24,12 @@
 #include <QUrl>
 #include <QMultiMap>
 
+#include "kqoauthglobals.h"
+
 typedef QMultiMap<QString, QString> KQOAuthParameters;
 
 class KQOAuthRequestPrivate;
-class KQOAuthRequest : public QObject
+class KQOAUTH_EXPORT KQOAuthRequest : public QObject
 {
     Q_OBJECT
 public:

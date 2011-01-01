@@ -32,7 +32,7 @@ class QNetworkReply;
 class QNetworkAccessManager;
 class QUrl;
 class QByteArray;
-class KQOAuthManager : public QObject
+class KQOAUTH_EXPORT KQOAuthManager : public QObject
 {
     Q_OBJECT
 public:

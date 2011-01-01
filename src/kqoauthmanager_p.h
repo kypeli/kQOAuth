@@ -23,7 +23,7 @@
 #include "kqoauthauthreplyserver.h"
 #include "kqoauthrequest.h"
 
-class KQOAuthManagerPrivate {
+class KQOAUTH_EXPORT KQOAuthManagerPrivate {
 
 public:
     KQOAuthManagerPrivate(KQOAuthManager *parent);

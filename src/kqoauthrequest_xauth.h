@@ -24,7 +24,7 @@
 #include "kqoauthrequest_1.h"
 
 class KQOAuthRequest_XAuthPrivate;
-class KQOAuthRequest_XAuth : public KQOAuthRequest
+class KQOAUTH_EXPORT KQOAuthRequest_XAuth : public KQOAuthRequest
 {
     Q_OBJECT
 public:

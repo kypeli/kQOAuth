@@ -28,7 +28,7 @@
 #include <QPair>
 #include <QMultiMap>
 
-class KQOAuthRequestPrivate {    
+class KQOAUTH_EXPORT KQOAuthRequestPrivate {    
 
 public:
     KQOAuthRequestPrivate();
