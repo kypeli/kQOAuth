@@ -17,6 +17,9 @@ else:unix {
   # being able to run make check from the root source directory
   LIBS += -Wl,-rpath,../../lib:lib
 }
+else:windows {
+  LIBS += -L../../lib -lkqoauthd0
+}
 
 INCLUDEPATH += . ../../src
 HEADERS += ft_kqoauth.h
