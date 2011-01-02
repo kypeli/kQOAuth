@@ -2,7 +2,6 @@ TARGET = ut_kqoauth
 TEMPLATE = app
 
 DEFINES += UNIT_TEST
-#include(../../kqoauth.prf)
 
 QT += testlib network
 QT -= gui
@@ -15,7 +14,7 @@ macx {
 else:unix {
   # the second argument (after colon) is for
   # being able to run make check from the root source directory
-  LIBS += -Wl,-rpath,../../lib:lib
+  LIBS += -Wl,-rpath,../../lib:lib -lkqoauth
 }
 else:windows {
   LIBS += -L../../lib -lkqoauthd0
