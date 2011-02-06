@@ -1,0 +1,1 @@
+shlibs:Depends=libc6 (>= 2.5.0-1), libgcc1 (>= 1:4.2.1), libqt4-experimental-declarative

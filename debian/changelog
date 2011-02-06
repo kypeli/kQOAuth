@@ -1,0 +1,7 @@
+kqoauth (0.94.0) unstable; urgency=low
+
+  * Initial debian packaging for Maemo 5.
+    It's not yet optified. 
+
+ -- Marko Mattila <marko.mattila@d-pointer.com>  Sun, 30 Jan 2011 00:33:22 +0300
+

@@ -1,0 +1,19 @@
+Source: kqoauth
+Section: libs
+Priority: extra
+Maintainer: Marko Mattila <marko.a.mattila@gmail.com>
+Build-Depends: debhelper (>= 5), libqt4-dev, libqt4-maemo5, libqt4-gui, libqt4-network
+Standards-Version: 3.7.2
+
+Package: kqoauth
+Architecture: any
+Depends: libqt4-network
+Description: kQOAuth is Qt based OAuth library
+ kQOAuth is Qt based OAuth library which be used for authentication to services supporting OAuth.
+
+Package: kqoauth-dev
+Section: libdevel
+Architecture: any
+Depends: kqoauth (= ${Source-Version})
+Description: Development package of kQOAuth
+ Headers for kQOAuth development.

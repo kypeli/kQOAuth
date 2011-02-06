@@ -1,0 +1,5 @@
+Debian packaging for QuickFlickr
+---------------------------
+
+Build debian package with command: dpkg-buildpackage -rfakeroot
+ -- Marko Mattila <marko.a.mattila@gmail.com>  Wed, 18 Sep 2010 14:17:22 +0300
