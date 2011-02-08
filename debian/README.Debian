@@ -1,4 +1,4 @@
-Debian packaging for QuickFlickr
+Debian packaging for kQOAuth
 ---------------------------
 
 Build debian package with command: dpkg-buildpackage -rfakeroot
