@@ -9,7 +9,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-APPNAME := kqoauth
+APPNAME := libkqoauth
 builddir:
 	mkdir -p builddir
 
@@ -47,14 +47,14 @@ install: build
 	cd builddir && $(MAKE) INSTALL_ROOT=$(CURDIR)/debian/$(APPNAME)
 	echo "Current dir $(PWD)"
 	cp lib/*.so* $(CURDIR)/debian/$(APPNAME)/usr/lib
-	cp include/* $(CURDIR)/debian/kqoauth-dev/usr/include
-	cp src/kqoauthmanager.h $(CURDIR)/debian/kqoauth-dev/usr/include	
-	cp src/kqoauthrequest.h $(CURDIR)/debian/kqoauth-dev/usr/include 
-	cp src/kqoauthrequest_1.h $(CURDIR)/debian/kqoauth-dev/usr/include
-	cp src/kqoauthrequest_xauth.h $(CURDIR)/debian/kqoauth-dev/usr/include
-	cp src/kqoauthglobals.h $(CURDIR)/debian/kqoauth-dev/usr/include
-	cp src/kqoauth.pc $(CURDIR)/debian/kqoauth-dev/usr/lib/pkgconfig
-	cp kqoauth.prf $(CURDIR)/debian/kqoauth-dev/usr/share/qt4/mkspecs/features
+	cp include/* $(CURDIR)/debian/$(APPNAME)-dev/usr/include
+	cp src/kqoauthmanager.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include	
+	cp src/kqoauthrequest.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include 
+	cp src/kqoauthrequest_1.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include
+	cp src/kqoauthrequest_xauth.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include
+	cp src/kqoauthglobals.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include
+	cp src/kqoauth.pc $(CURDIR)/debian/$(APPNAME)/usr/lib/pkgconfig
+	cp kqoauth.prf $(CURDIR)/debian/$(APPNAME)-dev/usr/share/qt4/mkspecs/features
 	
 
 # Build architecture-independent files here.

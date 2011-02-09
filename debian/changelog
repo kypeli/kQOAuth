@@ -1,6 +1,7 @@
-kqoauth (0.94.0-1) unstable; urgency=low
+libkqoauth (0.94.0-1) unstable; urgency=low
 
   * Fixed linking problem and optify package.
+  * Name changed to libkqoauth
 
  -- Marko Mattila <marko.mattila@d-pointer.com>  Mon,  7 Feb 2011 21:48:41 -0400
 
