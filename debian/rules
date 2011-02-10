@@ -46,14 +46,14 @@ install: build
 	# Add here commands to install the package into debian/arora.
 	cd builddir && $(MAKE) INSTALL_ROOT=$(CURDIR)/debian/$(APPNAME)
 	echo "Current dir $(PWD)"
-	cp lib/*.so* $(CURDIR)/debian/$(APPNAME)/usr/lib
+	cp -l lib/*.so* $(CURDIR)/debian/$(APPNAME)/usr/lib
 	cp include/* $(CURDIR)/debian/$(APPNAME)-dev/usr/include
 	cp src/kqoauthmanager.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include	
 	cp src/kqoauthrequest.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include 
 	cp src/kqoauthrequest_1.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include
 	cp src/kqoauthrequest_xauth.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include
 	cp src/kqoauthglobals.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include
-	cp src/kqoauth.pc $(CURDIR)/debian/$(APPNAME)/usr/lib/pkgconfig
+	cp src/kqoauth.pc $(CURDIR)/debian/$(APPNAME)-dev/usr/lib/pkgconfig
 	cp kqoauth.prf $(CURDIR)/debian/$(APPNAME)-dev/usr/share/qt4/mkspecs/features
 	
 
