@@ -260,6 +260,10 @@ void KQOAuthManager::setNetworkManager(QNetworkAccessManager *manager) {
         return;
     }
 
+    if (!d->managerUserSet) {
+        delete d->networkManager;
+    }
+
     d->managerUserSet = true;
     d->networkManager = manager;
 }
