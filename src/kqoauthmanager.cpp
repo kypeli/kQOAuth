@@ -298,7 +298,7 @@ void KQOAuthManager::getUserAuthorization(QUrl authorizationEndpoint) {
     connect(d->callbackServer, SIGNAL(verificationReceived(QMultiMap<QString, QString>)),
             this, SLOT( onVerificationReceived(QMultiMap<QString, QString>)));
 
-    QPair<QString, QString> tokenParam = qMakePair(QString("oauth_token"), QString(QUrl::toPercentEncoding(d->requestToken)));
+    QPair<QString, QString> tokenParam = qMakePair(QString("oauth_token"), QString(d->requestToken));
     QList< QPair<QString, QString> > queryParams;
     queryParams.append(tokenParam);
 
