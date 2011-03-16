@@ -1,3 +1,10 @@
+libkqoauth (0.95.0) unstable; urgency=low
+
+  * Fixed bug: Omitting additional parameters given to the request in the HTTP header.
+  * Added functional test for sending really long POST requests.
+
+ -- Johan Paul <johan.paul@d-pointer.com>  Tue,  16 Mar 2011 14:34:41 +0200
+
 libkqoauth (0.94.0-2) unstable; urgency=low
 
   * More fixes to rules file.
