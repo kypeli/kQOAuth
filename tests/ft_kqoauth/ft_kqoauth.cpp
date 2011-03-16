@@ -286,5 +286,53 @@ void Ft_KQOAuth::ft_AuthenticatedGetCall() {
 
 }
 
+void Ft_KQOAuth::ft_postRequestLotsOfData_data() {
+    QTest::addColumn<QByteArray>("postData");
+
+    QTest::newRow("postNormalData")
+            << QByteArray("Nec quam nisl. Tempus vehicula turpis.");
+    QTest::newRow("postMoreData")
+            << QByteArray("Nec quam nisl. Tempus vehicula turpis. Eros neque commodo. Orci porta id. Dolor suscipit ligula adipiscing luctus mattis. Ac etiam sed rutrum pellentesque vehicula. Volutpat id posuere felis molestie ante leo aliquam lorem. Quis odio neque. Mauris in mattis massa elit eu. Lobortis ipsum a neque a vestibulum. Pulvinar maecenas integer. Eu quam pharetra bibendum donec adipiscing tempus maecenas sed. Luctus vestibulum arcu. Donec dictumst et arcu metus nullam auctor orci velit. Facilisis vestibulum perferendis etiam non sodales. Odio quisque euismod fermentum justo felis turpis netus ipsum eu sodales diam. Convallis duis molesti");
+    QTest::newRow("postHugeData")
+            << QByteArray("Nec quam nisl. Tempus vehicula turpis. Eros neque commodo. Orci porta id. Dolor suscipit ligula adipiscing luctus mattis. Ac etiam sed rutrum pellentesque vehicula. Volutpat id posuere felis molestie ante leo aliquam lorem. Quis odio neque. Mauris in mattis massa elit eu. Lobortis ipsum a neque a vestibulum. Pulvinar maecenas integer. Eu quam pharetra bibendum donec adipiscing tempus maecenas sed. Luctus vestibulum arcu. Donec dictumst et arcu metus nullam auctor orci velit. Facilisis vestibulum perferendis etiam non sodales. Odio quisque euismod fermentum justo felis turpis netus ipsum eu sodales diam. Convallis duis molestie. Wisi vestibulum ridiculus. Pede nonummy neque. Consectetuer non malesuada suspendisse pede tristique nec qui nascetur a mauris lacus in nullam vestibulum tincidunt ac praesent nonummy vehicula vulputate. Odio vestibulum pellentesque. Sed integer ac imperdiet nec facilisi. Lorem vitae id quis sed cursus. Dui eget ut tortor vestibulum magna in temporibus eget. Ut sollicitudin elit. Consequat id a aliquam vel id. A interdum in. Commodo sed donec. Elit amet mattis. Vestibulum magnis fermentum. Massa et donec cras odio feugiat turpis eget ac commodo dolor semper nullam nullam nunc integer nec scelerisque. Eu vestibulum aenean consectetuer tristique tempus. Mauris sed lorem enim dolor id rutrum sollicitudin ligula. Lacus eleifend imperdiet. Purus volutpat in urna nibh vel non turpis tortor." \
+                          "Vestibulum turpis eget ante sit scelerisque. Nam fusce volutpat amet mollis vitae pellentesque in donec. Massa felis nec. Suspendisse proin sed turpis cum sed. Venenatis commodo ac egestas iaculis elit. Lacus mi non neque condimentum nec sodales eget tincidunt libero mi duis. Tellus lectus lorem. Justo lorem augue dui et leo molestiae et vel. Sodales nibh mauris. Rhoncus rhoncus vestibulum." \
+                          "Enim lorem sit. Interdum dui nulla ante faucibus quam sunt dictum in viverra lacus metus. Tellus a at. Sodales nam suspendisse nisl a pellentesque minim montes eleifend. Pede non varius.");
+
+}
+
+void Ft_KQOAuth::ft_postRequestLotsOfData() {
+    QFETCH(QByteArray, postData);
+    sendTestPostRequest(postData);
+}
+
+void Ft_KQOAuth::sendTestPostRequest(QByteArray data) {
+    req->initRequest(KQOAuthRequest::AuthorizedRequest, QUrl("http://term.ie/oauth/example/echo_api.php"));
+    req->setToken("accesskey");
+    req->setTokenSecret("accesssecret");
+    req->setConsumerKey("key");
+    req->setConsumerSecretKey("secret");
+    req->setHttpMethod(KQOAuthRequest::POST);
+
+    KQOAuthParameters params;
+    params.insert("fooDataParameter", data);
+    req->setAdditionalParameters(params);
+
+    QCOMPARE(req->isValid(), true);
+
+    MyEventLoop loop;
+
+    connect(manager, SIGNAL(requestReady(QByteArray)), &loop, SLOT(quit()));
+    connect(manager, SIGNAL(requestReady(QByteArray)), this, SLOT(onRequestReady(QByteArray)));
+    QTimer::singleShot( 10000, &loop, SLOT(quitWithTimeout()) );
+
+    manager->executeRequest(req);
+    loop.exec();
+
+    if ( loop.timeout() ) {
+        QWARN( "Request timeout" );
+    } else {
+        qDebug() << "Done!";
+    }
+}
 
 QTEST_MAIN(Ft_KQOAuth)

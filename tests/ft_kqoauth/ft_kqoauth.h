@@ -60,9 +60,14 @@ private Q_SLOTS:
     void ft_AuthenticatedGetCall_data();
     void ft_AuthenticatedGetCall();
 
+    void ft_postRequestLotsOfData_data();
+    void ft_postRequestLotsOfData();
+
     void onRequestReady(QByteArray response);
 
 private:
+    void sendTestPostRequest(QByteArray data);
+
     KQOAuthManager *manager;
     KQOAuthRequest *req;
 
