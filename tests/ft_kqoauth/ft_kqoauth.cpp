@@ -298,6 +298,14 @@ void Ft_KQOAuth::ft_postRequestLotsOfData_data() {
                           "Vestibulum turpis eget ante sit scelerisque. Nam fusce volutpat amet mollis vitae pellentesque in donec. Massa felis nec. Suspendisse proin sed turpis cum sed. Venenatis commodo ac egestas iaculis elit. Lacus mi non neque condimentum nec sodales eget tincidunt libero mi duis. Tellus lectus lorem. Justo lorem augue dui et leo molestiae et vel. Sodales nibh mauris. Rhoncus rhoncus vestibulum." \
                           "Enim lorem sit. Interdum dui nulla ante faucibus quam sunt dictum in viverra lacus metus. Tellus a at. Sodales nam suspendisse nisl a pellentesque minim montes eleifend. Pede non varius.");
 
+    QByteArray postHugeHugeData;
+    while (postHugeHugeData.size() < 90000) {
+        postHugeHugeData.append("foobar");
+    }
+    QTest::newRow("postHugeHugeData")
+            << QByteArray(postHugeHugeData);
+
+
 }
 
 void Ft_KQOAuth::ft_postRequestLotsOfData() {

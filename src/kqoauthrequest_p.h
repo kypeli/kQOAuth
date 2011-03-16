@@ -45,7 +45,7 @@ public:
     bool validateRequest() const;
     QByteArray requestBaseString();
     QByteArray encodedParamaterList(const QList< QPair<QString, QString> > &requestParameters);
-    void insertAdditionalParams(QList< QPair<QString, QString> > &requestParams);
+    void insertAdditionalParams();
     void insertPostBody();
 
     QUrl oauthRequestEndpoint;
@@ -65,13 +65,13 @@ public:
     QString oauthNonce_;
 
     // User specified additional parameters needed for the request.
-    QMultiMap<QString, QString> additionalParams;
+    QList< QPair<QString, QString> > additionalParameters;
 
      // The raw POST body content as given to the HTTP request.
      QByteArray postBodyContent;
 
-    // All the parameters associated with this request. These parameters
-    // are used in the "Authorized" header of the HTTP request.
+    // Protocol parameters.
+    // These parameters are used in the "Authorized" header of the HTTP request.
     QList< QPair<QString, QString> > requestParameters;
 
     KQOAuthRequest::RequestType requestType;    

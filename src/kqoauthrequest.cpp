@@ -61,7 +61,6 @@ void KQOAuthRequestPrivate::prepareRequest() {
         requestParameters.append( qMakePair( OAUTH_KEY_VERSION, oauthVersion ));
         requestParameters.append( qMakePair( OAUTH_KEY_TIMESTAMP, this->oauthTimestamp() ));
         requestParameters.append( qMakePair( OAUTH_KEY_NONCE, this->oauthNonce() ));
-        insertAdditionalParams(requestParameters);
         break;
 
     case KQOAuthRequest::AccessToken:
@@ -72,7 +71,6 @@ void KQOAuthRequestPrivate::prepareRequest() {
         requestParameters.append( qMakePair( OAUTH_KEY_NONCE, this->oauthNonce() ));
         requestParameters.append( qMakePair( OAUTH_KEY_VERIFIER, oauthVerifier ));
         requestParameters.append( qMakePair( OAUTH_KEY_TOKEN, oauthToken ));
-        insertAdditionalParams(requestParameters);
         break;
 
     case KQOAuthRequest::AuthorizedRequest:
@@ -82,49 +80,11 @@ void KQOAuthRequestPrivate::prepareRequest() {
         requestParameters.append( qMakePair( OAUTH_KEY_TIMESTAMP, this->oauthTimestamp() ));
         requestParameters.append( qMakePair( OAUTH_KEY_NONCE, this->oauthNonce() ));
         requestParameters.append( qMakePair( OAUTH_KEY_TOKEN, oauthToken ));
-        insertAdditionalParams(requestParameters);
         break;
 
     default:
         break;
     }
-}
-
-void KQOAuthRequestPrivate::insertAdditionalParams(QList< QPair<QString, QString> > &requestParams) {
-    QList<QString> additionalKeys = this->additionalParams.keys();
-    QList<QString> additionalValues = this->additionalParams.values();
-
-    for(int i=0; i<additionalKeys.size(); i++) {
-        requestParams.append( qMakePair(QString(additionalKeys.at(i)),
-                                        QString(additionalValues.at(i)))
-                             );
-    }
-
-    if (oauthHttpMethod == KQOAuthRequest::POST) {
-        insertPostBody();
-    }
-}
-
-void KQOAuthRequestPrivate::insertPostBody() {
-    QList<QString> postBodyKeys = this->additionalParams.keys();
-    QList<QString> postBodyValues = this->additionalParams.values();
-
-    postBodyContent.clear();
-    bool first = true;
-    for(int i=0; i<postBodyKeys.size(); i++) {
-        if(!first) {
-            postBodyContent.append("&");
-        } else {
-            first = false;
-        }
-
-        QString key = postBodyKeys.at(i);
-        QString value = postBodyValues.at(i);
-
-        postBodyContent.append(QUrl::toPercentEncoding(key) + QString("=").toUtf8() +
-                               QUrl::toPercentEncoding(value));
-    }
-
 }
 
 void KQOAuthRequestPrivate::signRequest() {
@@ -172,6 +132,7 @@ QByteArray KQOAuthRequestPrivate::requestBaseString() {
 
     QList< QPair<QString, QString> > baseStringParameters;
     baseStringParameters.append(requestParameters);
+    baseStringParameters.append(additionalParameters);
 
     // Sort the request parameters. These parameters have been
     // initialized earlier.
@@ -434,13 +395,27 @@ KQOAuthRequest::RequestHttpMethod KQOAuthRequest::httpMethod() const {
 void KQOAuthRequest::setAdditionalParameters(const KQOAuthParameters &additionalParams) {
     Q_D(KQOAuthRequest);
 
-    d->additionalParams = additionalParams;
+    QList<QString> additionalKeys = additionalParams.keys();
+    QList<QString> additionalValues = additionalParams.values();
+
+    int i=0;
+    foreach(QString key, additionalKeys) {
+        QString value = additionalValues.at(i);
+        d->additionalParameters.append( qMakePair(key, value) );
+        i++;
+    }
 }
 
 KQOAuthParameters KQOAuthRequest::additionalParameters() const {
     Q_D(const KQOAuthRequest);
 
-    return d->additionalParams;
+    QMultiMap<QString, QString> additionalParams;
+    for(int i=0; i<d->additionalParameters.size(); i++) {
+        additionalParams.insert(d->additionalParameters.at(i).first,
+                                d->additionalParameters.at(i).second);
+    }
+
+    return additionalParams;
 }
 
 KQOAuthRequest::RequestType KQOAuthRequest::requestType() const {
@@ -480,7 +455,23 @@ QList<QByteArray> KQOAuthRequest::requestParameters() {
 
 QByteArray KQOAuthRequest::requestBody() const {
     Q_D(const KQOAuthRequest);
-    return d->postBodyContent;
+
+    QByteArray postBodyContent;
+    bool first = true;
+    for(int i=0; i < d->additionalParameters.size(); i++) {
+        if(!first) {
+            postBodyContent.append("&");
+        } else {
+            first = false;
+        }
+
+        QString key = d->additionalParameters.at(i).first;
+        QString value = d->additionalParameters.at(i).second;
+
+        postBodyContent.append(QUrl::toPercentEncoding(key) + QString("=").toUtf8() +
+                               QUrl::toPercentEncoding(value));
+    }
+    return postBodyContent;
 }
 
 bool KQOAuthRequest::isValid() const {
@@ -504,7 +495,7 @@ void KQOAuthRequest::clearRequest() {
     d->oauthTimestamp_ = "";
     d->oauthNonce_ = "";
     d->requestParameters.clear();
-    d->additionalParams.clear();
+    d->additionalParameters.clear();
 }
 
 void KQOAuthRequest::setEnableDebugOutput(bool enabled) {
