@@ -467,5 +467,6 @@ void KQOAuthManager::slotError(QNetworkReply::NetworkError error) {
     d->error = KQOAuthManager::NetworkError;
     QByteArray emptyResponse;
     emit requestReady(emptyResponse);
+    emit authorizedRequestDone();
 }
 
