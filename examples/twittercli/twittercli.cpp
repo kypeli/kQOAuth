@@ -142,10 +142,11 @@ void TwitterCLI::sendTweet(QString tweet) {
 
 void TwitterCLI::showHelp() {
     QTextStream qout(stdout);
-    qout << "TwitterCLI, version 0.9. Author: Johan Paul <johan.paul@gmail.com>\n"
+    qout << "TwitterCLI, version 0.95. Author: Johan Paul <johan.paul@d-pointer.com>\n"
          << "\n"
          << "Usage: twittercli -[at] <tweet>\n"
          << " -a                Request for access tokens.\n"
+         << " -x                Use Twitter xAuth to retrieve access tokens.\n"
          << " -t '<tweet>'      Send <tweet> to Twitter after retrieving access tokens\n"
          << "\n";
 }
