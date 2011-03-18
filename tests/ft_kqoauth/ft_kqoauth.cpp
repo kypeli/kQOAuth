@@ -244,6 +244,24 @@ void Ft_KQOAuth::ft_AuthenticatedGetCall_data() {
             << QString("status")
             << QString("This is a GET call");
 
+
+    QTest::newRow("basicAccessWith#")
+            << QUrl("http://term.ie/oauth/example/echo_api.php")
+            << QString("key")
+            << QString("secret")
+            << QString("accesssecret")
+            << QString("accesskey")
+            << QString("status")
+            << QString("Testing #kQOAuth (http://code.google.com/p/ytd-meego/issues/detail?id=2#c3");
+
+    QTest::newRow("basicAccessWith?")
+            << QUrl("http://term.ie/oauth/example/echo_api.php")
+            << QString("key")
+            << QString("secret")
+            << QString("accesssecret")
+            << QString("accesskey")
+            << QString("status")
+            << QString("Testing #kQOAuth re: http://code.google.com/p/ytd-meego/issues/detail?id=2");
 }
 
 void Ft_KQOAuth::ft_AuthenticatedGetCall() {
@@ -299,7 +317,7 @@ void Ft_KQOAuth::ft_postRequestLotsOfData_data() {
                           "Enim lorem sit. Interdum dui nulla ante faucibus quam sunt dictum in viverra lacus metus. Tellus a at. Sodales nam suspendisse nisl a pellentesque minim montes eleifend. Pede non varius.");
 
     QByteArray postHugeHugeData;
-    while (postHugeHugeData.size() < 90000) {
+    while (postHugeHugeData.size() < 20000) {
         postHugeHugeData.append("foobar");
     }
     QTest::newRow("postHugeHugeData")
