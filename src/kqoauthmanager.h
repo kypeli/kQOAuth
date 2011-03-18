@@ -22,13 +22,13 @@
 
 #include <QObject>
 #include <QMultiMap>
+#include <QNetworkReply>
 
 #include "kqoauthrequest.h"
 
 class KQOAuthRequest;
 class KQOAuthManagerThread;
 class KQOAuthManagerPrivate;
-class QNetworkReply;
 class QNetworkAccessManager;
 class QUrl;
 class QByteArray;
@@ -167,6 +167,7 @@ Q_SIGNALS:
 private Q_SLOTS:
     void onRequestReplyReceived( QNetworkReply *reply );
     void onVerificationReceived(QMultiMap<QString, QString> response);
+    void slotError(QNetworkReply::NetworkError error);
 
 private:
     KQOAuthManagerPrivate *d_ptr;

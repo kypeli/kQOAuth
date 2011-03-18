@@ -18,7 +18,6 @@
  *  along with KQOAuth.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <QtCore>
-#include <QNetworkReply>
 #include <QDesktopServices>
 
 #include "kqoauthmanager.h"
@@ -172,8 +171,8 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
     }
 
     d->currentRequestType = request->requestType();
+
     QNetworkRequest networkRequest;
-    // Set the request's URL to the OAuth request's endpoint.
     networkRequest.setUrl( request->requestEndpoint() );
 
     if (d->autoAuth && d->currentRequestType == KQOAuthRequest::TemporaryCredentials) {
@@ -214,10 +213,14 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
         networkRequest.setUrl(urlWithParams);
 
         // Submit the request including the params.
-        d->networkManager->get(networkRequest);
-    } else if( request->httpMethod() == KQOAuthRequest::POST) {
+        QNetworkReply *reply = d->networkManager->get(networkRequest);
+        connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+                 this, SLOT(slotError(QNetworkReply::NetworkError)));
+    } else if (request->httpMethod() == KQOAuthRequest::POST) {
         networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-        d->networkManager->post(networkRequest, request->requestBody());
+        QNetworkReply *reply = d->networkManager->post(networkRequest, request->requestBody());
+        connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+                 this, SLOT(slotError(QNetworkReply::NetworkError)));
     }
 }
 
@@ -455,5 +458,14 @@ void KQOAuthManager::onVerificationReceived(QMultiMap<QString, QString> response
     }
 
     emit authorizationReceived(token, verifier);
+}
+
+void KQOAuthManager::slotError(QNetworkReply::NetworkError error) {
+    Q_UNUSED(error)
+    Q_D(KQOAuthManager);
+
+    d->error = KQOAuthManager::NetworkError;
+    QByteArray emptyResponse;
+    emit requestReady(emptyResponse);
 }
 

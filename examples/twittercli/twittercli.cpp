@@ -136,6 +136,8 @@ void TwitterCLI::sendTweet(QString tweet) {
 
     oauthManager->executeRequest(oauthRequest);
 
+    connect(oauthManager, SIGNAL(requestReady(QByteArray)),
+            this, SLOT(onRequestReady(QByteArray)));
     connect(oauthManager, SIGNAL(authorizedRequestDone()),
             this, SLOT(onAuthorizedRequestDone()));
 }

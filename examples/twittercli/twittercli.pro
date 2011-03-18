@@ -15,7 +15,7 @@ macx {
 else:unix {
   # the second argument (after colon) is for
   # being able to run make check from the root source directory
-#  LIBS += -Wl,-rpath,../../lib:lib
+  LIBS += -L../../lib:lib
 } else:windows {
   LIBS += -L../../lib -lkqoauthd0
 }
