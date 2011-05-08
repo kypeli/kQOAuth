@@ -2,6 +2,8 @@ Source: libkqoauth
 Section: libs
 Priority: extra
 Maintainer: Marko Mattila <marko.a.mattila@gmail.com>
+XSBC-Original-Maintainer: Johan Paul <johan.paul@d-pointer.com>
+XSBC-Bugtracker: mailto:johan.paul@d-pointer.com
 Build-Depends: debhelper (>= 5), libqt4-dev, libqt4-maemo5, libqt4-gui, libqt4-network
 Standards-Version: 3.7.2
 
