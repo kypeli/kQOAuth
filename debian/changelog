@@ -1,10 +1,10 @@
 libkqoauth (0.96.0) unstable; urgency=low
- * Added support for sending arbitrary data in KQOAuthRequests in any POST form
+   * Added support for sending arbitrary data in KQOAuthRequests in any POST form
    Methods added: KQOAuthRequest::setContentType(...)
                   KQOAuthRequest::contentType()
                   KQOAuthRequest::setRawData(...)
                   KQOAuthRequest::rawData()
- * Bug fix: Not overriding user set query parameters for the user authorization endpoint, but instead appending the oauth_token to the user given URL. 
+  * Bug fix: Not overriding user set query parameters for the user authorization endpoint, but instead appending the oauth_token to the user given URL. 
 
  -- Johan Paul <johan.paul@d-pointer.com>  Sat, 8 May 2011 14:34:41 +0200
 
