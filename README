@@ -17,8 +17,8 @@ BUILDING kQOAuth
 - To run unit tests you need to set platform specific variable to point 
   correct directory in order to make unit tests to find the library. Note
   that it doesn't require kQOAuth to be installed in order to run unit tests.
- * for lLnux:  export LD_LIBRARY_PATH=/path/to/kQOAuth/lib/dir
-  * for OS X:  export DYLD_LIBRARY_PATH=/path/to/kQOAuth/lib/dir
+ * for Linux:  export LD_LIBRARY_PATH=/path/to/kQOAuth/lib/dir
+ * for OS X:  export DYLD_LIBRARY_PATH=/path/to/kQOAuth/lib/dir
 
 
 COMPONENTS
@@ -215,8 +215,6 @@ Methods
 * void setHttpMethod(KQOAuthRequest::RequestHttpMethod)
     Sets the HTTP method to be used for this request. 
 
-    NOTE: Currently only KQOAuthRequest::POST is supported!
-
 * void setAdditionalParameters(const KQOAuthParameters &additionalParams);
     Sets any additional request specific parameters as specified by the 
     service provider.
@@ -237,6 +235,24 @@ Methods
 
 * QUrl requestEndpoint() const;
     Returns the current request endpoint (URL location).
+
+* void setContentType(const QString &contentType)
+    By default the POST requests are sent as "application/x-www-form-urlencoded". 
+   With this method, however, the content type of the POST request can be changed. 
+   If you want to override the content type, please look at setRawData().
+
+* QString contentType()
+   Returns the current content type.
+
+* void setRawData(const QByteArray &data);
+   If you send the POST request as anything else but "application/x-www-form-urlencoded"
+   it is assumed that you want to send some manually crafted data that kQOAuth
+   is not responsible of. 
+   Set that data here.
+
+* QByteArray rawData()
+   Returns the raw data you want to se send to the endpoint. 
+
 
 * QList<QByteArray> requestParameters();
     Returns the request parameters of this request as a list of elements

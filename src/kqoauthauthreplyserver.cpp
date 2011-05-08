@@ -45,7 +45,7 @@ void KQOAuthAuthReplyServerPrivate::onIncomingConnection() {
 
 void KQOAuthAuthReplyServerPrivate::onBytesReady() {
     Q_Q(KQOAuthAuthReplyServer);
-
+    
     QByteArray reply;
     QByteArray content;
     content.append("<HTML></HTML>");
@@ -56,9 +56,8 @@ void KQOAuthAuthReplyServerPrivate::onBytesReady() {
     reply.append("\r\n");
     reply.append(content);
     socket->write(reply);
-
+    
     QByteArray data = socket->readAll();
-
     QMultiMap<QString, QString> queryParams = parseQueryParams(&data);
 
     socket->disconnectFromHost();

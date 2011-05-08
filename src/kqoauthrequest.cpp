@@ -95,8 +95,8 @@ void KQOAuthRequestPrivate::signRequest() {
 QString KQOAuthRequestPrivate::oauthSignature()  {
     /**
      * http://oauth.net/core/1.0/#anchor16
-     * The HMAC-SHA1 signature method uses the HMAC-SHA1 signature algorithm as defined in [RFC2104] where the 
-     * Signature Base String is the text and the key is the concatenated values (each first encoded per Parameter 
+     * The HMAC-SHA1 signature method uses the HMAC-SHA1 signature algorithm as defined in [RFC2104] where the
+     * Signature Base String is the text and the key is the concatenated values (each first encoded per Parameter
      * Encoding) of the Consumer Secret and Token Secret, separated by an ‘&’ character (ASCII code 38) even if empty.
      **/
     QByteArray baseString = this->requestBaseString();
@@ -212,7 +212,7 @@ QString KQOAuthRequestPrivate::oauthNonce() const {
     return QString::number(qrand());
 }
 
-bool KQOAuthRequestPrivate::validateRequest() const {    
+bool KQOAuthRequestPrivate::validateRequest() const {
     switch ( requestType ) {
     case KQOAuthRequest::TemporaryCredentials:
         if (oauthRequestEndpoint.isEmpty()
@@ -305,6 +305,7 @@ void KQOAuthRequest::initRequest(KQOAuthRequest::RequestType type, const QUrl &r
     this->setHttpMethod(KQOAuthRequest::POST);
     d->oauthVersion = "1.0"; // Currently supports only version 1.0
 
+    d->contentType = "application/x-www-form-urlencoded";
 }
 
 void KQOAuthRequest::setConsumerKey(const QString &consumerKey) {
@@ -420,13 +421,11 @@ KQOAuthParameters KQOAuthRequest::additionalParameters() const {
 
 KQOAuthRequest::RequestType KQOAuthRequest::requestType() const {
     Q_D(const KQOAuthRequest);
-
     return d->requestType;
 }
 
 QUrl KQOAuthRequest::requestEndpoint() const {
     Q_D(const KQOAuthRequest);
-
     return d->oauthRequestEndpoint;
 }
 
@@ -451,6 +450,30 @@ QList<QByteArray> KQOAuthRequest::requestParameters() {
     }
 
     return requestParamList;
+}
+
+QString KQOAuthRequest::contentType()
+{
+    Q_D(const KQOAuthRequest);
+    return d->contentType;
+}
+
+void KQOAuthRequest::setContentType(const QString &contentType)
+{
+    Q_D(KQOAuthRequest);
+    d->contentType = contentType;
+}
+
+QByteArray KQOAuthRequest::rawData()
+{
+    Q_D(const KQOAuthRequest);
+    return d->postRawData;
+}
+
+void KQOAuthRequest::setRawData(const QByteArray &rawData)
+{
+    Q_D(KQOAuthRequest);
+    d->postRawData = rawData;
 }
 
 QByteArray KQOAuthRequest::requestBody() const {
