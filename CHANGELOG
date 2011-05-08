@@ -1,3 +1,14 @@
+Version 0.96
+===================
++ Added support for sending arbitrary data in KQOAuthRequests in any POST form
+  Methods added: KQOAuthRequest::setContentType(...)
+                 KQOAuthRequest::contentType()
+                 KQOAuthRequest::setRawData(...)
+                 KQOAuthRequest::rawData()
++ Bug fix: Not overriding user set query parameters for the user authorization
+  endpoint, but instead appending the oauth_token to the user given URL. 
+
+
 Version 0.95
 ===================
 + Bug fix: Omitting additional parameters from the HTTP 

@@ -138,13 +138,13 @@ bool KQOAuthManagerPrivate::setupCallbackServer() {
 KQOAuthManager::KQOAuthManager(QObject *parent) :
     QObject(parent) ,
     d_ptr(new KQOAuthManagerPrivate(this))
-{    
+{
 
 }
 
 KQOAuthManager::~KQOAuthManager()
 {
-    delete d_ptr;    
+    delete d_ptr;
 }
 
 void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
@@ -201,7 +201,7 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
     networkRequest.setRawHeader("Authorization", authHeader);
 
     connect(d->networkManager, SIGNAL(finished(QNetworkReply *)),
-            this, SLOT(onRequestReplyReceived(QNetworkReply*) ));
+            this, SLOT(onRequestReplyReceived(QNetworkReply *)));
 
     if (request->httpMethod() == KQOAuthRequest::GET) {
         // Get the requested additional params as a list of pairs we can give QUrl
@@ -216,9 +216,22 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
         QNetworkReply *reply = d->networkManager->get(networkRequest);
         connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
                  this, SLOT(slotError(QNetworkReply::NetworkError)));
+
     } else if (request->httpMethod() == KQOAuthRequest::POST) {
-        networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-        QNetworkReply *reply = d->networkManager->post(networkRequest, request->requestBody());
+
+        networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, request->contentType());
+
+        qDebug() << networkRequest.rawHeaderList();
+        qDebug() << networkRequest.rawHeader("Authorization");
+        qDebug() << networkRequest.rawHeader("Content-Type");
+
+        QNetworkReply *reply;
+        if (request->contentType() == "application/x-www-form-urlencoded") {
+          reply = d->networkManager->post(networkRequest, request->requestBody());
+        } else {
+          reply = d->networkManager->post(networkRequest, request->rawData());
+        }
+
         connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
                  this, SLOT(slotError(QNetworkReply::NetworkError)));
     }
@@ -310,7 +323,10 @@ void KQOAuthManager::getUserAuthorization(QUrl authorizationEndpoint) {
     queryParams.append(tokenParam);
 
     QUrl openWebPageUrl(authorizationEndpoint.toString(), QUrl::StrictMode);
-    openWebPageUrl.setQueryItems(queryParams);
+    QPair<QString, QString> param;
+    foreach(param, queryParams) {
+    	openWebPageUrl.addQueryItem(param.first, param.second);
+    }
 
     // Open the user's default browser to the resource authorization page provided
     // by the service.
@@ -468,5 +484,8 @@ void KQOAuthManager::slotError(QNetworkReply::NetworkError error) {
     QByteArray emptyResponse;
     emit requestReady(emptyResponse);
     emit authorizedRequestDone();
+
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    reply->deleteLater();
 }
 

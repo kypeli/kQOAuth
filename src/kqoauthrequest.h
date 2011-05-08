@@ -96,6 +96,12 @@ public:
     KQOAuthRequest::RequestType requestType() const;
     QUrl requestEndpoint() const;
 
+    void setContentType(const QString &contentType);
+    QString contentType();
+
+    void setRawData(const QByteArray &rawData);
+    QByteArray rawData();
+
     void clearRequest();
 
     // Enable verbose debug output for request content.
@@ -104,7 +110,7 @@ public:
 protected:
     bool validateXAuthRequest() const;
 
-private:    
+private:
     KQOAuthRequestPrivate * const d_ptr;
     Q_DECLARE_PRIVATE(KQOAuthRequest);
     Q_DISABLE_COPY(KQOAuthRequest);

@@ -28,7 +28,7 @@
 #include <QPair>
 #include <QMultiMap>
 
-class KQOAUTH_EXPORT KQOAuthRequestPrivate {    
+class KQOAUTH_EXPORT KQOAuthRequestPrivate {
 
 public:
     KQOAuthRequestPrivate();
@@ -74,7 +74,13 @@ public:
     // These parameters are used in the "Authorized" header of the HTTP request.
     QList< QPair<QString, QString> > requestParameters;
 
-    KQOAuthRequest::RequestType requestType;    
+    KQOAuthRequest::RequestType requestType;
+
+    //The Content-Type HTTP header
+    QString contentType;
+
+    //Raw data to post if type is not url-encoded
+    QByteArray postRawData;
 
     bool debugOutput;
 
