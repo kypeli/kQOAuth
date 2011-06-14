@@ -46,16 +46,18 @@ install: build
 	# Add here commands to install the package into debian/arora.
 	cd builddir && $(MAKE) INSTALL_ROOT=$(CURDIR)/debian/$(APPNAME)
 	echo "Current dir $(PWD)"
+
 	cp -l lib/*.so* $(CURDIR)/debian/$(APPNAME)/usr/lib
-	cp include/* $(CURDIR)/debian/$(APPNAME)-dev/usr/include
-	cp src/kqoauthmanager.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include	
-	cp src/kqoauthrequest.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include 
-	cp src/kqoauthrequest_1.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include
-	cp src/kqoauthrequest_xauth.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include
-	cp src/kqoauthglobals.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include
+
+	mkdir $(CURDIR)/debian/$(APPNAME)-dev/usr/include/QtKOAuth/
+	cp include/* $(CURDIR)/debian/$(APPNAME)-dev/usr/include/QtKOAuth/
+	cp src/kqoauthmanager.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include/QtKOAuth/
+	cp src/kqoauthrequest.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include/QtKOAuth/
+	cp src/kqoauthrequest_1.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include/QtKOAuth/
+	cp src/kqoauthrequest_xauth.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include/QtKOAuth/
+	cp src/kqoauthglobals.h $(CURDIR)/debian/$(APPNAME)-dev/usr/include/QtKOAuth/
 	cp src/kqoauth.pc $(CURDIR)/debian/$(APPNAME)-dev/usr/lib/pkgconfig
 	cp kqoauth.prf $(CURDIR)/debian/$(APPNAME)-dev/usr/share/qt4/mkspecs/features
-	
 
 # Build architecture-independent files here.
 binary-indep: build install
