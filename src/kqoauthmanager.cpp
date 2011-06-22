@@ -177,6 +177,8 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
 
     if (d->autoAuth && d->currentRequestType == KQOAuthRequest::TemporaryCredentials) {
         d->setupCallbackServer();
+        connect(d->callbackServer, SIGNAL(verificationReceived(QMultiMap<QString, QString>)),
+                this, SLOT( onVerificationReceived(QMultiMap<QString, QString>)));
 
         QString serverString = "http://localhost:";
         serverString.append(QString::number(d->callbackServer->serverPort()));
@@ -314,9 +316,6 @@ void KQOAuthManager::getUserAuthorization(QUrl authorizationEndpoint) {
     }
 
     d->error = KQOAuthManager::NoError;
-
-    connect(d->callbackServer, SIGNAL(verificationReceived(QMultiMap<QString, QString>)),
-            this, SLOT( onVerificationReceived(QMultiMap<QString, QString>)));
 
     QPair<QString, QString> tokenParam = qMakePair(QString("oauth_token"), QString(d->requestToken));
     QUrl openWebPageUrl(authorizationEndpoint.toString(), QUrl::StrictMode);
