@@ -162,8 +162,6 @@ Q_SIGNALS:
     // This ends the kQOAuth interactions.
     void authorizedRequestDone();
 
-
-
 private Q_SLOTS:
     void onRequestReplyReceived( QNetworkReply *reply );
     void onVerificationReceived(QMultiMap<QString, QString> response);

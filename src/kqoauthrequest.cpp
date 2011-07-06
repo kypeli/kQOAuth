@@ -34,7 +34,8 @@
 
 //////////// Private d_ptr implementation /////////
 
-KQOAuthRequestPrivate::KQOAuthRequestPrivate()
+KQOAuthRequestPrivate::KQOAuthRequestPrivate() :
+    timeout(0)
 {
 
 }
@@ -503,6 +504,11 @@ bool KQOAuthRequest::isValid() const {
     return d->validateRequest();
 }
 
+void KQOAuthRequest::setTimeout(int timeoutMilliseconds) {
+    Q_D(KQOAuthRequest);
+    d->timeout = timeoutMilliseconds;
+}
+
 void KQOAuthRequest::clearRequest() {
     Q_D(KQOAuthRequest);
 
@@ -519,6 +525,7 @@ void KQOAuthRequest::clearRequest() {
     d->oauthNonce_ = "";
     d->requestParameters.clear();
     d->additionalParameters.clear();
+    d->timeout = 0;
 }
 
 void KQOAuthRequest::setEnableDebugOutput(bool enabled) {
@@ -561,4 +568,22 @@ QString KQOAuthRequest::consumerKeySecretForManager() const {
 QUrl KQOAuthRequest::callbackUrlForManager() const {
     Q_D(const KQOAuthRequest);
     return d->oauthCallbackUrl;
+}
+
+void KQOAuthRequest::requestTimerStart()
+{
+    Q_D(KQOAuthRequest);
+    if (d->timeout > 0) {
+        connect(&(d->timer), SIGNAL(timeout()), this, SIGNAL(requestTimedout()));
+        d->timer.start(d->timeout);
+    }
+}
+
+void KQOAuthRequest::requestTimerStop()
+{
+    Q_D(KQOAuthRequest);
+    if (d->timeout > 0) {
+        disconnect(&(d->timer), SIGNAL(timeout()), this, SIGNAL(requestTimedout()));
+        d->timer.stop();
+    }
 }

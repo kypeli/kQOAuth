@@ -27,6 +27,7 @@
 #include <QMap>
 #include <QPair>
 #include <QMultiMap>
+#include <QTimer>
 
 class KQOAUTH_EXPORT KQOAuthRequestPrivate {
 
@@ -81,6 +82,10 @@ public:
 
     //Raw data to post if type is not url-encoded
     QByteArray postRawData;
+
+    // Timeout for this request in milliseconds.
+    int timeout;
+    QTimer timer;
 
     bool debugOutput;
 

@@ -237,6 +237,8 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
         connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
                  this, SLOT(slotError(QNetworkReply::NetworkError)));
     }
+
+    d->r->requestTimerStart();
 }
 
 
@@ -404,7 +406,11 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
         break;
     }
 
+    // Read the content of the reply from the network.
     QByteArray networkReply = reply->readAll();
+
+    // Stop any timer we have set on the request.
+    d->r->requestTimerStop();
 
     // Just don't do anything if we didn't get anything useful.
     if(networkReply.isEmpty()) {

@@ -86,6 +86,12 @@ public:
     void setHttpMethod(KQOAuthRequest::RequestHttpMethod = KQOAuthRequest::POST);
     KQOAuthRequest::RequestHttpMethod httpMethod() const;
 
+    // Sets the timeout for this request. If the timeout expires, signal "requestTimedout" will be
+    // emitted from the manager.
+    // 0 = If set to zero, timeout is disabled.
+    // TODO: Do we need some request ID now?
+    void setTimeout(int timeoutMilliseconds);
+
     // Additional optional parameters to the request.
     void setAdditionalParameters(const KQOAuthParameters &additionalParams);
     KQOAuthParameters additionalParameters() const;
@@ -107,6 +113,11 @@ public:
     // Enable verbose debug output for request content.
     void setEnableDebugOutput(bool enabled);
 
+Q_SIGNALS:
+    // This signal is emited if the request is not completed before the request's timeout
+    // value has expired.
+    void requestTimedout();
+
 protected:
     bool validateXAuthRequest() const;
 
@@ -120,6 +131,10 @@ private:
     QString consumerKeyForManager() const;
     QString consumerKeySecretForManager() const;
     QUrl callbackUrlForManager() const;
+
+    // This method is for timeout handling by the KQOAuthManager.
+    void requestTimerStart();
+    void requestTimerStop();
 
     friend class KQOAuthManager;
 #ifdef UNIT_TEST
