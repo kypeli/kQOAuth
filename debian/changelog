@@ -1,3 +1,9 @@
+libkqoauth (0.97.0) unstable; urgency=low
+
+  * Added new methods to provide id to identify which response matches to request.
+
+ -- Marko Mattila <marko.mattila@d-pointer.com>  Sat,  3 Sep 2011 21:48:41 -0400
+
 libkqoauth (0.96.0) unstable; urgency=low
    * Added support for sending arbitrary data in KQOAuthRequests in any POST form
    Methods added: KQOAuthRequest::setContentType(...)
