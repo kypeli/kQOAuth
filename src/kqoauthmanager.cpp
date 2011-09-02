@@ -203,7 +203,9 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
     networkRequest.setRawHeader("Authorization", authHeader);
 
     connect(d->networkManager, SIGNAL(finished(QNetworkReply *)),
-            this, SLOT(onRequestReplyReceived(QNetworkReply *)));
+            this, SLOT(onRequestReplyReceived(QNetworkReply *)), Qt::UniqueConnection);
+    disconnect(d->networkManager, SIGNAL(finished(QNetworkReply *)),
+            this, SLOT(onAuthorizedRequestReplyReceived(QNetworkReply *)));
 
     if (request->httpMethod() == KQOAuthRequest::GET) {
         // Get the requested additional params as a list of pairs we can give QUrl
@@ -233,6 +235,103 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
         } else {
           reply = d->networkManager->post(networkRequest, request->rawData());
         }
+
+        connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+                 this, SLOT(slotError(QNetworkReply::NetworkError)));
+    }
+
+    d->r->requestTimerStart();
+}
+
+void KQOAuthManager::executeAuthorizedRequest(KQOAuthRequest *request, int id) {
+    Q_D(KQOAuthManager);
+
+    d->r = request;
+
+    if (request == 0) {
+        qWarning() << "Request is NULL. Cannot proceed.";
+        d->error = KQOAuthManager::RequestError;
+        return;
+    }
+
+    if (!request->requestEndpoint().isValid()) {
+        qWarning() << "Request endpoint URL is not valid. Cannot proceed.";
+        d->error = KQOAuthManager::RequestEndpointError;
+        return;
+    }
+
+    if (!request->isValid()) {
+        qWarning() << "Request is not valid. Cannot proceed.";
+        d->error = KQOAuthManager::RequestValidationError;
+        return;
+    }
+
+    d->currentRequestType = request->requestType();
+
+    QNetworkRequest networkRequest;
+    networkRequest.setUrl( request->requestEndpoint() );
+
+    if ( d->currentRequestType != KQOAuthRequest::AuthorizedRequest){
+        qWarning() << "Not Authorized Request. Cannot proceed";
+        d->error = KQOAuthManager::RequestError;
+        return;
+    }
+
+
+    // And now fill the request with "Authorization" header data.
+    QList<QByteArray> requestHeaders = request->requestParameters();
+    QByteArray authHeader;
+
+    bool first = true;
+    foreach (const QByteArray header, requestHeaders) {
+        if (!first) {
+            authHeader.append(", ");
+        } else {
+            authHeader.append("OAuth ");
+            first = false;
+        }
+
+        authHeader.append(header);
+    }
+    networkRequest.setRawHeader("Authorization", authHeader);
+
+
+    disconnect(d->networkManager, SIGNAL(finished(QNetworkReply *)),
+            this, SLOT(onRequestReplyReceived(QNetworkReply *)));
+    connect(d->networkManager, SIGNAL(finished(QNetworkReply *)),
+            this, SLOT(onAuthorizedRequestReplyReceived(QNetworkReply*)), Qt::UniqueConnection);
+
+    if (request->httpMethod() == KQOAuthRequest::GET) {
+        // Get the requested additional params as a list of pairs we can give QUrl
+        QList< QPair<QString, QString> > urlParams = d->createQueryParams(request->additionalParameters());
+
+        // Take the original URL and append the query params to it.
+        QUrl urlWithParams = networkRequest.url();
+        urlWithParams.setQueryItems(urlParams);
+        networkRequest.setUrl(urlWithParams);
+
+        // Submit the request including the params.
+        QNetworkReply *reply = d->networkManager->get(networkRequest);
+        connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+                 this, SLOT(slotError(QNetworkReply::NetworkError)));
+
+    } else if (request->httpMethod() == KQOAuthRequest::POST) {
+
+        networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, request->contentType());
+
+        /*
+        qDebug() << networkRequest.rawHeaderList();
+        qDebug() << networkRequest.rawHeader("Authorization");
+        qDebug() << networkRequest.rawHeader("Content-Type");
+        */
+        QNetworkReply *reply;
+        if (request->contentType() == "application/x-www-form-urlencoded") {
+          reply = d->networkManager->post(networkRequest, request->requestBody());
+        } else {
+          reply = d->networkManager->post(networkRequest, request->rawData());
+        }
+
+        d->requestIds.insert(reply, id);
 
         connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
                  this, SLOT(slotError(QNetworkReply::NetworkError)));
@@ -406,6 +505,12 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
         break;
     }
 
+    // Let's disconnect this slot first
+    /*
+    disconnect(d->networkManager, SIGNAL(finished(QNetworkReply *)),
+            this, SLOT(onRequestReplyReceived(QNetworkReply *)));
+    */
+
     // Read the content of the reply from the network.
     QByteArray networkReply = reply->readAll();
 
@@ -455,6 +560,61 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
     reply->deleteLater();           // We need to clean this up, after the event processing is done.
 }
 
+void KQOAuthManager::onAuthorizedRequestReplyReceived( QNetworkReply *reply ) {
+    Q_D(KQOAuthManager);
+
+    QNetworkReply::NetworkError networkError = reply->error();
+    switch (networkError) {
+    case QNetworkReply::NoError:
+        d->error = KQOAuthManager::NoError;
+        break;
+
+    case QNetworkReply::ContentAccessDenied:
+    case QNetworkReply::AuthenticationRequiredError:
+        d->error = KQOAuthManager::RequestUnauthorized;
+        break;
+
+    default:
+        d->error = KQOAuthManager::NetworkError;
+        break;
+    }
+
+    /*
+    disconnect(d->networkManager, SIGNAL(finished(QNetworkReply *)),
+            this, SLOT(onAuthorizedRequestReplyReceived(QNetworkReply *)));
+    */
+
+    // Read the content of the reply from the network.
+    QByteArray networkReply = reply->readAll();
+
+    // Stop any timer we have set on the request.
+    d->r->requestTimerStop();
+
+    // Just don't do anything if we didn't get anything useful.
+    if(networkReply.isEmpty()) {
+        reply->deleteLater();
+        return;
+    }
+
+    // We need to emit the signal even if we got an error.
+    if (d->error != KQOAuthManager::NoError) {
+        qWarning() << "Network reply error";
+        return;
+    }
+
+
+    d->opaqueRequest->clearRequest();
+    d->opaqueRequest->setHttpMethod(KQOAuthRequest::POST);   // XXX FIXME: Convenient API does not support GET
+    if (d->currentRequestType == KQOAuthRequest::AuthorizedRequest) {
+                emit authorizedRequestDone();
+     }
+
+    int id = d->requestIds.take(reply);
+    emit authorizedRequestReady(networkReply, id);
+    reply->deleteLater();
+}
+
+
 void KQOAuthManager::onVerificationReceived(QMultiMap<QString, QString> response) {
     Q_D(KQOAuthManager);
 
@@ -485,6 +645,7 @@ void KQOAuthManager::slotError(QNetworkReply::NetworkError error) {
     emit authorizedRequestDone();
 
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    d->requestIds.remove(reply);
     reply->deleteLater();
 }
 

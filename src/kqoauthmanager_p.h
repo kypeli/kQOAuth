@@ -64,6 +64,7 @@ public:
     bool autoAuth;
     QNetworkAccessManager *networkManager;
     bool managerUserSet;
+    QMap<QNetworkReply*, int> requestIds;
 
     Q_DECLARE_PUBLIC(KQOAuthManager);
 };
