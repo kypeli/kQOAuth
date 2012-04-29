@@ -311,12 +311,12 @@ void KQOAuthRequest::initRequest(KQOAuthRequest::RequestType type, const QUrl &r
 
 void KQOAuthRequest::setConsumerKey(const QString &consumerKey) {
     Q_D(KQOAuthRequest);
-    d->oauthConsumerKey = consumerKey;
+    d->oauthConsumerKey = QUrl::toPercentEncoding(consumerKey);
 }
 
 void KQOAuthRequest::setConsumerSecretKey(const QString &consumerSecretKey) {
     Q_D(KQOAuthRequest);
-    d->oauthConsumerSecretKey = consumerSecretKey;
+    d->oauthConsumerSecretKey = QUrl::toPercentEncoding(consumerSecretKey);
 }
 
 void KQOAuthRequest::setCallbackUrl(const QUrl &callbackUrl) {
@@ -439,6 +439,7 @@ QList<QByteArray> KQOAuthRequest::requestParameters() {
     if (!isValid() ) {
         qWarning() << "Request is not valid! I will still sign it, but it will probably not work.";
     }
+    
     d->signRequest();
 
     QPair<QString, QString> requestParam;
