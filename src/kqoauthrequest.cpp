@@ -311,12 +311,12 @@ void KQOAuthRequest::initRequest(KQOAuthRequest::RequestType type, const QUrl &r
 
 void KQOAuthRequest::setConsumerKey(const QString &consumerKey) {
     Q_D(KQOAuthRequest);
-    d->oauthConsumerKey = QUrl::toPercentEncoding(consumerKey);
+    d->oauthConsumerKey = consumerKey;
 }
 
 void KQOAuthRequest::setConsumerSecretKey(const QString &consumerSecretKey) {
     Q_D(KQOAuthRequest);
-    d->oauthConsumerSecretKey = QUrl::toPercentEncoding(consumerSecretKey);
+    d->oauthConsumerSecretKey = consumerSecretKey;
 }
 
 void KQOAuthRequest::setCallbackUrl(const QUrl &callbackUrl) {
