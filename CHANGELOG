@@ -1,3 +1,8 @@
+Version 0.97
+===================
+Fixed critical bug if token or token secret contained characters that 
+should have been HTML percent encoded.
+
 Version 0.96
 ===================
 + Added support for sending arbitrary data in KQOAuthRequests in any POST form
