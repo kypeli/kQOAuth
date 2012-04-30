@@ -448,7 +448,10 @@ QList<QByteArray> KQOAuthRequest::requestParameters() {
     foreach (requestParam, d->requestParameters) {
         param = requestParam.first;
         value = requestParam.second;
-        value = QUrl::toPercentEncoding(value);
+        if (param != OAUTH_KEY_SIGNATURE) {
+            value = QUrl::toPercentEncoding(value);
+        }
+
         requestParamList.append(QString(param + "=\"" + value +"\"").toUtf8());
     }
 
