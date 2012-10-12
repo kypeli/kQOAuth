@@ -1,0 +1,9 @@
+*.pro.user
+moc_*
+qrc_*
+*.o
+Makefile*
+src/kqoauth.pc
+lib/*
+tests/ft_kqoauth/ft_kqoauth
+tests/ut_kqoauth/ut_kqoauth
