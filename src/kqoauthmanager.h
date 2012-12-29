@@ -114,6 +114,12 @@ public:
      */
     void getUserAccessTokens(QUrl accessTokenEndpoint);
     /**
+     * This is a conveience API for setting the token verifier.
+     * If setHandleUserAuthorization() is set to false you need to call this function before calling
+     * getUserAccessTokens()
+     */
+    void verifyToken(const QString &token, const QString &verifier);
+    /**
      * Sends a request to the protected resources. Parameters for the request are service specific and
      * are given to the 'requestParameters' as parameters.
      * Note that in order to use this method, KQOAuthManager must be in control of the user authorization process.

@@ -454,6 +454,13 @@ void KQOAuthManager::getUserAccessTokens(QUrl accessTokenEndpoint) {
     executeRequest(d->opaqueRequest);
 }
 
+void KQOAuthManager::verifyToken(const QString &token, const QString &verifier) {
+    QMultiMap<QString, QString> params;
+    params.insert("oauth_token", token);
+    params.insert("oauth_verifier", verifier);
+    onVerificationReceived(params);
+}
+
 void KQOAuthManager::sendAuthorizedRequest(QUrl requestEndpoint, const KQOAuthParameters &requestParameters) {
     Q_D(KQOAuthManager);
 
