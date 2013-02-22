@@ -62,7 +62,10 @@ macx {
     target.path = $$[QT_INSTALL_LIBS]
     INSTALLS += \
         target \
-        features
+        features \
+	postinstall
+    postinstall.path =  target.path
+    postinstall.extra = install_name_tool -id $${target.path}/$${QMAKE_FRAMEWORK_BUNDLE_NAME}.framework/Versions/0/$${TARGET} $${target.path}/$${QMAKE_FRAMEWORK_BUNDLE_NAME}.framework/Versions/0/$${TARGET}
 }
 else:unix {
     isEmpty( PREFIX ):INSTALL_PREFIX = /usr
