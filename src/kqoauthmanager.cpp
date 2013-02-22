@@ -662,10 +662,15 @@ void KQOAuthManager::slotError(QNetworkReply::NetworkError error) {
 
     d->error = KQOAuthManager::NetworkError;
     QByteArray emptyResponse;
-    emit requestReady(emptyResponse);
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if( d->requestIds.contains(reply) ) {
+	int id = d->requestIds.value(reply);
+	emit authorizedRequestReady(emptyResponse, id);
+    }
+    else
+	emit requestReady(emptyResponse);
     emit authorizedRequestDone();
 
-    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     d->requestIds.remove(reply);
     reply->deleteLater();
 }
