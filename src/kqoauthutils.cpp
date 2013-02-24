@@ -26,7 +26,7 @@
 
 QString KQOAuthUtils::hmac_sha1(const QString &message, const QString &key)
 {
-    QByteArray keyBytes = key.toAscii();
+    QByteArray keyBytes = key.toLatin1();
     int keyLength;              // Lenght of key word
     const int blockSize = 64;   // Both MD5 and SHA-1 have a block size of 64.
 
@@ -60,7 +60,7 @@ QString KQOAuthUtils::hmac_sha1(const QString &message, const QString &key)
 
     workArray.append(ipad, 64);
     /* http://tools.ietf.org/html/rfc2104 - (3) */
-    workArray.append(message.toAscii());
+    workArray.append(message.toLatin1());
 
 
     /* http://tools.ietf.org/html/rfc2104 - (4) */

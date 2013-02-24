@@ -19,6 +19,9 @@
  */
 #include <QtCore>
 #include <QDesktopServices>
+#if QT_VERSION >= 0x050000
+#include <QUrlQuery>
+#endif
 
 #include "kqoauthmanager.h"
 #include "kqoauthmanager_p.h"
@@ -213,7 +216,13 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
 
         // Take the original URL and append the query params to it.
         QUrl urlWithParams = networkRequest.url();
+#if QT_VERSION < 0x050000
         urlWithParams.setQueryItems(urlParams);
+#else
+	QUrlQuery query;
+	query.setQueryItems(urlParams);
+	urlWithParams.setQuery(query);
+#endif
         networkRequest.setUrl(urlWithParams);
 
         // Submit the request including the params.
@@ -308,7 +317,13 @@ void KQOAuthManager::executeAuthorizedRequest(KQOAuthRequest *request, int id) {
 
         // Take the original URL and append the query params to it.
         QUrl urlWithParams = networkRequest.url();
+#if QT_VERSION < 0x050000
         urlWithParams.setQueryItems(urlParams);
+#else
+	QUrlQuery query;
+	query.setQueryItems(urlParams);
+	urlWithParams.setQuery(query);
+#endif
         networkRequest.setUrl(urlWithParams);
 
         // Submit the request including the params.
@@ -419,7 +434,14 @@ void KQOAuthManager::getUserAuthorization(QUrl authorizationEndpoint) {
 
     QPair<QString, QString> tokenParam = qMakePair(QString("oauth_token"), QString(d->requestToken));
     QUrl openWebPageUrl(authorizationEndpoint.toString(), QUrl::StrictMode);
+
+#if QT_VERSION < 0x050000
     openWebPageUrl.addQueryItem(tokenParam.first, tokenParam.second);
+#else
+    QUrlQuery query(openWebPageUrl);
+    query.addQueryItem(tokenParam.first, tokenParam.second);
+    openWebPageUrl.setQuery(query);
+#endif
 
     // Open the user's default browser to the resource authorization page provided
     // by the service.
@@ -647,10 +669,15 @@ void KQOAuthManager::slotError(QNetworkReply::NetworkError error) {
 
     d->error = KQOAuthManager::NetworkError;
     QByteArray emptyResponse;
-    emit requestReady(emptyResponse);
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if( d->requestIds.contains(reply) ) {
+	int id = d->requestIds.value(reply);
+	emit authorizedRequestReady(emptyResponse, id);
+    }
+    else
+	emit requestReady(emptyResponse);
     emit authorizedRequestDone();
 
-    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     d->requestIds.remove(reply);
     reply->deleteLater();
 }
