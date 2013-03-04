@@ -229,6 +229,7 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
         QNetworkReply *reply = d->networkManager->get(networkRequest);
         connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
                  this, SLOT(slotError(QNetworkReply::NetworkError)));
+        d->requestMap.insert( request, reply );
 
     } else if (request->httpMethod() == KQOAuthRequest::POST) {
 
@@ -247,6 +248,7 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
 
         connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
                  this, SLOT(slotError(QNetworkReply::NetworkError)));
+        d->requestMap.insert( request, reply );
     }
 
     d->r->requestTimerStart();
@@ -330,6 +332,9 @@ void KQOAuthManager::executeAuthorizedRequest(KQOAuthRequest *request, int id) {
         reply = d->networkManager->get(networkRequest);
         connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
                  this, SLOT(slotError(QNetworkReply::NetworkError)));
+        connect(request, SIGNAL(requestTimedout()),
+                 this, SLOT(requestTimeout()));
+        d->requestMap.insert( request, reply );
 
     } else if (request->httpMethod() == KQOAuthRequest::POST) {
 
@@ -349,6 +354,9 @@ void KQOAuthManager::executeAuthorizedRequest(KQOAuthRequest *request, int id) {
 
         connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
                  this, SLOT(slotError(QNetworkReply::NetworkError)));
+        connect(request, SIGNAL(requestTimedout()),
+                 this, SLOT(requestTimeout()));
+        d->requestMap.insert( request, reply );
     }
     d->requestIds.insert(reply, id);
     d->r->requestTimerStart();
@@ -542,8 +550,14 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
     // Read the content of the reply from the network.
     QByteArray networkReply = reply->readAll();
 
-    // Stop any timer we have set on the request.
-    d->r->requestTimerStop();
+    d->r = d->requestMap.key(reply);
+    if( d->r ){
+	d->requestMap.remove(d->r);
+	disconnect(d->r, SIGNAL(requestTimedout()),
+		    this, SLOT(requestTimeout()));
+        // Stop any timer we have set on the request.
+        d->r->requestTimerStop();
+    }
 
     // Just don't do anything if we didn't get anything useful.
     if(networkReply.isEmpty()) {
@@ -615,8 +629,18 @@ void KQOAuthManager::onAuthorizedRequestReplyReceived( QNetworkReply *reply ) {
     // Read the content of the reply from the network.
     QByteArray networkReply = reply->readAll();
 
-    // Stop any timer we have set on the request.
-    d->r->requestTimerStop();
+    int id = d->requestIds.take(reply);
+    d->r = d->requestMap.key(reply);
+    if( d->r ){
+        d->requestMap.remove(d->r);
+        disconnect(d->r, SIGNAL(requestTimedout()),
+                    this, SLOT(requestTimeout()));
+
+	// Stop any timer we have set on the request.
+	d->r->requestTimerStop();
+    }
+
+
 
     // Just don't do anything if we didn't get anything useful.
     if(networkReply.isEmpty()) {
@@ -637,7 +661,6 @@ void KQOAuthManager::onAuthorizedRequestReplyReceived( QNetworkReply *reply ) {
                 emit authorizedRequestDone();
      }
 
-    int id = d->requestIds.take(reply);
     emit authorizedRequestReady(networkReply, id);
     reply->deleteLater();
 }
@@ -676,9 +699,20 @@ void KQOAuthManager::slotError(QNetworkReply::NetworkError error) {
     }
     else
 	emit requestReady(emptyResponse);
+
     emit authorizedRequestDone();
 
-    d->requestIds.remove(reply);
     reply->deleteLater();
 }
 
+
+void KQOAuthManager::requestTimeout() {
+    Q_D(KQOAuthManager);
+    KQOAuthRequest *request = qobject_cast<KQOAuthRequest *>(sender());
+    if( d->requestMap.contains(request)){
+        qWarning() << "KQOAuthManager::requestTimeout: Calling abort";
+        d->requestMap.value(request)->abort();
+    }
+    else
+        qWarning() << "KQOAuthManager::requestTimeout: The KQOAuthRequest was not found";
+}
