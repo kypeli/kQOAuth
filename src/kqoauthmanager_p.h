@@ -66,6 +66,8 @@ public:
     bool managerUserSet;
     QMap<QNetworkReply*, int> requestIds;
 
+    QMap<KQOAuthRequest*, QNetworkReply*> requestMap;
+
     Q_DECLARE_PUBLIC(KQOAuthManager);
 };
 
