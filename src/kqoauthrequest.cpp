@@ -270,10 +270,12 @@ KQOAuthRequest::KQOAuthRequest(QObject *parent) :
     QObject(parent),
     d_ptr(new KQOAuthRequestPrivate)
 {
+    Q_D(KQOAuthRequest);
     d_ptr->debugOutput = false;  // No debug output by default.
     qsrand(QTime::currentTime().msec());  // We need to seed the nonce random number with something.
                                           // However, we cannot do this while generating the nonce since
                                           // we might get the same seed. So initializing here should be fine.
+    connect(&(d->timer), SIGNAL(timeout()), this, SIGNAL(requestTimedout()));
 }
 
 KQOAuthRequest::~KQOAuthRequest()
@@ -579,7 +581,6 @@ void KQOAuthRequest::requestTimerStart()
 {
     Q_D(KQOAuthRequest);
     if (d->timeout > 0) {
-        connect(&(d->timer), SIGNAL(timeout()), this, SIGNAL(requestTimedout()));
         d->timer.start(d->timeout);
     }
 }
@@ -587,8 +588,6 @@ void KQOAuthRequest::requestTimerStart()
 void KQOAuthRequest::requestTimerStop()
 {
     Q_D(KQOAuthRequest);
-    if (d->timeout > 0) {
-        disconnect(&(d->timer), SIGNAL(timeout()), this, SIGNAL(requestTimedout()));
+    if( d->timer.isActive() )
         d->timer.stop();
-    }
 }
