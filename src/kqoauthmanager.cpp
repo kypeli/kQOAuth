@@ -557,6 +557,7 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
 		    this, SLOT(requestTimeout()));
         // Stop any timer we have set on the request.
         d->r->requestTimerStop();
+        d->currentRequestType = d->r->requestType();
     }
 
     // Just don't do anything if we didn't get anything useful.
@@ -637,7 +638,8 @@ void KQOAuthManager::onAuthorizedRequestReplyReceived( QNetworkReply *reply ) {
                     this, SLOT(requestTimeout()));
 
 	// Stop any timer we have set on the request.
-	d->r->requestTimerStop();
+        d->r->requestTimerStop();
+        d->currentRequestType = d->r->requestType();
     }
 
 
@@ -693,14 +695,19 @@ void KQOAuthManager::slotError(QNetworkReply::NetworkError error) {
     d->error = KQOAuthManager::NetworkError;
     QByteArray emptyResponse;
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    d->r = d->requestMap.key(reply);
+    d->currentRequestType = d->r->requestType();
     if( d->requestIds.contains(reply) ) {
 	int id = d->requestIds.value(reply);
 	emit authorizedRequestReady(emptyResponse, id);
     }
+    else if ( d->currentRequestType == KQOAuthRequest::AuthorizedRequest) {
+        // does this signal always have to be emitted if there is an error
+        // or can is it only valid for KQOAuthRequest::AuthorizedRequest?
+        emit authorizedRequestDone();
+     }
     else
 	emit requestReady(emptyResponse);
-
-    emit authorizedRequestDone();
 
     reply->deleteLater();
 }
