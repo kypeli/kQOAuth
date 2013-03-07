@@ -91,6 +91,15 @@ else:unix {
         pkgconfig \
         features
 }
+else:windows {
+    INSTALL_PREFIX = $$[QT_INSTALL_PREFIX]
+    target.path = $${INSTALL_PREFIX}/lib
+    headers.path = $${INSTALL_PREFIX}/include/QtKOAuth
+    INSTALLS += \
+        target \
+        headers \
+        features
+}
 
 CONFIG(debug_and_release) {
     build_pass:CONFIG(debug, debug|release) {
