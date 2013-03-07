@@ -29,6 +29,18 @@ mac: {
     }
 }
 
+windows: {
+    KQOAUTH_INCDIR = $$[QT_INSTALL_HEADERS]
+    KQOAUTH_LIBDIR = $$[QT_INSTALL_LIBS]
+    exists($$PWD/kqoauth.pro): {
+        KQOAUTH_INCDIR = $$PWD/include
+        KQOAUTH_LIBDIR = $$PWD/lib
+    }
+    INCLUDEPATH += $$KQOAUTH_INCDIR/QtKOAuth
+    LIBS += -L$$KQOAUTH_LIBDIR
+    LINKAGE = -lkqoauth0
+}
+
 # else, link normally
 isEmpty(LINKAGE) {
     exists($$PWD/kqoauth.pro): INCLUDEPATH += $$KQOAUTH_INCDIR
@@ -36,7 +48,6 @@ isEmpty(LINKAGE) {
     LIBS += -L$$KQOAUTH_LIBDIR
     LINKAGE = -lkqoauth
     CONFIG(debug, debug|release) {
-        windows:LINKAGE = -lkqoauth
         mac:LINKAGE = -lkqoauth_debug
     }
 }
