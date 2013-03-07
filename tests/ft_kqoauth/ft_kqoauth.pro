@@ -18,7 +18,7 @@ else:unix {
   LIBS += -L../../lib -lkqoauth
 }
 else:windows {
-  LIBS += -L../../lib -lkqoauthd0
+  LIBS += -L../../lib -lkqoauth0
 }
 
 INCLUDEPATH += . ../../src
