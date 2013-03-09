@@ -143,6 +143,9 @@ KQOAuthManager::KQOAuthManager(QObject *parent) :
     d_ptr(new KQOAuthManagerPrivate(this))
 {
 
+    qsrand(QTime::currentTime().msec());  // We need to seed the nonce random number with something.
+                                          // However, we cannot do this while generating the nonce since
+                                          // we might get the same seed. So initializing here should be fine.
 }
 
 KQOAuthManager::~KQOAuthManager()
