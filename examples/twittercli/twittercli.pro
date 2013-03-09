@@ -10,6 +10,8 @@ CONFIG += console
 CONFIG += crypto
 CONFIG += kqoauth
 
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 macx {
     CONFIG -= app_bundle
     QMAKE_POST_LINK += install_name_tool -change kqoauth.framework/Versions/0/kqoauth \
