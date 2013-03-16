@@ -63,7 +63,7 @@ macx {
     INSTALLS += \
         target \
         features \
-	postinstall
+        postinstall
     postinstall.path =  target.path
     postinstall.extra = install_name_tool -id $${target.path}/$${QMAKE_FRAMEWORK_BUNDLE_NAME}.framework/Versions/0/$${TARGET} $${target.path}/$${QMAKE_FRAMEWORK_BUNDLE_NAME}.framework/Versions/0/$${TARGET}
 }
