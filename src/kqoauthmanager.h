@@ -176,6 +176,7 @@ private Q_SLOTS:
     void onAuthorizedRequestReplyReceived( QNetworkReply *reply );
     void onVerificationReceived(QMultiMap<QString, QString> response);
     void slotError(QNetworkReply::NetworkError error);
+    void requestTimeout();
 
 private:
     KQOAuthManagerPrivate *d_ptr;

@@ -11,7 +11,10 @@ process it.
 
 BUILDING kQOAuth
 ===============================
-- Make sure that you have Qt 4.7 installed
+- Make sure that you have Qt 4.7 or greater installed
+
+For OS X and Linux:
+- run "qmake"
 - run "make" to build
 - Run "sudo make install" to install
 - To run unit tests you need to set platform specific variable to point 
@@ -19,6 +22,11 @@ BUILDING kQOAuth
   that it doesn't require kQOAuth to be installed in order to run unit tests.
  * for Linux:  export LD_LIBRARY_PATH=/path/to/kQOAuth/lib/dir
  * for OS X:  export DYLD_LIBRARY_PATH=/path/to/kQOAuth/lib/dir
+
+For Windows with the Visual Studio or Windows SDK Compiler
+- run "qmake CONFIG+=release"
+- run "nmake" to build
+- run "nmake install" to install
 
 
 COMPONENTS
@@ -52,7 +60,20 @@ Methods
     that the service sent back as a response to the request.
 
     If an error in the request was detected, this method will set the 
-    error code which can be retrieved by calling lastError();
+    error code and emit the requestReady(QByteArray) signal with 
+    an empty QByteArray. The error code can be retrieved by calling lastError().
+
+*   void executeAuthorizedRequest(KQOAuthRequest *request, int id)
+    - request: The KQOAuthRequest to process. 
+    - id: An id that is unique to the request.
+    
+    This method is useful for situations where the reponses from a server 
+    have different processing requirements.
+
+    The arguments and behavior of this method is similar to executeRequest() 
+    with the addition of an id that is mapped to the request. When the service 
+    has responded, the signal authorizedRequestReady(QByteArray, int) is emitted 
+    where the int is the mapped id.
 
 * void setHandleUserAuthorization(bool set)
     - set: A boolean value telling KQOAuthManager to process the user's 
@@ -127,6 +148,12 @@ Signals
     This signal is emitted after each request has been processed. It will
     return all the request response parameters in the QMultiMap, where
     the first parameter is the name and the second parameter is the value.
+
+* void authorizedRequestReady(QByteArray networkReply, int id);
+    - networkReply: The response as sent from the service the each request.
+    - id: The id that is mapped to the original request
+
+    This signal is emitted after each authorizedRequest has been processed.
 
 * void receivedToken(QString oauth_token, QString oauth_token_secret) 
     - oauth_oken: Token value
@@ -261,6 +288,9 @@ Methods
  * void clearRequest();
     Deletes all cached data from this request object.
 
+ * void setTimeout(int timeoutMilliseconds);
+    Sets the timeout for this request. If the timeout expires, the request will be aborted.
+
 
 SOURCE CODE
 ============================
@@ -288,6 +318,12 @@ The library and the source code is licensed under the GNU Lesser General Public
 License (LGPL). For more information, visit http://www.gnu.org/licenses/lgpl.html
 
 This library is written by Johan Paul (johan.paul@gmail.com)
+
+
+CONTRIBUTORS
+============================
+
+Keith Obenschain (obenschaink@gmail.com)
 
 
 ACKNOWLEDGEMENT
