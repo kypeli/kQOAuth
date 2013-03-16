@@ -222,9 +222,9 @@ void KQOAuthManager::executeRequest(KQOAuthRequest *request) {
 #if QT_VERSION < 0x050000
         urlWithParams.setQueryItems(urlParams);
 #else
-	QUrlQuery query;
-	query.setQueryItems(urlParams);
-	urlWithParams.setQuery(query);
+        QUrlQuery query;
+        query.setQueryItems(urlParams);
+        urlWithParams.setQuery(query);
 #endif
         networkRequest.setUrl(urlWithParams);
 
@@ -325,9 +325,9 @@ void KQOAuthManager::executeAuthorizedRequest(KQOAuthRequest *request, int id) {
 #if QT_VERSION < 0x050000
         urlWithParams.setQueryItems(urlParams);
 #else
-	QUrlQuery query;
-	query.setQueryItems(urlParams);
-	urlWithParams.setQuery(query);
+        QUrlQuery query;
+        query.setQueryItems(urlParams);
+        urlWithParams.setQuery(query);
 #endif
         networkRequest.setUrl(urlWithParams);
 
@@ -554,10 +554,10 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
     QByteArray networkReply = reply->readAll();
 
     d->r = d->requestMap.key(reply);
-    if( d->r ){
-	d->requestMap.remove(d->r);
-	disconnect(d->r, SIGNAL(requestTimedout()),
-		    this, SLOT(requestTimeout()));
+    if( d->r ) {
+        d->requestMap.remove(d->r);
+        disconnect(d->r, SIGNAL(requestTimedout()),
+                this, SLOT(requestTimeout()));
         // Stop any timer we have set on the request.
         d->r->requestTimerStop();
         d->currentRequestType = d->r->requestType();
@@ -635,12 +635,12 @@ void KQOAuthManager::onAuthorizedRequestReplyReceived( QNetworkReply *reply ) {
 
     int id = d->requestIds.take(reply);
     d->r = d->requestMap.key(reply);
-    if( d->r ){
+    if( d->r ) {
         d->requestMap.remove(d->r);
         disconnect(d->r, SIGNAL(requestTimedout()),
-                    this, SLOT(requestTimeout()));
+                this, SLOT(requestTimeout()));
 
-	// Stop any timer we have set on the request.
+        // Stop any timer we have set on the request.
         d->r->requestTimerStop();
         d->currentRequestType = d->r->requestType();
     }
@@ -701,16 +701,16 @@ void KQOAuthManager::slotError(QNetworkReply::NetworkError error) {
     d->r = d->requestMap.key(reply);
     d->currentRequestType = d->r->requestType();
     if( d->requestIds.contains(reply) ) {
-	int id = d->requestIds.value(reply);
-	emit authorizedRequestReady(emptyResponse, id);
+        int id = d->requestIds.value(reply);
+        emit authorizedRequestReady(emptyResponse, id);
     }
     else if ( d->currentRequestType == KQOAuthRequest::AuthorizedRequest) {
         // does this signal always have to be emitted if there is an error
         // or can is it only valid for KQOAuthRequest::AuthorizedRequest?
         emit authorizedRequestDone();
-     }
+    }
     else
-	emit requestReady(emptyResponse);
+        emit requestReady(emptyResponse);
 
     reply->deleteLater();
 }
@@ -719,7 +719,7 @@ void KQOAuthManager::slotError(QNetworkReply::NetworkError error) {
 void KQOAuthManager::requestTimeout() {
     Q_D(KQOAuthManager);
     KQOAuthRequest *request = qobject_cast<KQOAuthRequest *>(sender());
-    if( d->requestMap.contains(request)){
+    if( d->requestMap.contains(request)) {
         qWarning() << "KQOAuthManager::requestTimeout: Calling abort";
         d->requestMap.value(request)->abort();
     }
