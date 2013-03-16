@@ -86,8 +86,8 @@ public:
     void setHttpMethod(KQOAuthRequest::RequestHttpMethod = KQOAuthRequest::POST);
     KQOAuthRequest::RequestHttpMethod httpMethod() const;
 
-    // Sets the timeout for this request. If the timeout expires, signal "requestTimedout" will be
-    // emitted from the manager.
+    // Sets the timeout for this request. If the timeout expires, the signal "requestTimedout" will be
+    // emitted.  The KQOAuthManager will then call the abort() function from QNetworkReply associated with this request
     // 0 = If set to zero, timeout is disabled.
     // TODO: Do we need some request ID now?
     void setTimeout(int timeoutMilliseconds);

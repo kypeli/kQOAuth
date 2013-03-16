@@ -4,8 +4,13 @@ TEMPLATE = app
 # include(../../kqoauth.prf)
 
 QT += network
+windows {
+CONFIG += console
+}
 CONFIG += crypto
 CONFIG += kqoauth
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 macx {
     CONFIG -= app_bundle
@@ -17,7 +22,7 @@ else:unix {
   # being able to run make check from the root source directory
   LIBS += -L../../lib:lib
 } else:windows {
-  LIBS += -L../../lib -lkqoauthd0
+  LIBS += -L../../lib -lkqoauth0
 }
 
 #INCLUDEPATH += . ../../src

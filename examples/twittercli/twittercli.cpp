@@ -17,7 +17,12 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with KQOAuth.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <QtCore>
+#if QT_VERSION < 0x050000
 #include <QCoreApplication>
+#else
+#include <QApplication>
+#endif
 #include <QStringList>
 #include <QtDebug>
 
@@ -155,9 +160,15 @@ void TwitterCLI::showHelp() {
 
 int main(int argc, char *argv[])
 {
+#if QT_VERSION < 0x050000
     QCoreApplication app(argc, argv);
     QCoreApplication::setOrganizationName("kQOAuth");
     QCoreApplication::setApplicationName("TwitterCLI");
+#else
+    QApplication app(argc, argv);
+    QApplication::setOrganizationName("kQOAuth");
+    QApplication::setApplicationName("TwitterCLI");
+#endif
 
     QStringList args = QCoreApplication::arguments();
 
