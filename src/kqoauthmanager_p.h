@@ -62,6 +62,7 @@ public:
     bool isVerified;
     bool isAuthorized;
     bool autoAuth;
+    bool handleAuthPageOpening;
     QNetworkAccessManager *networkManager;
     bool managerUserSet;
     QMap<QNetworkReply*, int> requestIds;

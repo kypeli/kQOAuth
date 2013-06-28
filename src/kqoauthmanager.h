@@ -71,6 +71,15 @@ public:
      */
     void setHandleUserAuthorization(bool set);
 
+    /** Indicates whether the KQOAuthManager should launch the browser with the user
+     * authorization page itself.
+     *
+     * If set to true (the default), the KQOAuthManager uses QDesktopServices::openUrl()
+     * for opening the browser. Otherwise it emits the authorizationPageRequested()
+     * signal which must then be handled by the calling code.
+     */
+    void setHandleAuthorizationPageOpening(bool set);
+
     /**
      * Returns true if the KQOAuthManager has retrieved the oauth_token value. Otherwise
      * return false.
@@ -148,6 +157,10 @@ Q_SIGNALS:
     void requestReady(QByteArray networkReply);
 
     void authorizedRequestReady(QByteArray networkReply, int id);
+
+    // This signal will be emitted when the authorization page should be opened if
+    // setHandleAuthorizationPageOpening() is set to false.
+    void authorizationPageRequested(QUrl pageUrl);
 
     // This signal will be emited when we have an request tokens available
     // (either temporary resource tokens, or authorization tokens).
