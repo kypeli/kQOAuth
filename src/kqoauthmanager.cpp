@@ -38,6 +38,7 @@ KQOAuthManagerPrivate::KQOAuthManagerPrivate(KQOAuthManager *parent) :
     isVerified(false) ,
     isAuthorized(false) ,
     autoAuth(false),
+    handleAuthPageOpening(true),
     networkManager(new QNetworkAccessManager),
     managerUserSet(false)
 {
@@ -372,6 +373,12 @@ void KQOAuthManager::setHandleUserAuthorization(bool set) {
     d->autoAuth = set;
 }
 
+void KQOAuthManager::setHandleAuthorizationPageOpening(bool set) {
+    Q_D(KQOAuthManager);
+
+    d->handleAuthPageOpening = set;
+}
+
 bool KQOAuthManager::hasTemporaryToken() {
     Q_D(KQOAuthManager);
 
@@ -454,9 +461,13 @@ void KQOAuthManager::getUserAuthorization(QUrl authorizationEndpoint) {
     openWebPageUrl.setQuery(query);
 #endif
 
-    // Open the user's default browser to the resource authorization page provided
-    // by the service.
-    QDesktopServices::openUrl(openWebPageUrl);
+    if (d->handleAuthPageOpening) {
+        // Open the user's default browser to the resource authorization page provided
+        // by the service.
+        QDesktopServices::openUrl(openWebPageUrl);
+    } else {
+        emit authorizationPageRequested(openWebPageUrl);
+    }
 }
 
 void KQOAuthManager::getUserAccessTokens(QUrl accessTokenEndpoint) {
