@@ -1,8 +1,0 @@
-#src/kqoauthrequest.h usr/include
-#src/kqoauthrequest_1.h usr/include
-#src/kqoauthrequest_xauth.h usr/include
-#src/kqoauthmanager.h usr/include
-#src/kqoauthglobals.h usr/include
-#include/* usr/include/
-#usr/lib/pkgconfig/*
-#usr/share/pkgconfig/*
