@@ -75,11 +75,7 @@ else:unix {
     system( ./pcfile.sh $${INSTALL_PREFIX} $${VERSION} )
     pkgconfig.files = kqoauth.pc
     
-    contains(QMAKE_HOST.arch, x86_64) {
-      target.path = $${INSTALL_PREFIX}/lib64
-    } else {
-      target.path = $${INSTALL_PREFIX}/lib
-    }
+    target.path = $${INSTALL_PREFIX}/lib
 
     headers.path = $${INSTALL_PREFIX}/include/QtKOAuth
     docs.path = $${INSTALL_PREFIX}/share/doc/$${TARGET}-$${VERSION}/html
