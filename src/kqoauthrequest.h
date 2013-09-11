@@ -50,7 +50,9 @@ public:
 
     enum RequestHttpMethod {
         GET = 0,
-        POST
+        POST,
+        HEAD,
+        DELETE
     };
 
     /**

@@ -60,6 +60,12 @@ private Q_SLOTS:
     void ft_AuthenticatedGetCall_data();
     void ft_AuthenticatedGetCall();
 
+    void ft_AuthenticatedHeadCall_data();
+    void ft_AuthenticatedHeadCall();
+
+    void ft_AuthenticatedDeleteCall_data();
+    void ft_AuthenticatedDeleteCall();
+
     void ft_postRequestLotsOfData_data();
     void ft_postRequestLotsOfData();
 
