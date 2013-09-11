@@ -317,7 +317,30 @@ void KQOAuthManager::executeAuthorizedRequest(KQOAuthRequest *request, int id) {
             this, SLOT(onAuthorizedRequestReplyReceived(QNetworkReply*)), Qt::UniqueConnection);
 
     QNetworkReply *reply;
-    if (request->httpMethod() == KQOAuthRequest::GET) {
+
+
+    if (request->httpMethod() == KQOAuthRequest::POST) {
+
+        networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, request->contentType());
+
+        /*
+        qDebug() << networkRequest.rawHeaderList();
+        qDebug() << networkRequest.rawHeader("Authorization");
+        qDebug() << networkRequest.rawHeader("Content-Type");
+        */
+
+        if (request->contentType() == "application/x-www-form-urlencoded") {
+          reply = d->networkManager->post(networkRequest, request->requestBody());
+        } else {
+          reply = d->networkManager->post(networkRequest, request->rawData());
+        }
+
+        connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+                 this, SLOT(slotError(QNetworkReply::NetworkError)));
+        connect(request, SIGNAL(requestTimedout()),
+                 this, SLOT(requestTimeout()));
+        d->requestMap.insert( request, reply );
+    } else {
         // Get the requested additional params as a list of pairs we can give QUrl
         QList< QPair<QString, QString> > urlParams = d->createQueryParams(request->additionalParameters());
 
@@ -333,28 +356,12 @@ void KQOAuthManager::executeAuthorizedRequest(KQOAuthRequest *request, int id) {
         networkRequest.setUrl(urlWithParams);
 
         // Submit the request including the params.
-        reply = d->networkManager->get(networkRequest);
-        connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
-                 this, SLOT(slotError(QNetworkReply::NetworkError)));
-        connect(request, SIGNAL(requestTimedout()),
-                 this, SLOT(requestTimeout()));
-        d->requestMap.insert( request, reply );
-
-    } else if (request->httpMethod() == KQOAuthRequest::POST) {
-
-        networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, request->contentType());
-
-        /*
-        qDebug() << networkRequest.rawHeaderList();
-        qDebug() << networkRequest.rawHeader("Authorization");
-        qDebug() << networkRequest.rawHeader("Content-Type");
-        */
-
-        if (request->contentType() == "application/x-www-form-urlencoded") {
-          reply = d->networkManager->post(networkRequest, request->requestBody());
-        } else {
-          reply = d->networkManager->post(networkRequest, request->rawData());
-        }
+        if (request->httpMethod() == KQOAuthRequest::GET)
+            reply = d->networkManager->get(networkRequest);
+        else if (request->httpMethod() == KQOAuthRequest::HEAD)
+            reply = d->networkManager->head(networkRequest);
+        else if (request->httpMethod() == KQOAuthRequest::DELETE)
+            reply = d->networkManager->deleteResource(networkRequest);
 
         connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
                  this, SLOT(slotError(QNetworkReply::NetworkError)));
