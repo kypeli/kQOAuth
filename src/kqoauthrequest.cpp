@@ -378,6 +378,12 @@ void KQOAuthRequest::setHttpMethod(KQOAuthRequest::RequestHttpMethod httpMethod)
     case KQOAuthRequest::POST:
         requestHttpMethodString = "POST";
         break;
+    case KQOAuthRequest::HEAD:
+        requestHttpMethodString = "HEAD";
+        break;
+    case KQOAuthRequest::DELETE:
+        requestHttpMethodString = "DELETE";
+        break;
     default:
         qWarning() << "Invalid HTTP method set.";
         break;
@@ -438,7 +444,7 @@ QList<QByteArray> KQOAuthRequest::requestParameters() {
     if (!isValid() ) {
         qWarning() << "Request is not valid! I will still sign it, but it will probably not work.";
     }
-    
+
     d->signRequest();
 
     QPair<QString, QString> requestParam;
