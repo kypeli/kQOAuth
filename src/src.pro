@@ -75,7 +75,7 @@ else:unix {
     system( ./pcfile.sh $${INSTALL_PREFIX} $${VERSION} )
     pkgconfig.files = kqoauth.pc
     
-    target.path = $${INSTALL_PREFIX}/lib
+    target.path = $$[QT_INSTALL_LIBS]
 
     headers.path = $${INSTALL_PREFIX}/include/QtKOAuth
     docs.path = $${INSTALL_PREFIX}/share/doc/$${TARGET}-$${VERSION}/html
