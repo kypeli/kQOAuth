@@ -99,11 +99,18 @@ QString KQOAuthRequestPrivate::oauthSignature()  {
      * The HMAC-SHA1 signature method uses the HMAC-SHA1 signature algorithm as defined in [RFC2104] where the
      * Signature Base String is the text and the key is the concatenated values (each first encoded per Parameter
      * Encoding) of the Consumer Secret and Token Secret, separated by an ‘&’ character (ASCII code 38) even if empty.
+     *
+     * RSA-SHA1 uses RSA to to generate the signature
      **/
     QByteArray baseString = this->requestBaseString();
 
-    QString secret = QString(QUrl::toPercentEncoding(oauthConsumerSecretKey)) + "&" + QString(QUrl::toPercentEncoding(oauthTokenSecret));
-    QString signature = KQOAuthUtils::hmac_sha1(baseString, secret);
+    QString signature;
+    if (this->oauthSignatureMethod == "HMAC-SHA1") {
+        QString secret = QString(QUrl::toPercentEncoding(oauthConsumerSecretKey)) + "&" + QString(QUrl::toPercentEncoding(oauthTokenSecret));
+        signature = KQOAuthUtils::hmac_sha1(baseString, secret);
+    } else if (this->oauthSignatureMethod == "RSA-SHA1") {
+        signature = KQOAuthUtils::rsa_sha1(baseString, oauthConsumerSecretKey);
+    }
 
     if (debugOutput) {
         qDebug() << "========== KQOAuthRequest has the following signature:";
@@ -345,6 +352,7 @@ void KQOAuthRequest::setSignatureMethod(KQOAuthRequest::RequestSignatureMethod r
     }
 
     d->oauthSignatureMethod = requestMethodString;
+    d->requestSignatureMethod = requestMethod;
 }
 
 void KQOAuthRequest::setTokenSecret(const QString &tokenSecret) {
@@ -573,6 +581,11 @@ QString KQOAuthRequest::consumerKeyForManager() const {
 QString KQOAuthRequest::consumerKeySecretForManager() const {
     Q_D(const KQOAuthRequest);
     return d->oauthConsumerSecretKey;
+}
+
+KQOAuthRequest::RequestSignatureMethod KQOAuthRequest::requestSignatureMethodForManager() const {
+    Q_D(const KQOAuthRequest);
+    return d->requestSignatureMethod;
 }
 
 QUrl KQOAuthRequest::callbackUrlForManager() const {

@@ -15,6 +15,8 @@ OBJECTS_DIR = tmp
 MOC_DIR = tmp
 INC_DIR = ../include
 
+LIBS += -lssl -lcrypto
+
 INCLUDEPATH += .
 
 PUBLIC_HEADERS += kqoauthmanager.h \

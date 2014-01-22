@@ -57,6 +57,7 @@ public:
     QString oauthToken;
     QString oauthTokenSecret;
     QString oauthSignatureMethod;
+    KQOAuthRequest::RequestSignatureMethod requestSignatureMethod;
     QUrl oauthCallbackUrl;
     QString oauthVersion;
     QString oauthVerifier;
