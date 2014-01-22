@@ -105,11 +105,11 @@ QString KQOAuthRequestPrivate::oauthSignature()  {
     QByteArray baseString = this->requestBaseString();
 
     QString signature;
-    if (this->oauthSignatureMethod == "HMAC-SHA1") {
+    if (this->oauthSignatureMethod == "RSA-SHA1") {
+        signature = KQOAuthUtils::rsa_sha1(baseString, oauthConsumerSecretKey);
+    } else { // Default: Use HMAC-SHA1
         QString secret = QString(QUrl::toPercentEncoding(oauthConsumerSecretKey)) + "&" + QString(QUrl::toPercentEncoding(oauthTokenSecret));
         signature = KQOAuthUtils::hmac_sha1(baseString, secret);
-    } else if (this->oauthSignatureMethod == "RSA-SHA1") {
-        signature = KQOAuthUtils::rsa_sha1(baseString, oauthConsumerSecretKey);
     }
 
     if (debugOutput) {
