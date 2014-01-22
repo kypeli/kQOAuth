@@ -132,6 +132,7 @@ private:
     // work with the opaque request.
     QString consumerKeyForManager() const;
     QString consumerKeySecretForManager() const;
+    KQOAuthRequest::RequestSignatureMethod requestSignatureMethodForManager() const;
     QUrl callbackUrlForManager() const;
 
     // This method is for timeout handling by the KQOAuthManager.

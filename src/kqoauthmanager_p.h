@@ -55,6 +55,7 @@ public:
     QString consumerKey;
     QString consumerKeySecret;
     QString requestVerifier;
+    KQOAuthRequest::RequestSignatureMethod signatureMethod;
 
     KQOAuthAuthReplyServer *callbackServer;
 

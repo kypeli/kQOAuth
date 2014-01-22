@@ -501,6 +501,7 @@ void KQOAuthManager::getUserAccessTokens(QUrl accessTokenEndpoint) {
     d->opaqueRequest->setVerifier(d->requestVerifier);
     d->opaqueRequest->setConsumerKey(d->consumerKey);
     d->opaqueRequest->setConsumerSecretKey(d->consumerKeySecret);
+    d->opaqueRequest->setSignatureMethod(d->signatureMethod);
 
     executeRequest(d->opaqueRequest);
 }
@@ -604,6 +605,7 @@ void KQOAuthManager::onRequestReplyReceived( QNetworkReply *reply ) {
             qDebug() << "Successfully got request tokens.";
             d->consumerKey = d->r->consumerKeyForManager();
             d->consumerKeySecret = d->r->consumerKeySecretForManager();
+            d->signatureMethod = d->r->requestSignatureMethodForManager();
             d->opaqueRequest->setSignatureMethod(KQOAuthRequest::HMAC_SHA1);
             d->opaqueRequest->setCallbackUrl(d->r->callbackUrlForManager());
 

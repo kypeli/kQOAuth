@@ -22,12 +22,18 @@
 
 #include "kqoauthglobals.h"
 
+#include <openssl/rsa.h>
+
 class QString;
 class KQOAUTH_EXPORT KQOAuthUtils
 {
 public:
 
     static QString hmac_sha1(const QString &message, const QString &key);
+    static QString rsa_sha1(const QString &message, const QString &key);
+
+private:
+    static RSA* getRsaFromKey(const QString &key);
 };
 
 #endif // KQOAUTHUTILS_H
