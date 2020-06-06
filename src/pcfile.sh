@@ -10,6 +10,6 @@ includedir=\${prefix}/include/QtKOAuth
 Name: KQOAuth
 Description: Qt OAuth support library
 Version: $2
-Requires: QtCore QtNetwork
+Requires: Qt5Core Qt5Network
 Libs: -L\${libdir} -lkqoauth
 Cflags: -I\${includedir}" > kqoauth.pc
